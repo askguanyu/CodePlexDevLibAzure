@@ -5,7 +5,13 @@ VisualStudioVersion = 14.0.25420.1
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DevLib.Azure.NET4", "DevLib.Azure.NET4\DevLib.Azure.NET4.csproj", "{5BD7FB55-F5B7-4C0D-9C37-71D38941E6AB}"
 EndProject
+Project("{D954291E-2A0B-460D-934E-DC6B0785DB48}") = "DevLib.Azure.Storage", "DevLib.Azure.Storage\DevLib.Azure.Storage.shproj", "{D7E62EA4-2151-456B-A8D9-4AD4B3BDADE7}"
+EndProject
 Global
+	GlobalSection(SharedMSBuildProjectFiles) = preSolution
+		DevLib.Azure.Storage\DevLib.Azure.Storage.projitems*{5bd7fb55-f5b7-4c0d-9c37-71d38941e6ab}*SharedItemsImports = 4
+		DevLib.Azure.Storage\DevLib.Azure.Storage.projitems*{d7e62ea4-2151-456b-a8d9-4ad4b3bdade7}*SharedItemsImports = 13
+	EndGlobalSection
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
 		Release|Any CPU = Release|Any CPU
