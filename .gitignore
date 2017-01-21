@@ -3,3 +3,6 @@
 ################################################################################
 
 *.suo
+/Source/DevLib.Azure/DevLib.Azure.NET4/bin/Debug
+/Source/DevLib.Azure/DevLib.Azure.NET4/bin/Debug
+/Source/DevLib.Azure/DevLib.Azure.NET4/obj
