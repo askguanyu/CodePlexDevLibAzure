@@ -1,0 +1,39 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio 14
+VisualStudioVersion = 14.0.25420.1
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{D954291E-2A0B-460D-934E-DC6B0785DB48}") = "DevLib.Azure.Storage", "DevLib.Azure.Storage\DevLib.Azure.Storage.shproj", "{D7E62EA4-2151-456B-A8D9-4AD4B3BDADE7}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DevLib.Azure.NET45", "DevLib.Azure.NET45\DevLib.Azure.NET45.csproj", "{44F9640A-E9F8-45D1-BAA9-93E5244CD10A}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "UnitTest", "UnitTest", "{9FC06631-9F7D-4D3A-B463-000012E47DB5}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DevLib.Azure.NET45.UnitTest", "DevLib.Azure.NET45.UnitTest\DevLib.Azure.NET45.UnitTest.csproj", "{E204BF4A-2C1B-41BA-B135-43F1E9FAFFAE}"
+EndProject
+Global
+	GlobalSection(SharedMSBuildProjectFiles) = preSolution
+		DevLib.Azure.Storage\DevLib.Azure.Storage.projitems*{44f9640a-e9f8-45d1-baa9-93e5244cd10a}*SharedItemsImports = 4
+		DevLib.Azure.Storage\DevLib.Azure.Storage.projitems*{d7e62ea4-2151-456b-a8d9-4ad4b3bdade7}*SharedItemsImports = 13
+	EndGlobalSection
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{44F9640A-E9F8-45D1-BAA9-93E5244CD10A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{44F9640A-E9F8-45D1-BAA9-93E5244CD10A}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{44F9640A-E9F8-45D1-BAA9-93E5244CD10A}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{44F9640A-E9F8-45D1-BAA9-93E5244CD10A}.Release|Any CPU.Build.0 = Release|Any CPU
+		{E204BF4A-2C1B-41BA-B135-43F1E9FAFFAE}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{E204BF4A-2C1B-41BA-B135-43F1E9FAFFAE}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{E204BF4A-2C1B-41BA-B135-43F1E9FAFFAE}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{E204BF4A-2C1B-41BA-B135-43F1E9FAFFAE}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{E204BF4A-2C1B-41BA-B135-43F1E9FAFFAE} = {9FC06631-9F7D-4D3A-B463-000012E47DB5}
+	EndGlobalSection
+EndGlobal

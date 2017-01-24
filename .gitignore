@@ -3,6 +3,11 @@
 ################################################################################
 
 *.suo
-/Source/DevLib.Azure/DevLib.Azure.NET4/bin/Debug
-/Source/DevLib.Azure/DevLib.Azure.NET4/bin/Debug
+/Source/DevLib.Azure/DevLib.Azure.NET4/bin
 /Source/DevLib.Azure/DevLib.Azure.NET4/obj
+/Source/DevLib.Azure.NET45/bin
+/Source/DevLib.Azure.NET45/obj
+/Source/DevLib.Azure.NET45.UnitTest/bin
+/Source/DevLib.Azure.NET45.UnitTest/obj
+/Source/DevLib.Azure.Storage/StyleCop.Cache
+/Source/DevLib.Azure.sln.GhostDoc.user.dic
