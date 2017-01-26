@@ -11,6 +11,9 @@
   <ItemGroup>
     <Compile Include="$(MSBuildThisFileDirectory)BlobContainer.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)BlobClient.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)FileClient.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)FileShare.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)StorageConstants.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)ValidatorExtensions.cs" />
   </ItemGroup>
 </Project>

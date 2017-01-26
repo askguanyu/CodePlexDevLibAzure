@@ -18,11 +18,6 @@ namespace DevLib.Azure.Storage
     public class BlobClient
     {
         /// <summary>
-        /// The development storage connection string.
-        /// </summary>
-        public const string DevelopmentStorageConnectionString = "UseDevelopmentStorage=true";
-
-        /// <summary>
         /// The dev store account blob client.
         /// </summary>
         private static BlobClient DevStoreAccountBlobClient;
@@ -63,7 +58,7 @@ namespace DevLib.Azure.Storage
         /// Prevents a default instance of the <see cref="BlobClient"/> class from being created.
         /// </summary>
         private BlobClient()
-            : this(DevelopmentStorageConnectionString)
+            : this(StorageConstants.DevelopmentStorageConnectionString)
         {
         }
 
@@ -101,7 +96,7 @@ namespace DevLib.Azure.Storage
         /// <returns>The current BlobClient.</returns>
         public BlobClient SetCors()
         {
-            ServiceProperties serviceProperties = this._cloudBlobClient.GetServiceProperties();
+            var serviceProperties = this._cloudBlobClient.GetServiceProperties();
 
             if (serviceProperties.Cors == null)
             {
@@ -142,10 +137,6 @@ namespace DevLib.Azure.Storage
                     permissions.PublicAccess = newContainerAccessType;
                     container.SetPermissions(permissions);
                 }
-            }
-            else
-            {
-                container.ValidateContainerExists();
             }
 
             return new BlobContainer(container);
@@ -192,12 +183,14 @@ namespace DevLib.Azure.Storage
         }
 
         /// <summary>
-        /// Returns an enumerable collection of containers.
+        /// Returns an enumerable collection of BlobContainer.
         /// </summary>
-        /// <returns>List of containers.</returns>
-        public List<BlobContainer> ListContainers()
+        /// <param name="prefix">A string containing the container name prefix.</param>
+        /// <param name="detailsIncluded">A Microsoft.WindowsAzure.Storage.Blob.ContainerListingDetails enumeration value that indicates whether to return container metadata with the listing.</param>
+        /// <returns>List of BlobContainer.</returns>
+        public List<BlobContainer> ListContainers(string prefix = null, ContainerListingDetails detailsIncluded = ContainerListingDetails.None)
         {
-            var containers = this._cloudBlobClient.ListContainers();
+            var containers = this._cloudBlobClient.ListContainers(prefix, detailsIncluded);
 
             return containers.Select(i => new BlobContainer(i)).ToList();
         }

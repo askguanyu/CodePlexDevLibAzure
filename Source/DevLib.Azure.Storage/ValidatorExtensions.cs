@@ -7,7 +7,6 @@ namespace DevLib.Azure.Storage
 {
     using System;
     using Microsoft.WindowsAzure.Storage;
-    using Microsoft.WindowsAzure.Storage.Blob;
 
     /// <summary>
     /// Provides helpers to validate resource names across the Microsoft Azure Storage Services.
@@ -30,20 +29,6 @@ namespace DevLib.Azure.Storage
         public static void ValidateContainerName(this string containerName)
         {
             NameValidator.ValidateContainerName(containerName);
-        }
-
-        /// <summary>
-        /// Checks if a container exists.
-        /// </summary>
-        /// <param name="blobContainer">The container to validate.</param>
-        public static void ValidateContainerExists(this CloudBlobContainer blobContainer)
-        {
-            blobContainer.ValidateNull();
-
-            if (!blobContainer.Exists())
-            {
-                throw new StorageException("Required CloudBlobContainer does not exists.");
-            }
         }
 
         /// <summary>

@@ -11,3 +11,5 @@
 /Source/DevLib.Azure.NET45.UnitTest/obj
 /Source/DevLib.Azure.Storage/StyleCop.Cache
 /Source/DevLib.Azure.sln.GhostDoc.user.dic
+/Source/DevLib.Azure.NET45/StyleCop.Cache
+/Source/DevLib.Azure.Storage/Settings.StyleCop

@@ -301,7 +301,7 @@ namespace DevLib.Azure.Storage
         /// <param name="filePath">A string containing the file path providing the blob content.</param>
         /// <param name="contentType">Type of the content.</param>
         /// <returns>The blob Uri string.</returns>
-        public string CreateBlockBlobFromFile(string blobName, string filePath, string contentType = null)
+        public string UploadBlockBlob(string blobName, string filePath, string contentType = null)
         {
             blobName.ValidateBlobName();
             filePath.ValidateNull();
@@ -335,7 +335,7 @@ namespace DevLib.Azure.Storage
         /// </summary>
         /// <param name="blobName">A string containing the name of the blob.</param>
         /// <returns>The contents of the blob, as a string.</returns>
-        public string DownloadBlockBlobToText(string blobName)
+        public string DownloadBlockBlobText(string blobName)
         {
             blobName.ValidateBlobName();
 
@@ -349,7 +349,7 @@ namespace DevLib.Azure.Storage
         /// </summary>
         /// <param name="blobName">A string containing the name of the blob.</param>
         /// <returns>A System.IO.Stream object representing the target stream.</returns>
-        public Stream DownloadBlockBlobToStream(string blobName)
+        public MemoryStream DownloadBlockBlobToStream(string blobName)
         {
             blobName.ValidateBlobName();
 
@@ -366,14 +366,14 @@ namespace DevLib.Azure.Storage
         /// Downloads the contents of a blob to a file.
         /// </summary>
         /// <param name="blobName">A string containing the name of the blob.</param>
-        /// <param name="filePath">A string containing the path to the target file.</param>
+        /// <param name="localFilePath">A string containing the path to the target file.</param>
         /// <param name="mode">A System.IO.FileMode enumeration value that determines how to open or create the file.</param>
-        public void DownloadBlockBlobToFile(string blobName, string filePath, FileMode mode = FileMode.Create)
+        public void DownloadBlockBlobToFile(string blobName, string localFilePath, FileMode mode = FileMode.Create)
         {
             blobName.ValidateBlobName();
 
             var blob = this._cloudBlobContainer.GetBlockBlobReference(blobName);
-            blob.DownloadToFile(filePath, mode);
+            blob.DownloadToFile(localFilePath, mode);
         }
 
         /// <summary>
@@ -442,7 +442,7 @@ namespace DevLib.Azure.Storage
         }
 
         /// <summary>
-        /// Gets a shared access signature for the blob.
+        /// Gets a shared access signature for the blob with read only access.
         /// </summary>
         /// <param name="blobName">A string containing the name of the blob.</param>
         /// <param name="expiryTimeSpan">The expiry time span.</param>
@@ -459,8 +459,7 @@ namespace DevLib.Azure.Storage
         /// <returns>The blob Uri.</returns>
         public Uri GetBlobUri(string blobName)
         {
-            var blob = this.GetBlob(blobName);
-            return blob.Uri;
+            return this.GetBlob(blobName).Uri;
         }
 
         /// <summary>
@@ -502,11 +501,14 @@ namespace DevLib.Azure.Storage
         /// Begins an operation to start copying source block blob's contents, properties, and metadata to the destination block blob.
         /// </summary>
         /// <param name="sourceBlobName">Name of the source blob.</param>
-        /// <param name="destContainer">The destination container.</param>
         /// <param name="destBlobName">Name of the destination blob.</param>
+        /// <param name="destContainer">The destination container.</param>
         /// <returns>The copy ID associated with the copy operation; empty if source blob does not exist.</returns>
         public string StartCopyBlockBlob(string sourceBlobName, string destBlobName, BlobContainer destContainer = null)
         {
+            sourceBlobName.ValidateBlobName();
+            destBlobName.ValidateBlobName();
+
             var sourceBlob = this._cloudBlobContainer.GetBlockBlobReference(sourceBlobName);
 
             if (sourceBlob.Exists())
