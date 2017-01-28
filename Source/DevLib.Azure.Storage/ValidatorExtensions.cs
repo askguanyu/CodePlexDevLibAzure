@@ -6,6 +6,7 @@
 namespace DevLib.Azure.Storage
 {
     using System;
+    using System.Text.RegularExpressions;
     using Microsoft.WindowsAzure.Storage;
 
     /// <summary>
@@ -13,6 +14,11 @@ namespace DevLib.Azure.Storage
     /// </summary>
     public static class ValidatorExtensions
     {
+        /// <summary>
+        /// The table property value regex.
+        /// </summary>
+        private static readonly Regex TablePropertyValueRegex = new Regex(@"^[^/\\#?]{0,1024}$", RegexOptions.Compiled);
+
         /// <summary>
         /// Checks if a blob name is valid.
         /// </summary>
@@ -97,6 +103,23 @@ namespace DevLib.Azure.Storage
             if (string.IsNullOrWhiteSpace(parameterValue))
             {
                 throw new ArgumentException("Parameter string length must be greater than zero.");
+            }
+        }
+
+        /// <summary>
+        /// Validates the table property value.
+        /// </summary>
+        /// <param name="parameterValue">The parameter value.</param>
+        public static void ValidateTablePropertyValue(this string parameterValue)
+        {
+            parameterValue.ValidateNullOrWhiteSpace();
+
+            if (!TablePropertyValueRegex.IsMatch(parameterValue))
+            {
+                throw new ArgumentException(
+                    "Table property values must conform to these rules: "
+                    + "Must not contain the forward slash (/), backslash (\\), number sign (#), or question mark (?) characters. "
+                    + "Must be from 1 to 1024 characters long.");
             }
         }
     }

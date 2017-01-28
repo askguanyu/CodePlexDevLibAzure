@@ -5,11 +5,13 @@
 //-----------------------------------------------------------------------
 namespace DevLib.Azure.Storage
 {
+    using System;
     using System.Collections.Generic;
     using System.Linq;
     using Microsoft.WindowsAzure.Storage;
     using Microsoft.WindowsAzure.Storage.Auth;
     using Microsoft.WindowsAzure.Storage.Blob;
+    using Microsoft.WindowsAzure.Storage.RetryPolicies;
     using Microsoft.WindowsAzure.Storage.Shared.Protocol;
 
     /// <summary>
@@ -37,6 +39,7 @@ namespace DevLib.Azure.Storage
 
             var cloudStorageAccount = CloudStorageAccount.Parse(connectionString);
             this._cloudBlobClient = cloudStorageAccount.CreateCloudBlobClient();
+            this.SetDefaultRetryIfNotExists(this._cloudBlobClient);
         }
 
         /// <summary>
@@ -52,6 +55,7 @@ namespace DevLib.Azure.Storage
 
             var cloudStorageAccount = new CloudStorageAccount(new StorageCredentials(accountName, keyValue), useHttps);
             this._cloudBlobClient = cloudStorageAccount.CreateCloudBlobClient();
+            this.SetDefaultRetryIfNotExists(this._cloudBlobClient);
         }
 
         /// <summary>
@@ -193,6 +197,23 @@ namespace DevLib.Azure.Storage
             var containers = this._cloudBlobClient.ListContainers(prefix, detailsIncluded);
 
             return containers.Select(i => new BlobContainer(i)).ToList();
+        }
+
+        /// <summary>
+        /// Sets the default retry.
+        /// </summary>
+        /// <param name="cloudBlobClient">The CloudBlobClient instance.</param>
+        private void SetDefaultRetryIfNotExists(CloudBlobClient cloudBlobClient)
+        {
+            if (cloudBlobClient.DefaultRequestOptions == null)
+            {
+                cloudBlobClient.DefaultRequestOptions = new BlobRequestOptions();
+            }
+
+            if (cloudBlobClient.DefaultRequestOptions.RetryPolicy == null)
+            {
+                cloudBlobClient.DefaultRequestOptions.RetryPolicy = StorageConstants.DefaultExponentialRetry;
+            }
         }
     }
 }

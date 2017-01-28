@@ -84,6 +84,7 @@
     <Compile Include="Given_BlobClient.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Given_BlobContainer.cs" />
+    <Compile Include="Given_TableStorage.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\DevLib.Azure.NET45\DevLib.Azure.NET45.csproj">

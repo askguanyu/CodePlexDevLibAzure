@@ -37,6 +37,7 @@ namespace DevLib.Azure.Storage
 
             var cloudStorageAccount = CloudStorageAccount.Parse(connectionString);
             this._cloudFileClient = cloudStorageAccount.CreateCloudFileClient();
+            this.SetDefaultRetryIfNotExists(this._cloudFileClient);
         }
 
         /// <summary>
@@ -52,6 +53,7 @@ namespace DevLib.Azure.Storage
 
             var cloudStorageAccount = new CloudStorageAccount(new StorageCredentials(accountName, keyValue), useHttps);
             this._cloudFileClient = cloudStorageAccount.CreateCloudFileClient();
+            this.SetDefaultRetryIfNotExists(this._cloudFileClient);
         }
 
         /// <summary>
@@ -175,6 +177,23 @@ namespace DevLib.Azure.Storage
             var shares = this._cloudFileClient.ListShares(prefix, detailsIncluded);
 
             return shares.Select(i => new FileShare(i)).ToList();
+        }
+
+        /// <summary>
+        /// Sets the default retry.
+        /// </summary>
+        /// <param name="cloudFileClient">The CloudFileClient instance.</param>
+        private void SetDefaultRetryIfNotExists(CloudFileClient cloudFileClient)
+        {
+            if (cloudFileClient.DefaultRequestOptions == null)
+            {
+                cloudFileClient.DefaultRequestOptions = new FileRequestOptions();
+            }
+
+            if (cloudFileClient.DefaultRequestOptions.RetryPolicy == null)
+            {
+                cloudFileClient.DefaultRequestOptions.RetryPolicy = StorageConstants.DefaultExponentialRetry;
+            }
         }
     }
 }

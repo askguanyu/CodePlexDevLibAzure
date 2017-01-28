@@ -37,6 +37,7 @@ namespace DevLib.Azure.Storage
 
             var cloudStorageAccount = CloudStorageAccount.Parse(connectionString);
             var cloudBlobClient = cloudStorageAccount.CreateCloudBlobClient();
+            this.SetDefaultRetryIfNotExists(cloudBlobClient);
 
             this._cloudBlobContainer = cloudBlobClient.GetContainerReference(containerName);
 
@@ -80,6 +81,7 @@ namespace DevLib.Azure.Storage
 
             var cloudStorageAccount = new CloudStorageAccount(new StorageCredentials(accountName, keyValue), useHttps);
             var cloudBlobClient = cloudStorageAccount.CreateCloudBlobClient();
+            this.SetDefaultRetryIfNotExists(cloudBlobClient);
 
             this._cloudBlobContainer = cloudBlobClient.GetContainerReference(containerName);
 
@@ -179,9 +181,18 @@ namespace DevLib.Azure.Storage
         }
 
         /// <summary>
+        /// Checks whether the container exists.
+        /// </summary>
+        /// <returns>true if the container exists; otherwise false.</returns>
+        public bool ContainerExists()
+        {
+            return this._cloudBlobContainer.Exists();
+        }
+
+        /// <summary>
         /// Checks existence of the blob.
         /// </summary>
-        /// <param name="blobName">Name of the BLOB.</param>
+        /// <param name="blobName">Name of the blob.</param>
         /// <returns>true if the container exists; otherwise false.</returns>
         public bool Exists(string blobName)
         {
@@ -205,7 +216,7 @@ namespace DevLib.Azure.Storage
         /// <summary>
         /// Deletes the container if it already exists.
         /// </summary>
-        /// <returns>true if the container did not already exist and was created; otherwise false.</returns>
+        /// <returns>true if the container did not already exist and was deleted; otherwise false.</returns>
         public bool DeleteContainerIfExists()
         {
             return this._cloudBlobContainer.DeleteIfExists();
@@ -520,6 +531,23 @@ namespace DevLib.Azure.Storage
             else
             {
                 return string.Empty;
+            }
+        }
+
+        /// <summary>
+        /// Sets the default retry.
+        /// </summary>
+        /// <param name="cloudBlobClient">The CloudBlobClient instance.</param>
+        private void SetDefaultRetryIfNotExists(CloudBlobClient cloudBlobClient)
+        {
+            if (cloudBlobClient.DefaultRequestOptions == null)
+            {
+                cloudBlobClient.DefaultRequestOptions = new BlobRequestOptions();
+            }
+
+            if (cloudBlobClient.DefaultRequestOptions.RetryPolicy == null)
+            {
+                cloudBlobClient.DefaultRequestOptions.RetryPolicy = StorageConstants.DefaultExponentialRetry;
             }
         }
     }
