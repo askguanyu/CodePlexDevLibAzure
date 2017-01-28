@@ -204,13 +204,23 @@ namespace DevLib.Azure.Storage
         }
 
         /// <summary>
-        /// Returns a list of all the blobs in a container.
+        /// Returns a list of all the blobs in the container.
         /// </summary>
         /// <param name="useFlatBlobListing">A boolean value that specifies whether to list blobs in a flat listing, or whether to list blobs hierarchically, by virtual directory.</param>
-        /// <returns>List of all the blobs in a container.</returns>
+        /// <returns>List of all the blobs in the container.</returns>
         public List<IListBlobItem> ListBlobs(bool useFlatBlobListing = false)
         {
             return this._cloudBlobContainer.ListBlobs(useFlatBlobListing: useFlatBlobListing).ToList();
+        }
+
+        /// <summary>
+        /// Gets the number of elements contained in the container.
+        /// </summary>
+        /// <param name="useFlatBlobListing">A boolean value that specifies whether to list blobs in a flat listing, or whether to list blobs hierarchically, by virtual directory.</param>
+        /// <returns>The number of elements contained in the container.</returns>
+        public int BlobsCount(bool useFlatBlobListing = false)
+        {
+            return this._cloudBlobContainer.ListBlobs(useFlatBlobListing: useFlatBlobListing).Count();
         }
 
         /// <summary>

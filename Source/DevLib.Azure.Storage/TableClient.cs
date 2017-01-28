@@ -171,11 +171,21 @@ namespace DevLib.Azure.Storage
         /// </summary>
         /// <param name="prefix">A string containing the table name prefix.</param>
         /// <returns>List of TableStorage.</returns>
-        public List<TableStorage> ListContainers(string prefix = null)
+        public List<TableStorage> ListTables(string prefix = null)
         {
             var tables = this._cloudTableClient.ListTables(prefix);
 
             return tables.Select(i => new TableStorage(i)).ToList();
+        }
+
+        /// <summary>
+        /// Gets the number of elements contained in the TableStorage.
+        /// </summary>
+        /// <param name="prefix">A string containing the table name prefix.</param>
+        /// <returns>The number of elements contained in the TableStorage.</returns>
+        public int TablesCount(string prefix = null)
+        {
+            return this._cloudTableClient.ListTables(prefix).Count();
         }
 
         /// <summary>

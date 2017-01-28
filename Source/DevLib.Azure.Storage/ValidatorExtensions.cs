@@ -20,6 +20,11 @@ namespace DevLib.Azure.Storage
         private static readonly Regex TablePropertyValueRegex = new Regex(@"^[^/\\#?]{0,1024}$", RegexOptions.Compiled);
 
         /// <summary>
+        /// The table dictionary name regex.
+        /// </summary>
+        private static readonly Regex TableDictionaryNameRegex = new Regex(@"^[^/\\#?]{0,990}$", RegexOptions.Compiled);
+
+        /// <summary>
         /// Checks if a blob name is valid.
         /// </summary>
         /// <param name="blobName">A string representing the blob name to validate.</param>
@@ -120,6 +125,23 @@ namespace DevLib.Azure.Storage
                     "Table property values must conform to these rules: "
                     + "Must not contain the forward slash (/), backslash (\\), number sign (#), or question mark (?) characters. "
                     + "Must be from 1 to 1024 characters long.");
+            }
+        }
+
+        /// <summary>
+        /// Validates the table dictionary name value.
+        /// </summary>
+        /// <param name="parameterValue">The parameter value.</param>
+        public static void ValidateTableDictionaryPropertyValue(this string parameterValue)
+        {
+            parameterValue.ValidateNullOrWhiteSpace();
+
+            if (!TableDictionaryNameRegex.IsMatch(parameterValue))
+            {
+                throw new ArgumentException(
+                    "Table dictionary name property values must conform to these rules: "
+                    + "Must not contain the forward slash (/), backslash (\\), number sign (#), or question mark (?) characters. "
+                    + "Must be from 1 to 990 characters long.");
             }
         }
     }

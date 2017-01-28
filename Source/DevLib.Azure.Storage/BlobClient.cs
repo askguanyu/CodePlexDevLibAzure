@@ -200,6 +200,17 @@ namespace DevLib.Azure.Storage
         }
 
         /// <summary>
+        /// Gets the number of elements contained in the BlobClient.
+        /// </summary>
+        /// <param name="prefix">A string containing the container name prefix.</param>
+        /// <param name="detailsIncluded">A Microsoft.WindowsAzure.Storage.Blob.ContainerListingDetails enumeration value that indicates whether to return container metadata with the listing.</param>
+        /// <returns>The number of elements contained in the BlobClient.</returns>
+        public int ContainersCount(string prefix = null, ContainerListingDetails detailsIncluded = ContainerListingDetails.None)
+        {
+            return this._cloudBlobClient.ListContainers(prefix, detailsIncluded).Count();
+        }
+
+        /// <summary>
         /// Sets the default retry.
         /// </summary>
         /// <param name="cloudBlobClient">The CloudBlobClient instance.</param>

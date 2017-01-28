@@ -180,6 +180,17 @@ namespace DevLib.Azure.Storage
         }
 
         /// <summary>
+        /// Gets the number of elements contained in the FileShare.
+        /// </summary>
+        /// <param name="prefix">The share name prefix.</param>
+        /// <param name="detailsIncluded">A value that indicates whether to return share metadata with the listing.</param>
+        /// <returns>The number of elements contained in the FileShare.</returns>
+        public int SharesCount(string prefix = null, ShareListingDetails detailsIncluded = ShareListingDetails.None)
+        {
+            return this._cloudFileClient.ListShares(prefix, detailsIncluded).Count();
+        }
+
+        /// <summary>
         /// Sets the default retry.
         /// </summary>
         /// <param name="cloudFileClient">The CloudFileClient instance.</param>

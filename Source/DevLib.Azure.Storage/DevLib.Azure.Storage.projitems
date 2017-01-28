@@ -15,6 +15,7 @@
     <Compile Include="$(MSBuildThisFileDirectory)FileShare.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)StorageConstants.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)TableClient.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)TableDictionary.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)TableStorage.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)ValidatorExtensions.cs" />
   </ItemGroup>

@@ -123,6 +123,61 @@ namespace DevLib.Azure.Storage
         }
 
         /// <summary>
+        /// Checks whether the entity exists.
+        /// </summary>
+        /// <param name="partitionKey">A string containing the partition key of the entity to retrieve.</param>
+        /// <param name="rowKey">A string containing the row key of the entity to retrieve.</param>
+        /// <returns>true if entity exists; otherwise, false.</returns>
+        public bool EntityExists(string partitionKey, string rowKey)
+        {
+            partitionKey.ValidateTablePropertyValue();
+            rowKey.ValidateTablePropertyValue();
+
+            var entity = this._cloudTable.Execute(TableOperation.Retrieve(partitionKey, rowKey)).Result;
+
+            return entity != null;
+        }
+
+        /// <summary>
+        /// Checks whether the partition key exists.
+        /// </summary>
+        /// <param name="partitionKey">A string containing the partition key of the entity to retrieve.</param>
+        /// <returns>true if the partition key exists; otherwise, false.</returns>
+        public bool PartitionKeyExists(string partitionKey)
+        {
+            partitionKey.ValidateTablePropertyValue();
+
+            var query = new TableQuery().Where(TableQuery.GenerateFilterCondition("PartitionKey", QueryComparisons.Equal, partitionKey));
+
+            return this._cloudTable.ExecuteQuery(query).Any();
+        }
+
+        /// <summary>
+        /// Checks whether the row key exists.
+        /// </summary>
+        /// <param name="rowKey">A string containing the row key of the entity to retrieve.</param>
+        /// <returns>true if the row key exists; otherwise, false.</returns>
+        public bool RowKeyExists(string rowKey)
+        {
+            rowKey.ValidateTablePropertyValue();
+
+            var query = new TableQuery().Where(TableQuery.GenerateFilterCondition("RowKey", QueryComparisons.Equal, rowKey));
+
+            return this._cloudTable.ExecuteQuery(query).Any();
+        }
+
+        /// <summary>
+        /// Gets the table dictionary.
+        /// </summary>
+        /// <param name="dictionaryName">Name of the dictionary.</param>
+        /// <param name="dictionaryKeyIgnoreCase">true if dictionary key string ignore case; otherwise, false.</param>
+        /// <returns>TableDictionary instance.</returns>
+        public TableDictionary GetTableDictionary(string dictionaryName, bool dictionaryKeyIgnoreCase = false)
+        {
+            return new TableDictionary(this, dictionaryName, dictionaryKeyIgnoreCase);
+        }
+
+        /// <summary>
         /// Retrieves the contents of the given entity in a table.
         /// </summary>
         /// <typeparam name="TElement">The type of the element.</typeparam>
@@ -165,6 +220,118 @@ namespace DevLib.Azure.Storage
             var query = new TableQuery().Where(TableQuery.GenerateFilterCondition("PartitionKey", QueryComparisons.Equal, partitionKey));
 
             return this._cloudTable.ExecuteQuery(query).ToList();
+        }
+
+        /// <summary>
+        /// Gets the number of elements contained in the table by the partition key.
+        /// </summary>
+        /// <param name="partitionKey">A string containing the partition key of the entity to retrieve.</param>
+        /// <returns>The number of elements contained in the table.</returns>
+        public int CountByPartitionKey(string partitionKey)
+        {
+            partitionKey.ValidateTablePropertyValue();
+
+            var query = new TableQuery().Where(TableQuery.GenerateFilterCondition("PartitionKey", QueryComparisons.Equal, partitionKey));
+
+            return this._cloudTable.ExecuteQuery(query).Count();
+        }
+
+        /// <summary>
+        /// Gets the number of elements contained in the table by the row key.
+        /// </summary>
+        /// <param name="rowKey">A string containing the row key of the entity to retrieve.</param>
+        /// <returns>The number of elements contained in the table.</returns>
+        public int CountByRowKey(string rowKey)
+        {
+            rowKey.ValidateTablePropertyValue();
+
+            var query = new TableQuery().Where(TableQuery.GenerateFilterCondition("RowKey", QueryComparisons.Equal, rowKey));
+
+            return this._cloudTable.ExecuteQuery(query).Count();
+        }
+
+        /// <summary>
+        /// Returns a list of all the entities in the table.
+        /// </summary>
+        /// <returns>A list of all the entities in the table.</returns>
+        public List<DynamicTableEntity> ListEntities()
+        {
+            return this._cloudTable.ExecuteQuery(new TableQuery()).ToList();
+        }
+
+        /// <summary>
+        /// Gets the number of elements contained in the table.
+        /// </summary>
+        /// <returns>The number of elements contained in the table.</returns>
+        public int EntitiesCount()
+        {
+            return this._cloudTable.ExecuteQuery(new TableQuery()).Count();
+        }
+
+        /// <summary>
+        /// Returns a list of all the partition keys in the table.
+        /// </summary>
+        /// <returns>A list of all the partition keys in the table.</returns>
+        public List<string> ListPartitionKeys()
+        {
+            return this
+                ._cloudTable
+                .ExecuteQuery(new TableQuery { SelectColumns = new[] { "PartitionKey" } })
+                .Select(i => i.PartitionKey)
+                .Distinct()
+                .ToList();
+        }
+
+        /// <summary>
+        /// Returns a list of all the row keys in the table.
+        /// </summary>
+        /// <returns>A list of all the row keys in the table.</returns>
+        public List<string> ListRowKeys()
+        {
+            return this
+                ._cloudTable
+                .ExecuteQuery(new TableQuery { SelectColumns = new[] { "RowKey" } })
+                .Select(i => i.RowKey)
+                .Distinct()
+                .ToList();
+        }
+
+        /// <summary>
+        /// Returns a list of all the row keys in the table by the partition key.
+        /// </summary>
+        /// <param name="partitionKey">A string containing the partition key of the entity to retrieve.</param>
+        /// <returns>A list of all the row keys in the table.</returns>
+        public List<string> ListRowKeysByPartitionKey(string partitionKey)
+        {
+            partitionKey.ValidateTablePropertyValue();
+
+            var query = new TableQuery { SelectColumns = new[] { "RowKey" } }.Where(TableQuery.GenerateFilterCondition("PartitionKey", QueryComparisons.Equal, partitionKey));
+
+            return this
+                ._cloudTable
+                .ExecuteQuery(query)
+                .Select(i => i.RowKey)
+                .Distinct()
+                .ToList();
+        }
+
+        /// <summary>
+        /// Returns a list of all the partition keys in the table by the row key.
+        /// </summary>
+        /// <param name="rowKey">A string containing the row key of the entity to retrieve.</param>
+        /// <returns>A list of all the partition keys in the table.</returns>
+        public List<string> ListPartitionKeysByRowKey(string rowKey)
+        {
+            rowKey.ValidateTablePropertyValue();
+
+            var query = new TableQuery { SelectColumns = new[] { "PartitionKey" } }.Where(TableQuery.GenerateFilterCondition("RowKey", QueryComparisons.Equal, rowKey));
+
+            return this
+                ._cloudTable
+                .ExecuteQuery(query)
+                .Select(i => i.PartitionKey)
+                .Distinct()
+                .ToList();
         }
 
         /// <summary>
@@ -734,14 +901,11 @@ namespace DevLib.Azure.Storage
             partitionKey.ValidateTablePropertyValue();
             rowKey.ValidateTablePropertyValue();
 
-            var retrieveOperation = TableOperation.Retrieve(partitionKey, rowKey);
-            var retrievedResult = this._cloudTable.Execute(retrieveOperation);
+            var entity = this._cloudTable.Execute(TableOperation.Retrieve(partitionKey, rowKey)).Result as ITableEntity;
 
-            var entityToDelete = retrievedResult.Result as ITableEntity;
-
-            if (entityToDelete != null)
+            if (entity != null)
             {
-                return this.Delete(entityToDelete);
+                return this.Delete(entity);
             }
             else
             {

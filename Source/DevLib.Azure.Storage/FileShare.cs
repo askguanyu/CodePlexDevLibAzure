@@ -497,6 +497,24 @@ namespace DevLib.Azure.Storage
         }
 
         /// <summary>
+        /// Gets the number of elements contained in the share.
+        /// </summary>
+        /// <param name="directoryName">A System.String containing the name of the subdirectory; null will get the root directory.</param>
+        /// <returns>The number of elements contained in the share.</returns>
+        public int FilesAndDirectoriesCount(string directoryName = null)
+        {
+            if (directoryName != null)
+            {
+                directoryName.ValidateDirectoryName();
+            }
+
+            var rootDirectory = this._cloudFileShare.GetRootDirectoryReference();
+            var directory = directoryName != null ? rootDirectory.GetDirectoryReference(directoryName) : rootDirectory;
+
+            return directory.ListFilesAndDirectories().Count();
+        }
+
+        /// <summary>
         /// Returns a shared access signature for the file.
         /// </summary>
         /// <param name="fileName">Name of the file.</param>
