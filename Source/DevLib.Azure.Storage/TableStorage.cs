@@ -49,11 +49,11 @@ namespace DevLib.Azure.Storage
         /// <summary>
         /// Initializes a new instance of the <see cref="TableStorage"/> class.
         /// </summary>
-        /// <param name="tableName">Name of the container.</param>
+        /// <param name="tableName">Name of the table.</param>
         /// <param name="accountName">A string that represents the name of the storage account.</param>
         /// <param name="keyValue">A string that represents the Base64-encoded account access key.</param>
         /// <param name="useHttps">true to use HTTPS to connect to storage service endpoints; otherwise, false.</param>
-        /// <param name="createIfNotExists">true to creates the container if it does not already exist; otherwise, false.</param>
+        /// <param name="createIfNotExists">true to creates the table if it does not already exist; otherwise, false.</param>
         public TableStorage(string tableName, string accountName, string keyValue, bool useHttps = true, bool createIfNotExists = true)
         {
             tableName.ValidateTableName();
@@ -61,6 +61,28 @@ namespace DevLib.Azure.Storage
             keyValue.ValidateNullOrWhiteSpace();
 
             var cloudStorageAccount = new CloudStorageAccount(new StorageCredentials(accountName, keyValue), useHttps);
+            var cloudTableClient = cloudStorageAccount.CreateCloudTableClient();
+            this.SetDefaultRetryIfNotExists(cloudTableClient);
+
+            this._cloudTable = cloudTableClient.GetTableReference(tableName);
+
+            if (createIfNotExists)
+            {
+                this._cloudTable.CreateIfNotExists();
+            }
+        }
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="TableStorage" /> class.
+        /// </summary>
+        /// <param name="tableName">Name of the table.</param>
+        /// <param name="cloudStorageAccount">The cloud storage account.</param>
+        /// <param name="createIfNotExists">true to creates the table if it does not already exist; otherwise, false.</param>
+        public TableStorage(string tableName, CloudStorageAccount cloudStorageAccount, bool createIfNotExists = true)
+        {
+            tableName.ValidateTableName();
+            cloudStorageAccount.ValidateNull();
+
             var cloudTableClient = cloudStorageAccount.CreateCloudTableClient();
             this.SetDefaultRetryIfNotExists(cloudTableClient);
 
@@ -116,10 +138,26 @@ namespace DevLib.Azure.Storage
         /// <summary>
         /// Deletes the table if it exists.
         /// </summary>
-        /// <returns>true if the table was deleted; otherwise, false.</returns>
+        /// <returns>true if the table exists and was deleted; otherwise, false.</returns>
         public bool DeleteTableIfExists()
         {
             return this._cloudTable.DeleteIfExists();
+        }
+
+        /// <summary>
+        /// Deletes the table dictionary if exists.
+        /// </summary>
+        /// <param name="dictionaryName">Name of the dictionary.</param>
+        /// <returns>true if the table dictionary exists and was deleted; otherwise, false.</returns>
+        public bool DeleteTableDictionaryIfExists(string dictionaryName)
+        {
+            dictionaryName.ValidateTableDictionaryPropertyValue();
+
+            var entities = this
+                ._cloudTable
+                .ExecuteQuery(new TableQuery().Where(string.Format(TableDictionary.FilterStringFormat, dictionaryName)));
+
+            return this.Delete(entities).Any();
         }
 
         /// <summary>
@@ -174,7 +212,7 @@ namespace DevLib.Azure.Storage
         /// <returns>TableDictionary instance.</returns>
         public TableDictionary GetTableDictionary(string dictionaryName, bool dictionaryKeyIgnoreCase = false)
         {
-            return new TableDictionary(this, dictionaryName, dictionaryKeyIgnoreCase);
+            return new TableDictionary(dictionaryName, this, dictionaryKeyIgnoreCase);
         }
 
         /// <summary>

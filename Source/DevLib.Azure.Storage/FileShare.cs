@@ -73,6 +73,28 @@ namespace DevLib.Azure.Storage
         }
 
         /// <summary>
+        /// Initializes a new instance of the <see cref="FileShare" /> class.
+        /// </summary>
+        /// <param name="shareName">A string containing the name of the share.</param>
+        /// <param name="cloudStorageAccount">The cloud storage account.</param>
+        /// <param name="createIfNotExists">true to creates the share if it does not already exist; otherwise, false.</param>
+        public FileShare(string shareName, CloudStorageAccount cloudStorageAccount, bool createIfNotExists = true)
+        {
+            shareName.ValidateShareName();
+            cloudStorageAccount.ValidateNull();
+
+            var cloudFileClient = cloudStorageAccount.CreateCloudFileClient();
+            this.SetDefaultRetryIfNotExists(cloudFileClient);
+
+            this._cloudFileShare = cloudFileClient.GetShareReference(shareName);
+
+            if (createIfNotExists)
+            {
+                this._cloudFileShare.CreateIfNotExists();
+            }
+        }
+
+        /// <summary>
         /// Initializes a new instance of the <see cref="FileShare"/> class.
         /// </summary>
         /// <param name="fileShare">The CloudFileShare instance.</param>

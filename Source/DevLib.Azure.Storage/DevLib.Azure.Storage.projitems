@@ -14,7 +14,10 @@
     <Compile Include="$(MSBuildThisFileDirectory)FileClient.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)FileShare.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)StorageConstants.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)TableClient.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)TableClient.cs">
+      <ExcludeFromSourceAnalysis>False</ExcludeFromSourceAnalysis>
+      <ExcludeFromStyleCop>False</ExcludeFromStyleCop>
+    </Compile>
     <Compile Include="$(MSBuildThisFileDirectory)TableDictionary.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)TableStorage.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)ValidatorExtensions.cs" />

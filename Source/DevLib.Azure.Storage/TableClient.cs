@@ -57,6 +57,18 @@ namespace DevLib.Azure.Storage
         }
 
         /// <summary>
+        /// Initializes a new instance of the <see cref="TableClient"/> class.
+        /// </summary>
+        /// <param name="cloudStorageAccount">The cloud storage account.</param>
+        public TableClient(CloudStorageAccount cloudStorageAccount)
+        {
+            cloudStorageAccount.ValidateNull();
+
+            this._cloudTableClient = cloudStorageAccount.CreateCloudTableClient();
+            this.SetDefaultRetryIfNotExists(this._cloudTableClient);
+        }
+
+        /// <summary>
         /// Prevents a default instance of the <see cref="TableClient"/> class from being created.
         /// </summary>
         private TableClient()
@@ -124,7 +136,7 @@ namespace DevLib.Azure.Storage
         /// <param name="tableName">Name of the table.</param>
         /// <param name="createIfNotExists">true to creates the table if it does not already exist; otherwise, false.</param>
         /// <returns>TableStorage instance.</returns>
-        public TableStorage GetTable(string tableName, bool createIfNotExists = true)
+        public TableStorage GetTableStorage(string tableName, bool createIfNotExists = true)
         {
             tableName.ValidateTableName();
 
@@ -136,6 +148,24 @@ namespace DevLib.Azure.Storage
             }
 
             return new TableStorage(table);
+        }
+
+        /// <summary>
+        /// Gets the table dictionary.
+        /// </summary>
+        /// <param name="dictionaryName">Name of the dictionary.</param>
+        /// <param name="tableName">Name of the table.</param>
+        /// <param name="dictionaryKeyIgnoreCase">true to ignore case of dictionary key; otherwise, false.</param>
+        /// <returns>TableDictionary instance.</returns>
+        public TableDictionary GetTableDictionary(string dictionaryName, string tableName, bool dictionaryKeyIgnoreCase = false)
+        {
+            dictionaryName.ValidateTableDictionaryPropertyValue();
+            tableName.ValidateTableName();
+
+            var table = this._cloudTableClient.GetTableReference(tableName);
+            table.CreateIfNotExists();
+
+            return new TableDictionary(dictionaryName, new TableStorage(table));
         }
 
         /// <summary>

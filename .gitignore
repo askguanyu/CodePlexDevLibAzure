@@ -16,3 +16,4 @@
 /Source/DevLib.Azure.Storage/Settings.StyleCop
 /Source/DevLib.Azure.NET45/Settings.StyleCop
 /Source/StyleCop.Cache
+/Source/DevLib.Azure.NET45.UnitTest/StyleCop.Cache

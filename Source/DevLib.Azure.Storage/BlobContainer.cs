@@ -111,6 +111,46 @@ namespace DevLib.Azure.Storage
         }
 
         /// <summary>
+        /// Initializes a new instance of the <see cref="BlobContainer" /> class.
+        /// </summary>
+        /// <param name="containerName">Name of the container.</param>
+        /// <param name="cloudStorageAccount">The cloud storage account.</param>
+        /// <param name="createIfNotExists">true to creates the container if it does not already exist; otherwise, false.</param>
+        /// <param name="newContainerAccessType">Access type for the newly created container.</param>
+        public BlobContainer(string containerName, CloudStorageAccount cloudStorageAccount, bool createIfNotExists, BlobContainerPublicAccessType newContainerAccessType)
+        {
+            containerName.ValidateContainerName();
+            cloudStorageAccount.ValidateNull();
+
+            var cloudBlobClient = cloudStorageAccount.CreateCloudBlobClient();
+            this.SetDefaultRetryIfNotExists(cloudBlobClient);
+
+            this._cloudBlobContainer = cloudBlobClient.GetContainerReference(containerName);
+
+            if (createIfNotExists)
+            {
+                if (this._cloudBlobContainer.CreateIfNotExists())
+                {
+                    var permissions = this._cloudBlobContainer.GetPermissions();
+                    permissions.PublicAccess = newContainerAccessType;
+                    this._cloudBlobContainer.SetPermissions(permissions);
+                }
+            }
+        }
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="BlobContainer" /> class.
+        /// </summary>
+        /// <param name="containerName">Name of the container.</param>
+        /// <param name="cloudStorageAccount">The cloud storage account.</param>
+        /// <param name="createIfNotExists">true to creates the container if it does not already exist; otherwise, false.</param>
+        /// <param name="isNewContainerPublic">true to set the newly created container to public; false to set it to private.</param>
+        public BlobContainer(string containerName, CloudStorageAccount cloudStorageAccount, bool createIfNotExists = true, bool isNewContainerPublic = true)
+            : this(containerName, cloudStorageAccount, createIfNotExists, isNewContainerPublic ? BlobContainerPublicAccessType.Container : BlobContainerPublicAccessType.Off)
+        {
+        }
+
+        /// <summary>
         /// Initializes a new instance of the <see cref="BlobContainer"/> class.
         /// </summary>
         /// <param name="blobContainer">The CloudBlobContainer instance.</param>

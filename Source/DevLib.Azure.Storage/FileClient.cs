@@ -57,6 +57,18 @@ namespace DevLib.Azure.Storage
         }
 
         /// <summary>
+        /// Initializes a new instance of the <see cref="FileClient"/> class.
+        /// </summary>
+        /// <param name="cloudStorageAccount">The cloud storage account.</param>
+        public FileClient(CloudStorageAccount cloudStorageAccount)
+        {
+            cloudStorageAccount.ValidateNull();
+
+            this._cloudFileClient = cloudStorageAccount.CreateCloudFileClient();
+            this.SetDefaultRetryIfNotExists(this._cloudFileClient);
+        }
+
+        /// <summary>
         /// Prevents a default instance of the <see cref="FileClient"/> class from being created.
         /// </summary>
         private FileClient()

@@ -59,6 +59,18 @@ namespace DevLib.Azure.Storage
         }
 
         /// <summary>
+        /// Initializes a new instance of the <see cref="BlobClient"/> class.
+        /// </summary>
+        /// <param name="cloudStorageAccount">The cloud storage account.</param>
+        public BlobClient(CloudStorageAccount cloudStorageAccount)
+        {
+            cloudStorageAccount.ValidateNull();
+
+            this._cloudBlobClient = cloudStorageAccount.CreateCloudBlobClient();
+            this.SetDefaultRetryIfNotExists(this._cloudBlobClient);
+        }
+
+        /// <summary>
         /// Prevents a default instance of the <see cref="BlobClient"/> class from being created.
         /// </summary>
         private BlobClient()

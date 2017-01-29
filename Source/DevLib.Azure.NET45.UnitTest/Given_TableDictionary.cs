@@ -1,6 +1,7 @@
 ﻿using System;
 using DevLib.Azure.Storage;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Microsoft.WindowsAzure.Storage;
 
 namespace DevLib.Azure.NET45.UnitTest
 {
@@ -37,11 +38,11 @@ namespace DevLib.Azure.NET45.UnitTest
         [TestMethod]
         public void When_AddOrUpdate()
         {
-            var table = TableClient.DevelopmentClient.GetTable("table1"); //new TableStorage("table1", _account, _key);
+            var dict = new TableDictionary("dict1", "table1", CloudStorageAccount.DevelopmentStorageAccount, true); //new TableStorage("table1", _account, _key);
 
-            table.GetTableDictionary("dict1").AddOrUpdate("key1", TimeSpan.FromDays(1));
+            dict.AddOrUpdate("key1", TimeSpan.FromDays(1));
 
-            var result = table.GetTableDictionary("dict1").Values;
+            var result = dict.Values;
         }
     }
 }

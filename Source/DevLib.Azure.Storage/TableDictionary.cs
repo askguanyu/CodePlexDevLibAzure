@@ -10,6 +10,7 @@ namespace DevLib.Azure.Storage
     using System.Collections.Generic;
     using System.Linq;
     using System.Net;
+    using Microsoft.WindowsAzure.Storage;
     using Microsoft.WindowsAzure.Storage.Table;
 
     /// <summary>
@@ -20,22 +21,22 @@ namespace DevLib.Azure.Storage
         /// <summary>
         /// The partition key prefix.
         /// </summary>
-        private const string PartitionKeyPrefix = "{abe0005754444cc5b3dacb28981a28c1}";
+        internal const string PartitionKeyPrefix = "[abe0005754444cc5b3dacb28981a28c1]";
 
         /// <summary>
         /// The row key prefix.
         /// </summary>
-        private const string RowKeyPrefix = "{82588a3a96ec412497548831e55a096a}";
+        internal const string RowKeyPrefix = "[82588a3a96ec412497548831e55a096a]";
 
         /// <summary>
         /// The filter string format.
         /// </summary>
-        private const string FilterStringFormat = "(PartitionKey eq '{0}') and ((RowKey ge '{82588a3a96ec412497548831e55a096a}') and (RowKey lt '{82588a3a96ec412497548831e55a096a~'))";
+        internal const string FilterStringFormat = "(PartitionKey eq '[abe0005754444cc5b3dacb28981a28c1]{0}') and ((RowKey ge '[82588a3a96ec412497548831e55a096a]') and (RowKey lt '[82588a3a96ec412497548831e55a096a^'))";
 
         /// <summary>
         /// The value key string.
         /// </summary>
-        private const string ValueKey = "Value";
+        internal const string ValueKey = "Value";
 
         /// <summary>
         /// The table storage.
@@ -60,13 +61,13 @@ namespace DevLib.Azure.Storage
         /// <summary>
         /// Initializes a new instance of the <see cref="TableDictionary"/> class.
         /// </summary>
-        /// <param name="tableStorage">The table storage.</param>
         /// <param name="dictionaryName">Name of the dictionary.</param>
+        /// <param name="tableStorage">The table storage.</param>
         /// <param name="dictionaryKeyIgnoreCase">true to ignore case of dictionary key; otherwise, false.</param>
-        internal TableDictionary(TableStorage tableStorage, string dictionaryName, bool dictionaryKeyIgnoreCase)
+        public TableDictionary(string dictionaryName, TableStorage tableStorage, bool dictionaryKeyIgnoreCase = false)
         {
-            tableStorage.ValidateNull();
             dictionaryName.ValidateTableDictionaryPropertyValue();
+            tableStorage.ValidateNull();
 
             this._tableStorage = tableStorage;
             this._dictionaryName = dictionaryName;
@@ -75,9 +76,66 @@ namespace DevLib.Azure.Storage
         }
 
         /// <summary>
-        /// Prevents a default instance of the <see cref="TableDictionary"/> class from being created.
+        /// Initializes a new instance of the <see cref="TableDictionary" /> class.
         /// </summary>
-        private TableDictionary()
+        /// <param name="dictionaryName">Name of the dictionary.</param>
+        /// <param name="tableName">Name of the table.</param>
+        /// <param name="connectionString">The connection string.</param>
+        /// <param name="dictionaryKeyIgnoreCase">true to ignore case of dictionary key; otherwise, false.</param>
+        public TableDictionary(string dictionaryName, string tableName, string connectionString, bool dictionaryKeyIgnoreCase = false)
+        {
+            dictionaryName.ValidateTableDictionaryPropertyValue();
+
+            this._tableStorage = new TableStorage(tableName, connectionString);
+            this._dictionaryName = dictionaryName;
+            this._dictionaryKeyIgnoreCase = dictionaryKeyIgnoreCase;
+            this._dictionaryPartitionKey = PartitionKeyPrefix + dictionaryName;
+        }
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="TableDictionary" /> class.
+        /// </summary>
+        /// <param name="dictionaryName">Name of the dictionary.</param>
+        /// <param name="tableName">Name of the table.</param>
+        /// <param name="accountName">A string that represents the name of the storage account.</param>
+        /// <param name="keyValue">A string that represents the Base64-encoded account access key.</param>
+        /// <param name="useHttps">true to use HTTPS to connect to storage service endpoints; otherwise, false.</param>
+        /// <param name="dictionaryKeyIgnoreCase">true to ignore case of dictionary key; otherwise, false.</param>
+        public TableDictionary(string dictionaryName, string tableName, string accountName, string keyValue, bool useHttps = true, bool dictionaryKeyIgnoreCase = false)
+        {
+            dictionaryName.ValidateTableDictionaryPropertyValue();
+
+            this._tableStorage = new TableStorage(tableName, accountName, keyValue, useHttps);
+            this._dictionaryName = dictionaryName;
+            this._dictionaryKeyIgnoreCase = dictionaryKeyIgnoreCase;
+            this._dictionaryPartitionKey = PartitionKeyPrefix + dictionaryName;
+        }
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="TableDictionary" /> class.
+        /// </summary>
+        /// <param name="dictionaryName">Name of the dictionary.</param>
+        /// <param name="tableName">Name of the table.</param>
+        /// <param name="cloudStorageAccount">The cloud storage account.</param>
+        /// <param name="dictionaryKeyIgnoreCase">true to ignore case of dictionary key; otherwise, false.</param>
+        public TableDictionary(string dictionaryName, string tableName, CloudStorageAccount cloudStorageAccount, bool dictionaryKeyIgnoreCase = false)
+        {
+            dictionaryName.ValidateTableDictionaryPropertyValue();
+
+            this._tableStorage = new TableStorage(tableName, cloudStorageAccount);
+            this._dictionaryName = dictionaryName;
+            this._dictionaryKeyIgnoreCase = dictionaryKeyIgnoreCase;
+            this._dictionaryPartitionKey = PartitionKeyPrefix + dictionaryName;
+        }
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="TableDictionary"/> class.
+        /// </summary>
+        /// <param name="dictionaryName">Name of the dictionary.</param>
+        /// <param name="tableName">Name of the table.</param>
+        /// <param name="dictionaryKeyIgnoreCase">true to ignore case of dictionary key; otherwise, false.</param>
+        private TableDictionary(string dictionaryName, string tableName, bool dictionaryKeyIgnoreCase = false)
+            : this(dictionaryName, tableName, StorageConstants.DevelopmentStorageConnectionString, dictionaryKeyIgnoreCase)
         {
         }
 
@@ -92,7 +150,7 @@ namespace DevLib.Azure.Storage
                 return this
                     ._tableStorage
                     .InnerCloudTable
-                    .ExecuteQuery(new TableQuery { SelectColumns = new[] { "RowKey" } }.Where(string.Format(FilterStringFormat, this._dictionaryPartitionKey)))
+                    .ExecuteQuery(new TableQuery { SelectColumns = new[] { "RowKey" } }.Where(string.Format(FilterStringFormat, this._dictionaryName)))
                     .Count();
             }
         }
@@ -127,7 +185,7 @@ namespace DevLib.Azure.Storage
                 return this
                     ._tableStorage
                     .InnerCloudTable
-                    .ExecuteQuery(new TableQuery { SelectColumns = new[] { "RowKey" } }.Where(string.Format(FilterStringFormat, this._dictionaryPartitionKey)))
+                    .ExecuteQuery(new TableQuery { SelectColumns = new[] { "RowKey" } }.Where(string.Format(FilterStringFormat, this._dictionaryName)))
                     .Select(i => i.RowKey.Substring(34))
                     .ToList();
             }
@@ -144,7 +202,7 @@ namespace DevLib.Azure.Storage
                 return this
                     ._tableStorage
                     .InnerCloudTable
-                    .ExecuteQuery(new TableQuery().Where(string.Format(FilterStringFormat, this._dictionaryPartitionKey)))
+                    .ExecuteQuery(new TableQuery().Where(string.Format(FilterStringFormat, this._dictionaryName)))
                     .Select(i => i.Properties[ValueKey].PropertyAsObject)
                     .ToList();
             }
@@ -161,7 +219,7 @@ namespace DevLib.Azure.Storage
                 return this
                     ._tableStorage
                     .InnerCloudTable
-                    .ExecuteQuery(new TableQuery().Where(string.Format(FilterStringFormat, this._dictionaryPartitionKey)))
+                    .ExecuteQuery(new TableQuery().Where(string.Format(FilterStringFormat, this._dictionaryName)))
                     .Select(i => new KeyValuePair<string, object>(i.RowKey.Substring(34), i.Properties[ValueKey].PropertyAsObject))
                     .ToList();
             }
@@ -328,7 +386,7 @@ namespace DevLib.Azure.Storage
             var entities = this
                 ._tableStorage
                 .InnerCloudTable
-                .ExecuteQuery(new TableQuery().Where(string.Format(FilterStringFormat, this._dictionaryPartitionKey)));
+                .ExecuteQuery(new TableQuery().Where(string.Format(FilterStringFormat, this._dictionaryName)));
 
             this._tableStorage.Delete(entities);
         }
