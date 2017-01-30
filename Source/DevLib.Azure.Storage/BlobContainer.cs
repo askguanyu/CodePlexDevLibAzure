@@ -24,6 +24,89 @@ namespace DevLib.Azure.Storage
         private readonly CloudBlobContainer _cloudBlobContainer;
 
         /// <summary>
+        /// Field _blobClient.
+        /// </summary>
+        private readonly BlobClient _blobClient;
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="BlobContainer" /> class.
+        /// </summary>
+        /// <param name="containerName">Name of the container.</param>
+        /// <param name="blobClient">The blob client.</param>
+        /// <param name="createIfNotExists">true to creates the container if it does not already exist; otherwise, false.</param>
+        /// <param name="newContainerAccessType">Access type for the newly created container.</param>
+        public BlobContainer(string containerName, BlobClient blobClient, bool createIfNotExists, BlobContainerPublicAccessType newContainerAccessType)
+        {
+            containerName.ValidateContainerName();
+            blobClient.ValidateNull();
+
+            this._blobClient = blobClient;
+
+            this._cloudBlobContainer = this._blobClient.InnerCloudBlobClient.GetContainerReference(containerName);
+
+            if (createIfNotExists)
+            {
+                if (this._cloudBlobContainer.CreateIfNotExists())
+                {
+                    var permissions = this._cloudBlobContainer.GetPermissions();
+                    permissions.PublicAccess = newContainerAccessType;
+                    this._cloudBlobContainer.SetPermissions(permissions);
+                }
+            }
+        }
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="BlobContainer" /> class.
+        /// </summary>
+        /// <param name="containerName">Name of the container.</param>
+        /// <param name="blobClient">The blob client.</param>
+        /// <param name="createIfNotExists">true to creates the container if it does not already exist; otherwise, false.</param>
+        /// <param name="isNewContainerPublic">true to set the newly created container to public; false to set it to private.</param>
+        public BlobContainer(string containerName, BlobClient blobClient, bool createIfNotExists = true, bool isNewContainerPublic = true)
+            : this(containerName, blobClient, createIfNotExists, isNewContainerPublic ? BlobContainerPublicAccessType.Container : BlobContainerPublicAccessType.Off)
+        {
+        }
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="BlobContainer" /> class.
+        /// </summary>
+        /// <param name="containerName">Name of the container.</param>
+        /// <param name="cloudBlobClient">The cloud blob client.</param>
+        /// <param name="createIfNotExists">true to creates the container if it does not already exist; otherwise, false.</param>
+        /// <param name="newContainerAccessType">Access type for the newly created container.</param>
+        public BlobContainer(string containerName, CloudBlobClient cloudBlobClient, bool createIfNotExists, BlobContainerPublicAccessType newContainerAccessType)
+        {
+            containerName.ValidateContainerName();
+            cloudBlobClient.ValidateNull();
+
+            this._blobClient = new BlobClient(cloudBlobClient);
+
+            this._cloudBlobContainer = this._blobClient.InnerCloudBlobClient.GetContainerReference(containerName);
+
+            if (createIfNotExists)
+            {
+                if (this._cloudBlobContainer.CreateIfNotExists())
+                {
+                    var permissions = this._cloudBlobContainer.GetPermissions();
+                    permissions.PublicAccess = newContainerAccessType;
+                    this._cloudBlobContainer.SetPermissions(permissions);
+                }
+            }
+        }
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="BlobContainer" /> class.
+        /// </summary>
+        /// <param name="containerName">Name of the container.</param>
+        /// <param name="cloudBlobClient">The cloud blob client.</param>
+        /// <param name="createIfNotExists">true to creates the container if it does not already exist; otherwise, false.</param>
+        /// <param name="isNewContainerPublic">true to set the newly created container to public; false to set it to private.</param>
+        public BlobContainer(string containerName, CloudBlobClient cloudBlobClient, bool createIfNotExists = true, bool isNewContainerPublic = true)
+            : this(containerName, cloudBlobClient, createIfNotExists, isNewContainerPublic ? BlobContainerPublicAccessType.Container : BlobContainerPublicAccessType.Off)
+        {
+        }
+
+        /// <summary>
         /// Initializes a new instance of the <see cref="BlobContainer"/> class.
         /// </summary>
         /// <param name="containerName">Name of the container.</param>
@@ -37,6 +120,7 @@ namespace DevLib.Azure.Storage
 
             var cloudStorageAccount = CloudStorageAccount.Parse(connectionString);
             var cloudBlobClient = cloudStorageAccount.CreateCloudBlobClient();
+            this._blobClient = new BlobClient(cloudBlobClient);
             this.SetDefaultRetryIfNotExists(cloudBlobClient);
 
             this._cloudBlobContainer = cloudBlobClient.GetContainerReference(containerName);
@@ -81,6 +165,7 @@ namespace DevLib.Azure.Storage
 
             var cloudStorageAccount = new CloudStorageAccount(new StorageCredentials(accountName, keyValue), useHttps);
             var cloudBlobClient = cloudStorageAccount.CreateCloudBlobClient();
+            this._blobClient = new BlobClient(cloudBlobClient);
             this.SetDefaultRetryIfNotExists(cloudBlobClient);
 
             this._cloudBlobContainer = cloudBlobClient.GetContainerReference(containerName);
@@ -114,6 +199,50 @@ namespace DevLib.Azure.Storage
         /// Initializes a new instance of the <see cref="BlobContainer" /> class.
         /// </summary>
         /// <param name="containerName">Name of the container.</param>
+        /// <param name="storageCredentials">A Microsoft.WindowsAzure.Storage.Auth.StorageCredentials object.</param>
+        /// <param name="useHttps">true to use HTTPS to connect to storage service endpoints; otherwise, false.</param>
+        /// <param name="createIfNotExists">true to creates the container if it does not already exist; otherwise, false.</param>
+        /// <param name="newContainerAccessType">Access type for the newly created container.</param>
+        public BlobContainer(string containerName, StorageCredentials storageCredentials, bool useHttps, bool createIfNotExists, BlobContainerPublicAccessType newContainerAccessType)
+        {
+            containerName.ValidateContainerName();
+            storageCredentials.ValidateNull();
+
+            var cloudStorageAccount = new CloudStorageAccount(storageCredentials, useHttps);
+            var cloudBlobClient = cloudStorageAccount.CreateCloudBlobClient();
+            this._blobClient = new BlobClient(cloudBlobClient);
+            this.SetDefaultRetryIfNotExists(cloudBlobClient);
+
+            this._cloudBlobContainer = cloudBlobClient.GetContainerReference(containerName);
+
+            if (createIfNotExists)
+            {
+                if (this._cloudBlobContainer.CreateIfNotExists())
+                {
+                    var permissions = this._cloudBlobContainer.GetPermissions();
+                    permissions.PublicAccess = newContainerAccessType;
+                    this._cloudBlobContainer.SetPermissions(permissions);
+                }
+            }
+        }
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="BlobContainer" /> class.
+        /// </summary>
+        /// <param name="containerName">Name of the container.</param>
+        /// <param name="storageCredentials">A Microsoft.WindowsAzure.Storage.Auth.StorageCredentials object.</param>
+        /// <param name="useHttps">true to use HTTPS to connect to storage service endpoints; otherwise, false.</param>
+        /// <param name="createIfNotExists">true to creates the container if it does not already exist; otherwise, false.</param>
+        /// <param name="isNewContainerPublic">true to set the newly created container to public; false to set it to private.</param>
+        public BlobContainer(string containerName, StorageCredentials storageCredentials, bool useHttps = true, bool createIfNotExists = true, bool isNewContainerPublic = true)
+            : this(containerName, storageCredentials, useHttps, createIfNotExists, isNewContainerPublic ? BlobContainerPublicAccessType.Container : BlobContainerPublicAccessType.Off)
+        {
+        }
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="BlobContainer" /> class.
+        /// </summary>
+        /// <param name="containerName">Name of the container.</param>
         /// <param name="cloudStorageAccount">The cloud storage account.</param>
         /// <param name="createIfNotExists">true to creates the container if it does not already exist; otherwise, false.</param>
         /// <param name="newContainerAccessType">Access type for the newly created container.</param>
@@ -123,6 +252,7 @@ namespace DevLib.Azure.Storage
             cloudStorageAccount.ValidateNull();
 
             var cloudBlobClient = cloudStorageAccount.CreateCloudBlobClient();
+            this._blobClient = new BlobClient(cloudBlobClient);
             this.SetDefaultRetryIfNotExists(cloudBlobClient);
 
             this._cloudBlobContainer = cloudBlobClient.GetContainerReference(containerName);
@@ -154,9 +284,10 @@ namespace DevLib.Azure.Storage
         /// Initializes a new instance of the <see cref="BlobContainer"/> class.
         /// </summary>
         /// <param name="blobContainer">The CloudBlobContainer instance.</param>
-        internal BlobContainer(CloudBlobContainer blobContainer)
+        public BlobContainer(CloudBlobContainer blobContainer)
         {
             this._cloudBlobContainer = blobContainer;
+            this._blobClient = new BlobClient(blobContainer.ServiceClient);
         }
 
         /// <summary>
@@ -168,6 +299,17 @@ namespace DevLib.Azure.Storage
             get
             {
                 return this._cloudBlobContainer;
+            }
+        }
+
+        /// <summary>
+        /// Gets the service client.
+        /// </summary>
+        public BlobClient ServiceClient
+        {
+            get
+            {
+                return this._blobClient;
             }
         }
 
@@ -492,7 +634,7 @@ namespace DevLib.Azure.Storage
         /// <param name="startTime">The start time for a shared access signature associated with this shared access policy.</param>
         /// <param name="endTime">The expiry time for a shared access signature associated with this shared access policy.</param>
         /// <returns>The query string returned includes the leading question mark.</returns>
-        public string GetSAS(string blobName, SharedAccessBlobPermissions permissions = SharedAccessBlobPermissions.Read, DateTimeOffset? startTime = null, DateTimeOffset? endTime = null)
+        public string GetBlobSAS(string blobName, SharedAccessBlobPermissions permissions = SharedAccessBlobPermissions.Read, DateTimeOffset? startTime = null, DateTimeOffset? endTime = null)
         {
             return this.GetBlob(blobName).GetSharedAccessSignature(new SharedAccessBlobPolicy
             {
@@ -508,9 +650,9 @@ namespace DevLib.Azure.Storage
         /// <param name="blobName">A string containing the name of the blob.</param>
         /// <param name="expiryTimeSpan">The expiry time span.</param>
         /// <returns>The query string returned includes the leading question mark.</returns>
-        public string GetSASReadOnly(string blobName, TimeSpan expiryTimeSpan)
+        public string GetBlobSASReadOnly(string blobName, TimeSpan expiryTimeSpan)
         {
-            return this.GetSAS(blobName, SharedAccessBlobPermissions.Read, DateTimeOffset.UtcNow, DateTimeOffset.UtcNow.Add(expiryTimeSpan));
+            return this.GetBlobSAS(blobName, SharedAccessBlobPermissions.Read, DateTimeOffset.UtcNow, DateTimeOffset.UtcNow.Add(expiryTimeSpan));
         }
 
         /// <summary>
@@ -556,6 +698,73 @@ namespace DevLib.Azure.Storage
         public Uri GetBlobUriWithSASReadOnly(string blobName, TimeSpan expiryTimeSpan)
         {
             return this.GetBlobUriWithSAS(blobName, SharedAccessBlobPermissions.Read, DateTimeOffset.UtcNow, DateTimeOffset.UtcNow.Add(expiryTimeSpan));
+        }
+
+        /// <summary>
+        /// Gets a shared access signature for the container.
+        /// </summary>
+        /// <param name="permissions">The permissions for a shared access signature associated with this shared access policy.</param>
+        /// <param name="startTime">The start time for a shared access signature associated with this shared access policy.</param>
+        /// <param name="endTime">The expiry time for a shared access signature associated with this shared access policy.</param>
+        /// <returns>The query string returned includes the leading question mark.</returns>
+        public string GetContainerSAS(SharedAccessBlobPermissions permissions = SharedAccessBlobPermissions.Read, DateTimeOffset? startTime = null, DateTimeOffset? endTime = null)
+        {
+            return this._cloudBlobContainer.GetSharedAccessSignature(new SharedAccessBlobPolicy
+            {
+                Permissions = permissions,
+                SharedAccessStartTime = startTime,
+                SharedAccessExpiryTime = endTime
+            });
+        }
+
+        /// <summary>
+        /// Gets a shared access signature for the container with read only access.
+        /// </summary>
+        /// <param name="expiryTimeSpan">The expiry time span.</param>
+        /// <returns>The query string returned includes the leading question mark.</returns>
+        public string GetContainerSASReadOnly(TimeSpan expiryTimeSpan)
+        {
+            return this.GetContainerSAS(SharedAccessBlobPermissions.Read, DateTimeOffset.UtcNow, DateTimeOffset.UtcNow.Add(expiryTimeSpan));
+        }
+
+        /// <summary>
+        /// Gets the container Uri.
+        /// </summary>
+        /// <returns>The container Uri.</returns>
+        public Uri GetContainerUri()
+        {
+            return this._cloudBlobContainer.Uri;
+        }
+
+        /// <summary>
+        /// Gets the container Uri with SAS.
+        /// </summary>
+        /// <param name="permissions">The permissions for a shared access signature associated with this shared access policy.</param>
+        /// <param name="startTime">The start time for a shared access signature associated with this shared access policy.</param>
+        /// <param name="endTime">The expiry time for a shared access signature associated with this shared access policy.</param>
+        /// <returns>The container Uri with SAS.</returns>
+        public Uri GetContainerUriWithSAS(SharedAccessBlobPermissions permissions = SharedAccessBlobPermissions.Read, DateTimeOffset? startTime = null, DateTimeOffset? endTime = null)
+        {
+            var uriBuilder = new UriBuilder(this._cloudBlobContainer.Uri);
+
+            uriBuilder.Query = this._cloudBlobContainer.GetSharedAccessSignature(new SharedAccessBlobPolicy()
+            {
+                Permissions = permissions,
+                SharedAccessStartTime = startTime,
+                SharedAccessExpiryTime = endTime
+            }).TrimStart('?');
+
+            return uriBuilder.Uri;
+        }
+
+        /// <summary>
+        /// Gets the container Uri with read only SAS.
+        /// </summary>
+        /// <param name="expiryTimeSpan">The expiry time span.</param>
+        /// <returns>The container Uri with read only SAS.</returns>
+        public Uri GetContainerUriWithSASReadOnly(TimeSpan expiryTimeSpan)
+        {
+            return this.GetContainerUriWithSAS(SharedAccessBlobPermissions.Read, DateTimeOffset.UtcNow, DateTimeOffset.UtcNow.Add(expiryTimeSpan));
         }
 
         /// <summary>

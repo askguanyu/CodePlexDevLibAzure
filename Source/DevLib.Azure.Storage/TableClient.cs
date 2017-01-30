@@ -57,6 +57,20 @@ namespace DevLib.Azure.Storage
         }
 
         /// <summary>
+        /// Initializes a new instance of the <see cref="TableClient" /> class.
+        /// </summary>
+        /// <param name="storageCredentials">A Microsoft.WindowsAzure.Storage.Auth.StorageCredentials object.</param>
+        /// <param name="useHttps">true to use HTTPS to connect to storage service endpoints; otherwise, false.</param>
+        public TableClient(StorageCredentials storageCredentials, bool useHttps = true)
+        {
+            storageCredentials.ValidateNull();
+
+            var cloudStorageAccount = new CloudStorageAccount(storageCredentials, useHttps);
+            this._cloudTableClient = cloudStorageAccount.CreateCloudTableClient();
+            this.SetDefaultRetryIfNotExists(this._cloudTableClient);
+        }
+
+        /// <summary>
         /// Initializes a new instance of the <see cref="TableClient"/> class.
         /// </summary>
         /// <param name="cloudStorageAccount">The cloud storage account.</param>
@@ -65,6 +79,18 @@ namespace DevLib.Azure.Storage
             cloudStorageAccount.ValidateNull();
 
             this._cloudTableClient = cloudStorageAccount.CreateCloudTableClient();
+            this.SetDefaultRetryIfNotExists(this._cloudTableClient);
+        }
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="TableClient"/> class.
+        /// </summary>
+        /// <param name="cloudTableClient">The CloudTableClient instance.</param>
+        public TableClient(CloudTableClient cloudTableClient)
+        {
+            cloudTableClient.ValidateNull();
+
+            this._cloudTableClient = cloudTableClient;
             this.SetDefaultRetryIfNotExists(this._cloudTableClient);
         }
 
@@ -96,7 +122,7 @@ namespace DevLib.Azure.Storage
         /// <summary>
         /// Gets the inner cloud table client.
         /// </summary>
-        public CloudTableClient InnerCloudBlobClient
+        public CloudTableClient InnerCloudTableClient
         {
             get
             {
@@ -209,10 +235,10 @@ namespace DevLib.Azure.Storage
         }
 
         /// <summary>
-        /// Gets the number of elements contained in the TableStorage.
+        /// Gets the number of elements contained in the table client.
         /// </summary>
         /// <param name="prefix">A string containing the table name prefix.</param>
-        /// <returns>The number of elements contained in the TableStorage.</returns>
+        /// <returns>The number of elements contained in the table client.</returns>
         public int TablesCount(string prefix = null)
         {
             return this._cloudTableClient.ListTables(prefix).Count();

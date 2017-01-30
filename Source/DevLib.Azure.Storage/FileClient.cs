@@ -57,6 +57,20 @@ namespace DevLib.Azure.Storage
         }
 
         /// <summary>
+        /// Initializes a new instance of the <see cref="FileClient" /> class.
+        /// </summary>
+        /// <param name="storageCredentials">A Microsoft.WindowsAzure.Storage.Auth.StorageCredentials object.</param>
+        /// <param name="useHttps">true to use HTTPS to connect to storage service endpoints; otherwise, false.</param>
+        public FileClient(StorageCredentials storageCredentials, bool useHttps = true)
+        {
+            storageCredentials.ValidateNull();
+
+            var cloudStorageAccount = new CloudStorageAccount(storageCredentials, useHttps);
+            this._cloudFileClient = cloudStorageAccount.CreateCloudFileClient();
+            this.SetDefaultRetryIfNotExists(this._cloudFileClient);
+        }
+
+        /// <summary>
         /// Initializes a new instance of the <see cref="FileClient"/> class.
         /// </summary>
         /// <param name="cloudStorageAccount">The cloud storage account.</param>
@@ -65,6 +79,18 @@ namespace DevLib.Azure.Storage
             cloudStorageAccount.ValidateNull();
 
             this._cloudFileClient = cloudStorageAccount.CreateCloudFileClient();
+            this.SetDefaultRetryIfNotExists(this._cloudFileClient);
+        }
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="FileClient"/> class.
+        /// </summary>
+        /// <param name="cloudFileClient">The CloudFileClient instance.</param>
+        public FileClient(CloudFileClient cloudFileClient)
+        {
+            cloudFileClient.ValidateNull();
+
+            this._cloudFileClient = cloudFileClient;
             this.SetDefaultRetryIfNotExists(this._cloudFileClient);
         }
 

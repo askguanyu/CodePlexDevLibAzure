@@ -11,6 +11,7 @@ namespace DevLib.Azure.Storage
     using System.Linq;
     using System.Net;
     using Microsoft.WindowsAzure.Storage;
+    using Microsoft.WindowsAzure.Storage.Auth;
     using Microsoft.WindowsAzure.Storage.Table;
 
     /// <summary>
@@ -59,7 +60,7 @@ namespace DevLib.Azure.Storage
         private readonly string _dictionaryPartitionKey;
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="TableDictionary"/> class.
+        /// Initializes a new instance of the <see cref="TableDictionary" /> class.
         /// </summary>
         /// <param name="dictionaryName">Name of the dictionary.</param>
         /// <param name="tableStorage">The table storage.</param>
@@ -70,6 +71,57 @@ namespace DevLib.Azure.Storage
             tableStorage.ValidateNull();
 
             this._tableStorage = tableStorage;
+            this._dictionaryName = dictionaryName;
+            this._dictionaryKeyIgnoreCase = dictionaryKeyIgnoreCase;
+            this._dictionaryPartitionKey = PartitionKeyPrefix + dictionaryName;
+        }
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="TableDictionary" /> class.
+        /// </summary>
+        /// <param name="dictionaryName">Name of the dictionary.</param>
+        /// <param name="cloudTable">The CloudTable instance.</param>
+        /// <param name="dictionaryKeyIgnoreCase">true to ignore case of dictionary key; otherwise, false.</param>
+        public TableDictionary(string dictionaryName, CloudTable cloudTable, bool dictionaryKeyIgnoreCase = false)
+        {
+            dictionaryName.ValidateTableDictionaryPropertyValue();
+            cloudTable.ValidateNull();
+
+            this._tableStorage = new TableStorage(cloudTable);
+            this._dictionaryName = dictionaryName;
+            this._dictionaryKeyIgnoreCase = dictionaryKeyIgnoreCase;
+            this._dictionaryPartitionKey = PartitionKeyPrefix + dictionaryName;
+        }
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="TableDictionary" /> class.
+        /// </summary>
+        /// <param name="dictionaryName">Name of the dictionary.</param>
+        /// <param name="tableName">Name of the table.</param>
+        /// <param name="tableClient">The table client.</param>
+        /// <param name="dictionaryKeyIgnoreCase">true to ignore case of dictionary key; otherwise, false.</param>
+        public TableDictionary(string dictionaryName, string tableName, TableClient tableClient, bool dictionaryKeyIgnoreCase = false)
+        {
+            dictionaryName.ValidateTableDictionaryPropertyValue();
+
+            this._tableStorage = new TableStorage(tableName, tableClient);
+            this._dictionaryName = dictionaryName;
+            this._dictionaryKeyIgnoreCase = dictionaryKeyIgnoreCase;
+            this._dictionaryPartitionKey = PartitionKeyPrefix + dictionaryName;
+        }
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="TableDictionary" /> class.
+        /// </summary>
+        /// <param name="dictionaryName">Name of the dictionary.</param>
+        /// <param name="tableName">Name of the table.</param>
+        /// <param name="cloudTableClient">The cloud table client.</param>
+        /// <param name="dictionaryKeyIgnoreCase">true to ignore case of dictionary key; otherwise, false.</param>
+        public TableDictionary(string dictionaryName, string tableName, CloudTableClient cloudTableClient, bool dictionaryKeyIgnoreCase = false)
+        {
+            dictionaryName.ValidateTableDictionaryPropertyValue();
+
+            this._tableStorage = new TableStorage(tableName, cloudTableClient);
             this._dictionaryName = dictionaryName;
             this._dictionaryKeyIgnoreCase = dictionaryKeyIgnoreCase;
             this._dictionaryPartitionKey = PartitionKeyPrefix + dictionaryName;
@@ -116,6 +168,24 @@ namespace DevLib.Azure.Storage
         /// </summary>
         /// <param name="dictionaryName">Name of the dictionary.</param>
         /// <param name="tableName">Name of the table.</param>
+        /// <param name="storageCredentials">A Microsoft.WindowsAzure.Storage.Auth.StorageCredentials object.</param>
+        /// <param name="useHttps">true to use HTTPS to connect to storage service endpoints; otherwise, false.</param>
+        /// <param name="dictionaryKeyIgnoreCase">true to ignore case of dictionary key; otherwise, false.</param>
+        public TableDictionary(string dictionaryName, string tableName, StorageCredentials storageCredentials, bool useHttps = true, bool dictionaryKeyIgnoreCase = false)
+        {
+            dictionaryName.ValidateTableDictionaryPropertyValue();
+
+            this._tableStorage = new TableStorage(tableName, storageCredentials, useHttps);
+            this._dictionaryName = dictionaryName;
+            this._dictionaryKeyIgnoreCase = dictionaryKeyIgnoreCase;
+            this._dictionaryPartitionKey = PartitionKeyPrefix + dictionaryName;
+        }
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="TableDictionary" /> class.
+        /// </summary>
+        /// <param name="dictionaryName">Name of the dictionary.</param>
+        /// <param name="tableName">Name of the table.</param>
         /// <param name="cloudStorageAccount">The cloud storage account.</param>
         /// <param name="dictionaryKeyIgnoreCase">true to ignore case of dictionary key; otherwise, false.</param>
         public TableDictionary(string dictionaryName, string tableName, CloudStorageAccount cloudStorageAccount, bool dictionaryKeyIgnoreCase = false)
@@ -137,6 +207,28 @@ namespace DevLib.Azure.Storage
         private TableDictionary(string dictionaryName, string tableName, bool dictionaryKeyIgnoreCase = false)
             : this(dictionaryName, tableName, StorageConstants.DevelopmentStorageConnectionString, dictionaryKeyIgnoreCase)
         {
+        }
+
+        /// <summary>
+        /// Gets the service TableStorage.
+        /// </summary>
+        public TableStorage ServiceStorage
+        {
+            get
+            {
+                return this._tableStorage;
+            }
+        }
+
+        /// <summary>
+        /// Gets the service client.
+        /// </summary>
+        public TableClient ServiceClient
+        {
+            get
+            {
+                return this._tableStorage.ServiceClient;
+            }
         }
 
         /// <summary>

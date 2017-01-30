@@ -5,13 +5,11 @@
 //-----------------------------------------------------------------------
 namespace DevLib.Azure.Storage
 {
-    using System;
     using System.Collections.Generic;
     using System.Linq;
     using Microsoft.WindowsAzure.Storage;
     using Microsoft.WindowsAzure.Storage.Auth;
     using Microsoft.WindowsAzure.Storage.Blob;
-    using Microsoft.WindowsAzure.Storage.RetryPolicies;
     using Microsoft.WindowsAzure.Storage.Shared.Protocol;
 
     /// <summary>
@@ -59,6 +57,20 @@ namespace DevLib.Azure.Storage
         }
 
         /// <summary>
+        /// Initializes a new instance of the <see cref="BlobClient" /> class.
+        /// </summary>
+        /// <param name="storageCredentials">A Microsoft.WindowsAzure.Storage.Auth.StorageCredentials object.</param>
+        /// <param name="useHttps">true to use HTTPS to connect to storage service endpoints; otherwise, false.</param>
+        public BlobClient(StorageCredentials storageCredentials, bool useHttps = true)
+        {
+            storageCredentials.ValidateNull();
+
+            var cloudStorageAccount = new CloudStorageAccount(storageCredentials, useHttps);
+            this._cloudBlobClient = cloudStorageAccount.CreateCloudBlobClient();
+            this.SetDefaultRetryIfNotExists(this._cloudBlobClient);
+        }
+
+        /// <summary>
         /// Initializes a new instance of the <see cref="BlobClient"/> class.
         /// </summary>
         /// <param name="cloudStorageAccount">The cloud storage account.</param>
@@ -67,6 +79,18 @@ namespace DevLib.Azure.Storage
             cloudStorageAccount.ValidateNull();
 
             this._cloudBlobClient = cloudStorageAccount.CreateCloudBlobClient();
+            this.SetDefaultRetryIfNotExists(this._cloudBlobClient);
+        }
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="BlobClient"/> class.
+        /// </summary>
+        /// <param name="cloudBlobClient">The CloudBlobClient instance.</param>
+        public BlobClient(CloudBlobClient cloudBlobClient)
+        {
+            cloudBlobClient.ValidateNull();
+
+            this._cloudBlobClient = cloudBlobClient;
             this.SetDefaultRetryIfNotExists(this._cloudBlobClient);
         }
 

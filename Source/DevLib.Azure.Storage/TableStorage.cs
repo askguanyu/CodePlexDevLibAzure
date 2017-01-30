@@ -24,6 +24,53 @@ namespace DevLib.Azure.Storage
         private readonly CloudTable _cloudTable;
 
         /// <summary>
+        /// Field _tableClient.
+        /// </summary>
+        private readonly TableClient _tableClient;
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="TableStorage" /> class.
+        /// </summary>
+        /// <param name="tableName">Name of the table.</param>
+        /// <param name="tableClient">The table client.</param>
+        /// <param name="createIfNotExists">true to creates the table if it does not already exist; otherwise, false.</param>
+        public TableStorage(string tableName, TableClient tableClient, bool createIfNotExists = true)
+        {
+            tableName.ValidateTableName();
+            tableClient.ValidateNull();
+
+            this._tableClient = tableClient;
+
+            this._cloudTable = this._tableClient.InnerCloudTableClient.GetTableReference(tableName);
+
+            if (createIfNotExists)
+            {
+                this._cloudTable.CreateIfNotExists();
+            }
+        }
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="TableStorage" /> class.
+        /// </summary>
+        /// <param name="tableName">Name of the table.</param>
+        /// <param name="cloudTableClient">The cloud table client.</param>
+        /// <param name="createIfNotExists">true to creates the table if it does not already exist; otherwise, false.</param>
+        public TableStorage(string tableName, CloudTableClient cloudTableClient, bool createIfNotExists = true)
+        {
+            tableName.ValidateTableName();
+            cloudTableClient.ValidateNull();
+
+            this._tableClient = new TableClient(cloudTableClient);
+
+            this._cloudTable = this._tableClient.InnerCloudTableClient.GetTableReference(tableName);
+
+            if (createIfNotExists)
+            {
+                this._cloudTable.CreateIfNotExists();
+            }
+        }
+
+        /// <summary>
         /// Initializes a new instance of the <see cref="TableStorage"/> class.
         /// </summary>
         /// <param name="tableName">Name of the table.</param>
@@ -36,6 +83,7 @@ namespace DevLib.Azure.Storage
 
             var cloudStorageAccount = CloudStorageAccount.Parse(connectionString);
             var cloudTableClient = cloudStorageAccount.CreateCloudTableClient();
+            this._tableClient = new TableClient(cloudTableClient);
             this.SetDefaultRetryIfNotExists(cloudTableClient);
 
             this._cloudTable = cloudTableClient.GetTableReference(tableName);
@@ -62,6 +110,32 @@ namespace DevLib.Azure.Storage
 
             var cloudStorageAccount = new CloudStorageAccount(new StorageCredentials(accountName, keyValue), useHttps);
             var cloudTableClient = cloudStorageAccount.CreateCloudTableClient();
+            this._tableClient = new TableClient(cloudTableClient);
+            this.SetDefaultRetryIfNotExists(cloudTableClient);
+
+            this._cloudTable = cloudTableClient.GetTableReference(tableName);
+
+            if (createIfNotExists)
+            {
+                this._cloudTable.CreateIfNotExists();
+            }
+        }
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="TableStorage" /> class.
+        /// </summary>
+        /// <param name="tableName">Name of the table.</param>
+        /// <param name="storageCredentials">A Microsoft.WindowsAzure.Storage.Auth.StorageCredentials object.</param>
+        /// <param name="useHttps">true to use HTTPS to connect to storage service endpoints; otherwise, false.</param>
+        /// <param name="createIfNotExists">true to creates the table if it does not already exist; otherwise, false.</param>
+        public TableStorage(string tableName, StorageCredentials storageCredentials, bool useHttps = true, bool createIfNotExists = true)
+        {
+            tableName.ValidateTableName();
+            storageCredentials.ValidateNull();
+
+            var cloudStorageAccount = new CloudStorageAccount(storageCredentials, useHttps);
+            var cloudTableClient = cloudStorageAccount.CreateCloudTableClient();
+            this._tableClient = new TableClient(cloudTableClient);
             this.SetDefaultRetryIfNotExists(cloudTableClient);
 
             this._cloudTable = cloudTableClient.GetTableReference(tableName);
@@ -84,6 +158,7 @@ namespace DevLib.Azure.Storage
             cloudStorageAccount.ValidateNull();
 
             var cloudTableClient = cloudStorageAccount.CreateCloudTableClient();
+            this._tableClient = new TableClient(cloudTableClient);
             this.SetDefaultRetryIfNotExists(cloudTableClient);
 
             this._cloudTable = cloudTableClient.GetTableReference(tableName);
@@ -98,9 +173,10 @@ namespace DevLib.Azure.Storage
         /// Initializes a new instance of the <see cref="TableStorage"/> class.
         /// </summary>
         /// <param name="cloudTable">The CloudTable instance.</param>
-        internal TableStorage(CloudTable cloudTable)
+        public TableStorage(CloudTable cloudTable)
         {
             this._cloudTable = cloudTable;
+            this._tableClient = new TableClient(cloudTable.ServiceClient);
         }
 
         /// <summary>
@@ -112,6 +188,17 @@ namespace DevLib.Azure.Storage
             get
             {
                 return this._cloudTable;
+            }
+        }
+
+        /// <summary>
+        /// Gets the service client.
+        /// </summary>
+        public TableClient ServiceClient
+        {
+            get
+            {
+                return this._tableClient;
             }
         }
 
@@ -1015,7 +1102,7 @@ namespace DevLib.Azure.Storage
         /// <param name="startTime">The start time for a shared access signature associated with this shared access policy.</param>
         /// <param name="endTime">The expiry time for a shared access signature associated with this shared access policy.</param>
         /// <returns>The query string returned includes the leading question mark.</returns>
-        public string GetSAS(SharedAccessTablePermissions permissions = SharedAccessTablePermissions.Query, DateTimeOffset? startTime = null, DateTimeOffset? endTime = null)
+        public string GetTableSAS(SharedAccessTablePermissions permissions = SharedAccessTablePermissions.Query, DateTimeOffset? startTime = null, DateTimeOffset? endTime = null)
         {
             return this._cloudTable.GetSharedAccessSignature(new SharedAccessTablePolicy
             {
@@ -1030,9 +1117,9 @@ namespace DevLib.Azure.Storage
         /// </summary>
         /// <param name="expiryTimeSpan">The expiry time span.</param>
         /// <returns>The query string returned includes the leading question mark.</returns>
-        public string GetSASReadOnly(TimeSpan expiryTimeSpan)
+        public string GetTableSASReadOnly(TimeSpan expiryTimeSpan)
         {
-            return this.GetSAS(SharedAccessTablePermissions.Query, DateTimeOffset.UtcNow, DateTimeOffset.UtcNow.Add(expiryTimeSpan));
+            return this.GetTableSAS(SharedAccessTablePermissions.Query, DateTimeOffset.UtcNow, DateTimeOffset.UtcNow.Add(expiryTimeSpan));
         }
 
         /// <summary>
@@ -1055,7 +1142,7 @@ namespace DevLib.Azure.Storage
         {
             var uriBuilder = new UriBuilder(this._cloudTable.Uri);
 
-            uriBuilder.Query = this.GetSAS(permissions, startTime, endTime).TrimStart('?');
+            uriBuilder.Query = this.GetTableSAS(permissions, startTime, endTime).TrimStart('?');
 
             return uriBuilder.Uri;
         }

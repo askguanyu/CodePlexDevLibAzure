@@ -13,6 +13,8 @@
     <Compile Include="$(MSBuildThisFileDirectory)BlobClient.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)FileClient.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)FileShare.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)QueueClient.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)QueueStorage.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)StorageConstants.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)TableClient.cs">
       <ExcludeFromSourceAnalysis>False</ExcludeFromSourceAnalysis>

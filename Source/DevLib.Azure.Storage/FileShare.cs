@@ -24,6 +24,53 @@ namespace DevLib.Azure.Storage
         private readonly CloudFileShare _cloudFileShare;
 
         /// <summary>
+        /// Field _fileClient.
+        /// </summary>
+        private readonly FileClient _fileClient;
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="FileShare" /> class.
+        /// </summary>
+        /// <param name="shareName">A string containing the name of the share.</param>
+        /// <param name="fileClient">The file client.</param>
+        /// <param name="createIfNotExists">true to creates the share if it does not already exist; otherwise, false.</param>
+        public FileShare(string shareName, FileClient fileClient, bool createIfNotExists = true)
+        {
+            shareName.ValidateShareName();
+            fileClient.ValidateNull();
+
+            this._fileClient = fileClient;
+
+            this._cloudFileShare = this._fileClient.InnerCloudFileClient.GetShareReference(shareName);
+
+            if (createIfNotExists)
+            {
+                this._cloudFileShare.CreateIfNotExists();
+            }
+        }
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="FileShare" /> class.
+        /// </summary>
+        /// <param name="shareName">A string containing the name of the share.</param>
+        /// <param name="cloudFileClient">The cloud file client.</param>
+        /// <param name="createIfNotExists">true to creates the share if it does not already exist; otherwise, false.</param>
+        public FileShare(string shareName, CloudFileClient cloudFileClient, bool createIfNotExists = true)
+        {
+            shareName.ValidateShareName();
+            cloudFileClient.ValidateNull();
+
+            this._fileClient = new FileClient(cloudFileClient);
+
+            this._cloudFileShare = this._fileClient.InnerCloudFileClient.GetShareReference(shareName);
+
+            if (createIfNotExists)
+            {
+                this._cloudFileShare.CreateIfNotExists();
+            }
+        }
+
+        /// <summary>
         /// Initializes a new instance of the <see cref="FileShare"/> class.
         /// </summary>
         /// <param name="shareName">A string containing the name of the share.</param>
@@ -36,6 +83,7 @@ namespace DevLib.Azure.Storage
 
             var cloudStorageAccount = CloudStorageAccount.Parse(connectionString);
             var cloudFileClient = cloudStorageAccount.CreateCloudFileClient();
+            this._fileClient = new FileClient(cloudFileClient);
             this.SetDefaultRetryIfNotExists(cloudFileClient);
 
             this._cloudFileShare = cloudFileClient.GetShareReference(shareName);
@@ -62,6 +110,32 @@ namespace DevLib.Azure.Storage
 
             var cloudStorageAccount = new CloudStorageAccount(new StorageCredentials(accountName, keyValue), useHttps);
             var cloudFileClient = cloudStorageAccount.CreateCloudFileClient();
+            this._fileClient = new FileClient(cloudFileClient);
+            this.SetDefaultRetryIfNotExists(cloudFileClient);
+
+            this._cloudFileShare = cloudFileClient.GetShareReference(shareName);
+
+            if (createIfNotExists)
+            {
+                this._cloudFileShare.CreateIfNotExists();
+            }
+        }
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="FileShare" /> class.
+        /// </summary>
+        /// <param name="shareName">A string containing the name of the share.</param>
+        /// <param name="storageCredentials">A Microsoft.WindowsAzure.Storage.Auth.StorageCredentials object.</param>
+        /// <param name="useHttps">true to use HTTPS to connect to storage service endpoints; otherwise, false.</param>
+        /// <param name="createIfNotExists">true to creates the share if it does not already exist; otherwise, false.</param>
+        public FileShare(string shareName, StorageCredentials storageCredentials, bool useHttps, bool createIfNotExists = true)
+        {
+            shareName.ValidateShareName();
+            storageCredentials.ValidateNull();
+
+            var cloudStorageAccount = new CloudStorageAccount(storageCredentials, useHttps);
+            var cloudFileClient = cloudStorageAccount.CreateCloudFileClient();
+            this._fileClient = new FileClient(cloudFileClient);
             this.SetDefaultRetryIfNotExists(cloudFileClient);
 
             this._cloudFileShare = cloudFileClient.GetShareReference(shareName);
@@ -84,6 +158,7 @@ namespace DevLib.Azure.Storage
             cloudStorageAccount.ValidateNull();
 
             var cloudFileClient = cloudStorageAccount.CreateCloudFileClient();
+            this._fileClient = new FileClient(cloudFileClient);
             this.SetDefaultRetryIfNotExists(cloudFileClient);
 
             this._cloudFileShare = cloudFileClient.GetShareReference(shareName);
@@ -98,9 +173,10 @@ namespace DevLib.Azure.Storage
         /// Initializes a new instance of the <see cref="FileShare"/> class.
         /// </summary>
         /// <param name="fileShare">The CloudFileShare instance.</param>
-        internal FileShare(CloudFileShare fileShare)
+        public FileShare(CloudFileShare fileShare)
         {
             this._cloudFileShare = fileShare;
+            this._fileClient = new FileClient(fileShare.ServiceClient);
         }
 
         /// <summary>
@@ -112,6 +188,17 @@ namespace DevLib.Azure.Storage
             get
             {
                 return this._cloudFileShare;
+            }
+        }
+
+        /// <summary>
+        /// Gets the service client.
+        /// </summary>
+        public FileClient ServiceClient
+        {
+            get
+            {
+                return this._fileClient;
             }
         }
 
@@ -568,21 +655,21 @@ namespace DevLib.Azure.Storage
         }
 
         /// <summary>
-        /// Gets the file's URI.
+        /// Gets the file URI.
         /// </summary>
         /// <param name="fileName">Name of the file.</param>
         /// <param name="directoryName">A System.String containing the name of the subdirectory; null will get the root directory.</param>
-        /// <returns>The file's URI.</returns>
+        /// <returns>The file URI.</returns>
         public Uri GetFileUri(string fileName, string directoryName = null)
         {
             return this.GetFile(fileName, directoryName).Uri;
         }
 
         /// <summary>
-        /// Gets the directory's URI for the primary location.
+        /// Gets the directory URI for the primary location.
         /// </summary>
         /// <param name="directoryName">A System.String containing the name of the subdirectory; null will get the root directory.</param>
-        /// <returns>The directory's URI for the primary location.</returns>
+        /// <returns>The directory URI for the primary location.</returns>
         public Uri GetDirectoryUri(string directoryName = null)
         {
             return this.GetDirectory(directoryName).Uri;
@@ -623,6 +710,73 @@ namespace DevLib.Azure.Storage
         public Uri GetFileUriWithSASReadOnly(string fileName, TimeSpan expiryTimeSpan, string directoryName = null)
         {
             return this.GetFileUriWithSAS(fileName, directoryName, SharedAccessFilePermissions.Read, DateTimeOffset.UtcNow, DateTimeOffset.UtcNow.Add(expiryTimeSpan));
+        }
+
+        /// <summary>
+        /// Returns a shared access signature for the file share.
+        /// </summary>
+        /// <param name="permissions">The permissions for a shared access signature associated with this shared access policy.</param>
+        /// <param name="startTime">The start time for a shared access signature associated with this shared access policy.</param>
+        /// <param name="endTime">The expiry time for a shared access signature associated with this shared access policy.</param>
+        /// <returns>The query string returned includes the leading question mark.</returns>
+        public string GetFileShareSAS(SharedAccessFilePermissions permissions = SharedAccessFilePermissions.Read, DateTimeOffset? startTime = null, DateTimeOffset? endTime = null)
+        {
+            return this._cloudFileShare.GetSharedAccessSignature(new SharedAccessFilePolicy
+            {
+                Permissions = permissions,
+                SharedAccessStartTime = startTime,
+                SharedAccessExpiryTime = endTime
+            });
+        }
+
+        /// <summary>
+        /// Returns a shared access signature for the file share with read only access.
+        /// </summary>
+        /// <param name="expiryTimeSpan">The expiry time span.</param>
+        /// <returns>The query string returned includes the leading question mark.</returns>
+        public string GetFileShareSASReadOnly(TimeSpan expiryTimeSpan)
+        {
+            return this.GetFileShareSAS(SharedAccessFilePermissions.Read, DateTimeOffset.UtcNow, DateTimeOffset.UtcNow.Add(expiryTimeSpan));
+        }
+
+        /// <summary>
+        /// Gets the file share URI.
+        /// </summary>
+        /// <returns>The file share URI.</returns>
+        public Uri GetFileShareUri()
+        {
+            return this._cloudFileShare.Uri;
+        }
+
+        /// <summary>
+        /// Gets the file share Uri with SAS.
+        /// </summary>
+        /// <param name="permissions">The permissions for a shared access signature associated with this shared access policy.</param>
+        /// <param name="startTime">The start time for a shared access signature associated with this shared access policy.</param>
+        /// <param name="endTime">The expiry time for a shared access signature associated with this shared access policy.</param>
+        /// <returns>The file share Uri with SAS.</returns>
+        public Uri GetFileShareUriWithSAS(SharedAccessFilePermissions permissions = SharedAccessFilePermissions.Read, DateTimeOffset? startTime = null, DateTimeOffset? endTime = null)
+        {
+            var uriBuilder = new UriBuilder(this._cloudFileShare.Uri);
+
+            uriBuilder.Query = this._cloudFileShare.GetSharedAccessSignature(new SharedAccessFilePolicy()
+            {
+                Permissions = permissions,
+                SharedAccessStartTime = startTime,
+                SharedAccessExpiryTime = endTime
+            }).TrimStart('?');
+
+            return uriBuilder.Uri;
+        }
+
+        /// <summary>
+        /// Gets the file share Uri with read only SAS.
+        /// </summary>
+        /// <param name="expiryTimeSpan">The expiry time span.</param>
+        /// <returns>The file share Uri with read only SAS.</returns>
+        public Uri GetFileShareUriWithSASReadOnly(TimeSpan expiryTimeSpan)
+        {
+            return this.GetFileShareUriWithSAS(SharedAccessFilePermissions.Read, DateTimeOffset.UtcNow, DateTimeOffset.UtcNow.Add(expiryTimeSpan));
         }
 
         /// <summary>
