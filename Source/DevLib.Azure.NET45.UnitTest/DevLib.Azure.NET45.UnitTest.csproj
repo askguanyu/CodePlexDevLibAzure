@@ -86,6 +86,7 @@
     <Compile Include="Given_BlobContainer.cs" />
     <Compile Include="Given_TableStorage.cs" />
     <Compile Include="Given_TableDictionary.cs" />
+    <Compile Include="Given_QueueStorage.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\DevLib.Azure.NET45\DevLib.Azure.NET45.csproj">
