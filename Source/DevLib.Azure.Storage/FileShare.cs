@@ -172,11 +172,11 @@ namespace DevLib.Azure.Storage
         /// <summary>
         /// Initializes a new instance of the <see cref="FileShare"/> class.
         /// </summary>
-        /// <param name="fileShare">The CloudFileShare instance.</param>
-        public FileShare(CloudFileShare fileShare)
+        /// <param name="cloudFileShare">The CloudFileShare instance.</param>
+        public FileShare(CloudFileShare cloudFileShare)
         {
-            this._cloudFileShare = fileShare;
-            this._fileClient = new FileClient(fileShare.ServiceClient);
+            this._cloudFileShare = cloudFileShare;
+            this._fileClient = new FileClient(cloudFileShare.ServiceClient);
         }
 
         /// <summary>
