@@ -9,6 +9,7 @@
     <Import_RootNamespace>DevLib.Azure.Logging</Import_RootNamespace>
   </PropertyGroup>
   <ItemGroup>
+    <Compile Include="$(MSBuildThisFileDirectory)Logger.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)LoggingLevel.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)LoggingMessageTableEntity.cs" />
   </ItemGroup>
