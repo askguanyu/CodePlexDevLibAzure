@@ -23,6 +23,14 @@ namespace DevLib.Azure.Logging
             this.EventTickCount = Stopwatch.GetTimestamp();
             this.User = Environment.UserName;
             this.Domain = Environment.UserDomainName;
+            this.Machine = Environment.MachineName;
+            this.WorkingSet = Environment.WorkingSet;
+            this.Tid = Environment.CurrentManagedThreadId;
+            this.CommandLine = Environment.CommandLine;
+            this.Is64BitProcess = Environment.Is64BitProcess;
+            Process currentProcess = Process.GetCurrentProcess();
+            this.Pid = currentProcess.Id;
+            this.ApplicationName = currentProcess.ProcessName;
         }
 
         /// <summary>
@@ -36,6 +44,32 @@ namespace DevLib.Azure.Logging
             this.EventTickCount = Stopwatch.GetTimestamp();
             this.User = Environment.UserName;
             this.Domain = Environment.UserDomainName;
+            this.Machine = Environment.MachineName;
+            this.WorkingSet = Environment.WorkingSet;
+            this.Tid = Environment.CurrentManagedThreadId;
+            this.CommandLine = Environment.CommandLine;
+            this.Is64BitProcess = Environment.Is64BitProcess;
+            Process currentProcess = Process.GetCurrentProcess();
+            this.Pid = currentProcess.Id;
+            this.ApplicationName = currentProcess.ProcessName;
+        }
+
+        /// <summary>
+        /// Gets or sets event level (e.g. error, warning, information)
+        /// </summary>
+        public string Level
+        {
+            get;
+            set;
+        }
+
+        /// <summary>
+        /// Gets or sets event detail message.
+        /// </summary>
+        public string Message
+        {
+            get;
+            set;
         }
 
         /// <summary>
@@ -66,18 +100,27 @@ namespace DevLib.Azure.Logging
         }
 
         /// <summary>
-        /// Gets or sets application name.
+        /// Gets or sets the NetBIOS name of the computer.
         /// </summary>
-        public string ApplicationName
+        public string Machine
         {
             get;
             set;
         }
 
         /// <summary>
-        /// Gets or sets event level (e.g. error, warning, information)
+        /// Gets or sets the NetBIOS name of the computer.
         /// </summary>
-        public string Level
+        public long WorkingSet
+        {
+            get;
+            set;
+        }
+
+        /// <summary>
+        /// Gets or sets application name.
+        /// </summary>
+        public string ApplicationName
         {
             get;
             set;
@@ -104,7 +147,7 @@ namespace DevLib.Azure.Logging
         /// <summary>
         /// Gets or sets the process ID.
         /// </summary>
-        public string Pid
+        public int Pid
         {
             get;
             set;
@@ -113,16 +156,7 @@ namespace DevLib.Azure.Logging
         /// <summary>
         /// Gets or sets the thread ID of the thread that produced the event.
         /// </summary>
-        public string Tid
-        {
-            get;
-            set;
-        }
-
-        /// <summary>
-        /// Gets or sets event detail message.
-        /// </summary>
-        public string Message
+        public int Tid
         {
             get;
             set;
@@ -131,7 +165,26 @@ namespace DevLib.Azure.Logging
         /// <summary>
         /// Gets or sets information of the stack trace.
         /// </summary>
-        public string StackInfo
+        public string StackTrace
+        {
+            get;
+            set;
+        }
+
+        /// <summary>
+        /// Gets or sets the command line for this process.
+        /// </summary>
+        /// <value>The command line.</value>
+        public string CommandLine
+        {
+            get;
+            set;
+        }
+
+        /// <summary>
+        /// Gets or sets a value indicating whether the current process is a 64-bit process.
+        /// </summary>
+        public bool Is64BitProcess
         {
             get;
             set;
