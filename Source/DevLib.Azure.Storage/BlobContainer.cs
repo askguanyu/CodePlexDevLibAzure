@@ -283,11 +283,11 @@ namespace DevLib.Azure.Storage
         /// <summary>
         /// Initializes a new instance of the <see cref="BlobContainer"/> class.
         /// </summary>
-        /// <param name="blobContainer">The CloudBlobContainer instance.</param>
-        public BlobContainer(CloudBlobContainer blobContainer)
+        /// <param name="cloudBlobContainer">The CloudBlobContainer instance.</param>
+        public BlobContainer(CloudBlobContainer cloudBlobContainer)
         {
-            this._cloudBlobContainer = blobContainer;
-            this._blobClient = new BlobClient(blobContainer.ServiceClient);
+            this._cloudBlobContainer = cloudBlobContainer;
+            this._blobClient = new BlobClient(cloudBlobContainer.ServiceClient);
         }
 
         /// <summary>
