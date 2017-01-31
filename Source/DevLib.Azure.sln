@@ -11,8 +11,14 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "UnitTest", "UnitTest", "{9F
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DevLib.Azure.NET45.UnitTest", "DevLib.Azure.NET45.UnitTest\DevLib.Azure.NET45.UnitTest.csproj", "{E204BF4A-2C1B-41BA-B135-43F1E9FAFFAE}"
 EndProject
+Project("{D954291E-2A0B-460D-934E-DC6B0785DB48}") = "DevLib.Azure.Logging", "DevLib.Azure.Logging\DevLib.Azure.Logging.shproj", "{23A9A977-2ABD-4F0B-8CEF-224BDB8BE6AF}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "SharedProject", "SharedProject", "{CACF03B9-65C2-4814-90DF-0527FA08B597}"
+EndProject
 Global
 	GlobalSection(SharedMSBuildProjectFiles) = preSolution
+		DevLib.Azure.Logging\DevLib.Azure.Logging.projitems*{23a9a977-2abd-4f0b-8cef-224bdb8be6af}*SharedItemsImports = 13
+		DevLib.Azure.Logging\DevLib.Azure.Logging.projitems*{44f9640a-e9f8-45d1-baa9-93e5244cd10a}*SharedItemsImports = 4
 		DevLib.Azure.Storage\DevLib.Azure.Storage.projitems*{44f9640a-e9f8-45d1-baa9-93e5244cd10a}*SharedItemsImports = 4
 		DevLib.Azure.Storage\DevLib.Azure.Storage.projitems*{d7e62ea4-2151-456b-a8d9-4ad4b3bdade7}*SharedItemsImports = 13
 	EndGlobalSection
@@ -34,6 +40,8 @@ Global
 		HideSolutionNode = FALSE
 	EndGlobalSection
 	GlobalSection(NestedProjects) = preSolution
+		{D7E62EA4-2151-456B-A8D9-4AD4B3BDADE7} = {CACF03B9-65C2-4814-90DF-0527FA08B597}
 		{E204BF4A-2C1B-41BA-B135-43F1E9FAFFAE} = {9FC06631-9F7D-4D3A-B463-000012E47DB5}
+		{23A9A977-2ABD-4F0B-8CEF-224BDB8BE6AF} = {CACF03B9-65C2-4814-90DF-0527FA08B597}
 	EndGlobalSection
 EndGlobal
