@@ -162,7 +162,7 @@ namespace DevLib.Azure.Storage
         /// <param name="shareName">A string containing the name of the share.</param>
         /// <param name="createIfNotExists">true to creates the share if it does not already exist; otherwise, false.</param>
         /// <returns>FileShare instance.</returns>
-        public FileShare GetShare(string shareName, bool createIfNotExists = true)
+        public FileStorage GetShare(string shareName, bool createIfNotExists = true)
         {
             shareName.ValidateShareName();
 
@@ -173,7 +173,7 @@ namespace DevLib.Azure.Storage
                 share.CreateIfNotExists();
             }
 
-            return new FileShare(share);
+            return new FileStorage(share);
         }
 
         /// <summary>
@@ -210,11 +210,11 @@ namespace DevLib.Azure.Storage
         /// <param name="prefix">The share name prefix.</param>
         /// <param name="detailsIncluded">A value that indicates whether to return share metadata with the listing.</param>
         /// <returns>List of FileShare.</returns>
-        public List<FileShare> ListShares(string prefix = null, ShareListingDetails detailsIncluded = ShareListingDetails.None)
+        public List<FileStorage> ListShares(string prefix = null, ShareListingDetails detailsIncluded = ShareListingDetails.None)
         {
             var shares = this._cloudFileClient.ListShares(prefix, detailsIncluded);
 
-            return shares.Select(i => new FileShare(i)).ToList();
+            return shares.Select(i => new FileStorage(i)).ToList();
         }
 
         /// <summary>

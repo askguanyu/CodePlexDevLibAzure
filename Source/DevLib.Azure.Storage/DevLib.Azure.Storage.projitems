@@ -12,7 +12,8 @@
     <Compile Include="$(MSBuildThisFileDirectory)BlobContainer.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)BlobClient.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)FileClient.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)FileShare.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)FileStorage.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)InternalLogger.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)QueueClient.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)QueueStorage.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)StorageConstants.cs" />

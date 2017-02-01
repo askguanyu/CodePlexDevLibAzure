@@ -88,6 +88,7 @@
     <Compile Include="Given_TableDictionary.cs" />
     <Compile Include="Given_QueueStorage.cs" />
     <Compile Include="Given_LoggingMessageTableEntity.cs" />
+    <Compile Include="Given_Logger.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\DevLib.Azure.NET45\DevLib.Azure.NET45.csproj">

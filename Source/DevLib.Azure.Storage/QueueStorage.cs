@@ -261,9 +261,12 @@ namespace DevLib.Azure.Storage
         /// <summary>
         /// Clears all messages from the queue.
         /// </summary>
-        public void Clear()
+        /// <returns>The current QueueStorage instance.</returns>
+        public QueueStorage Clear()
         {
             this._cloudQueue.Clear();
+
+            return this;
         }
 
         /// <summary>
@@ -272,11 +275,14 @@ namespace DevLib.Azure.Storage
         /// <param name="content">The content of the message as a byte array.</param>
         /// <param name="timeToLive">A System.TimeSpan specifying the maximum time to allow the message to be in the queue, or null.</param>
         /// <param name="initialVisibilityDelay">A System.TimeSpan specifying the interval of time from now during which the message will be invisible. If null then the message will be visible immediately.</param>
-        public void Enqueue(byte[] content, TimeSpan? timeToLive = null, TimeSpan? initialVisibilityDelay = null)
+        /// <returns>The current QueueStorage instance.</returns>
+        public QueueStorage Enqueue(byte[] content, TimeSpan? timeToLive = null, TimeSpan? initialVisibilityDelay = null)
         {
             var cloudQueueMessage = new CloudQueueMessage(content);
 
             this._cloudQueue.AddMessage(cloudQueueMessage, timeToLive, initialVisibilityDelay);
+
+            return this;
         }
 
         /// <summary>
@@ -285,11 +291,14 @@ namespace DevLib.Azure.Storage
         /// <param name="content">The content of the message as a string of text.</param>
         /// <param name="timeToLive">A System.TimeSpan specifying the maximum time to allow the message to be in the queue, or null.</param>
         /// <param name="initialVisibilityDelay">A System.TimeSpan specifying the interval of time from now during which the message will be invisible. If null then the message will be visible immediately.</param>
-        public void Enqueue(string content, TimeSpan? timeToLive = null, TimeSpan? initialVisibilityDelay = null)
+        /// <returns>The current QueueStorage instance.</returns>
+        public QueueStorage Enqueue(string content, TimeSpan? timeToLive = null, TimeSpan? initialVisibilityDelay = null)
         {
             var cloudQueueMessage = new CloudQueueMessage(content);
 
             this._cloudQueue.AddMessage(cloudQueueMessage, timeToLive, initialVisibilityDelay);
+
+            return this;
         }
 
         /// <summary>
@@ -298,7 +307,8 @@ namespace DevLib.Azure.Storage
         /// <param name="messages">The messages.</param>
         /// <param name="timeToLive">A System.TimeSpan specifying the maximum time to allow the message to be in the queue, or null.</param>
         /// <param name="initialVisibilityDelay">A System.TimeSpan specifying the interval of time from now during which the message will be invisible. If null then the message will be visible immediately.</param>
-        public void EnqueueMany(IEnumerable<CloudQueueMessage> messages, TimeSpan? timeToLive = null, TimeSpan? initialVisibilityDelay = null)
+        /// <returns>The current QueueStorage instance.</returns>
+        public QueueStorage EnqueueMany(IEnumerable<CloudQueueMessage> messages, TimeSpan? timeToLive = null, TimeSpan? initialVisibilityDelay = null)
         {
             messages.ValidateNull();
 
@@ -306,6 +316,8 @@ namespace DevLib.Azure.Storage
             {
                 this._cloudQueue.AddMessage(message, timeToLive, initialVisibilityDelay);
             }
+
+            return this;
         }
 
         /// <summary>
@@ -314,7 +326,8 @@ namespace DevLib.Azure.Storage
         /// <param name="messages">The messages.</param>
         /// <param name="timeToLive">A System.TimeSpan specifying the maximum time to allow the message to be in the queue, or null.</param>
         /// <param name="initialVisibilityDelay">A System.TimeSpan specifying the interval of time from now during which the message will be invisible. If null then the message will be visible immediately.</param>
-        public void EnqueueMany(IEnumerable<string> messages, TimeSpan? timeToLive = null, TimeSpan? initialVisibilityDelay = null)
+        /// <returns>The current QueueStorage instance.</returns>
+        public QueueStorage EnqueueMany(IEnumerable<string> messages, TimeSpan? timeToLive = null, TimeSpan? initialVisibilityDelay = null)
         {
             messages.ValidateNull();
 
@@ -322,6 +335,8 @@ namespace DevLib.Azure.Storage
             {
                 this.Enqueue(message, timeToLive, initialVisibilityDelay);
             }
+
+            return this;
         }
 
         /// <summary>
@@ -330,7 +345,8 @@ namespace DevLib.Azure.Storage
         /// <param name="messages">The messages.</param>
         /// <param name="timeToLive">A System.TimeSpan specifying the maximum time to allow the message to be in the queue, or null.</param>
         /// <param name="initialVisibilityDelay">A System.TimeSpan specifying the interval of time from now during which the message will be invisible. If null then the message will be visible immediately.</param>
-        public void EnqueueMany(IEnumerable<byte[]> messages, TimeSpan? timeToLive = null, TimeSpan? initialVisibilityDelay = null)
+        /// <returns>The current QueueStorage instance.</returns>
+        public QueueStorage EnqueueMany(IEnumerable<byte[]> messages, TimeSpan? timeToLive = null, TimeSpan? initialVisibilityDelay = null)
         {
             messages.ValidateNull();
 
@@ -338,6 +354,8 @@ namespace DevLib.Azure.Storage
             {
                 this.Enqueue(message, timeToLive, initialVisibilityDelay);
             }
+
+            return this;
         }
 
         /// <summary>
@@ -385,13 +403,16 @@ namespace DevLib.Azure.Storage
         /// </summary>
         /// <param name="content">The message content to update.</param>
         /// <param name="visibilityTimeout">A System.TimeSpan specifying the visibility timeout interval.</param>
-        public void Update(string content, TimeSpan? visibilityTimeout = null)
+        /// <returns>The current QueueStorage instance.</returns>
+        public QueueStorage Update(string content, TimeSpan? visibilityTimeout = null)
         {
             var message = this._cloudQueue.GetMessage();
 
             message.SetMessageContent(content);
 
             this._cloudQueue.UpdateMessage(message, visibilityTimeout.HasValue ? visibilityTimeout.Value : TimeSpan.Zero, MessageUpdateFields.Content | MessageUpdateFields.Visibility);
+
+            return this;
         }
 
         /// <summary>
@@ -399,13 +420,16 @@ namespace DevLib.Azure.Storage
         /// </summary>
         /// <param name="content">The message content to update.</param>
         /// <param name="visibilityTimeout">A System.TimeSpan specifying the visibility timeout interval.</param>
-        public void Update(byte[] content, TimeSpan? visibilityTimeout = null)
+        /// <returns>The current QueueStorage instance.</returns>
+        public QueueStorage Update(byte[] content, TimeSpan? visibilityTimeout = null)
         {
             var message = this._cloudQueue.GetMessage();
 
             message.SetMessageContent(content);
 
             this._cloudQueue.UpdateMessage(message, visibilityTimeout.HasValue ? visibilityTimeout.Value : TimeSpan.Zero, MessageUpdateFields.Content | MessageUpdateFields.Visibility);
+
+            return this;
         }
 
         /// <summary>
@@ -414,11 +438,14 @@ namespace DevLib.Azure.Storage
         /// <param name="message">A Microsoft.WindowsAzure.Storage.Queue.CloudQueueMessage object to update.</param>
         /// <param name="visibilityTimeout">A System.TimeSpan specifying the visibility timeout interval.</param>
         /// <param name="updateFields">Flags of Microsoft.WindowsAzure.Storage.Queue.MessageUpdateFields values that specifies which parts of the message are to be updated.</param>
-        public void Update(CloudQueueMessage message, TimeSpan? visibilityTimeout = null, MessageUpdateFields updateFields = MessageUpdateFields.Content | MessageUpdateFields.Visibility)
+        /// <returns>The current QueueStorage instance.</returns>
+        public QueueStorage Update(CloudQueueMessage message, TimeSpan? visibilityTimeout = null, MessageUpdateFields updateFields = MessageUpdateFields.Content | MessageUpdateFields.Visibility)
         {
             message.ValidateNull();
 
             this._cloudQueue.UpdateMessage(message, visibilityTimeout.HasValue ? visibilityTimeout.Value : TimeSpan.Zero, updateFields);
+
+            return this;
         }
 
         /// <summary>
@@ -427,7 +454,8 @@ namespace DevLib.Azure.Storage
         /// <param name="messages">The messages.</param>
         /// <param name="visibilityTimeout">A System.TimeSpan specifying the visibility timeout interval.</param>
         /// <param name="updateFields">Flags of Microsoft.WindowsAzure.Storage.Queue.MessageUpdateFields values that specifies which parts of the message are to be updated.</param>
-        public void UpdateMany(IEnumerable<CloudQueueMessage> messages, TimeSpan? visibilityTimeout = null, MessageUpdateFields updateFields = MessageUpdateFields.Content | MessageUpdateFields.Visibility)
+        /// <returns>The current QueueStorage instance.</returns>
+        public QueueStorage UpdateMany(IEnumerable<CloudQueueMessage> messages, TimeSpan? visibilityTimeout = null, MessageUpdateFields updateFields = MessageUpdateFields.Content | MessageUpdateFields.Visibility)
         {
             messages.ValidateNull();
 
@@ -435,24 +463,30 @@ namespace DevLib.Azure.Storage
             {
                 this._cloudQueue.UpdateMessage(message, visibilityTimeout.HasValue ? visibilityTimeout.Value : TimeSpan.Zero, updateFields);
             }
+
+            return this;
         }
 
         /// <summary>
         /// Deletes a message.
         /// </summary>
         /// <param name="message">A Microsoft.WindowsAzure.Storage.Queue.CloudQueueMessage object.</param>
-        public void Delete(CloudQueueMessage message)
+        /// <returns>The current QueueStorage instance.</returns>
+        public QueueStorage Delete(CloudQueueMessage message)
         {
             message.ValidateNull();
 
             this._cloudQueue.DeleteMessage(message);
+
+            return this;
         }
 
         /// <summary>
         /// Deletes a message.
         /// </summary>
         /// <param name="messages">The messages.</param>
-        public void DeleteMany(IEnumerable<CloudQueueMessage> messages)
+        /// <returns>The current QueueStorage instance.</returns>
+        public QueueStorage DeleteMany(IEnumerable<CloudQueueMessage> messages)
         {
             messages.ValidateNull();
 
@@ -460,6 +494,8 @@ namespace DevLib.Azure.Storage
             {
                 this._cloudQueue.DeleteMessage(message);
             }
+
+            return this;
         }
 
         /// <summary>

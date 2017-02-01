@@ -7,6 +7,7 @@ namespace DevLib.Azure.Logging
 {
     using System;
     using System.Diagnostics;
+    using System.Globalization;
     using Microsoft.WindowsAzure.Storage.Table;
 
     /// <summary>
@@ -15,12 +16,30 @@ namespace DevLib.Azure.Logging
     public class LoggingMessageTableEntity : TableEntity
     {
         /// <summary>
+        /// The date format.
+        /// </summary>
+        private const string DateFormat = "yyyy-MM-ddTHH";
+
+        /// <summary>
+        /// The time format.
+        /// </summary>
+        private const string TimeFormat = "HH:mm:ss.fffUz_";
+
+        /// <summary>
+        /// The date time format.
+        /// </summary>
+        private const string DateTimeFormat = "yyyy-MM-ddTHH:mm:ss.fffZ";
+
+        /// <summary>
         /// Initializes a new instance of the <see cref="LoggingMessageTableEntity"/> class.
         /// </summary>
         public LoggingMessageTableEntity()
             : base()
         {
             this.EventTickCount = Stopwatch.GetTimestamp();
+            this.Timestamp = DateTimeOffset.Now;
+            this.PartitionKey = this.Timestamp.ToString(DateFormat, CultureInfo.InvariantCulture);
+            this.RowKey = this.Timestamp.ToString(TimeFormat, CultureInfo.InvariantCulture) + this.EventTickCount;
             this.User = Environment.UserName;
             this.Domain = Environment.UserDomainName;
             this.Machine = Environment.MachineName;
@@ -28,6 +47,7 @@ namespace DevLib.Azure.Logging
             this.Tid = Environment.CurrentManagedThreadId;
             this.CommandLine = Environment.CommandLine;
             this.Is64BitProcess = Environment.Is64BitProcess;
+            this.StackTrace = Environment.StackTrace;
             Process currentProcess = Process.GetCurrentProcess();
             this.Pid = currentProcess.Id;
             this.ApplicationName = currentProcess.ProcessName;
@@ -42,6 +62,7 @@ namespace DevLib.Azure.Logging
             : base(partitionKey, rowKey)
         {
             this.EventTickCount = Stopwatch.GetTimestamp();
+            this.Timestamp = DateTimeOffset.Now;
             this.User = Environment.UserName;
             this.Domain = Environment.UserDomainName;
             this.Machine = Environment.MachineName;
@@ -49,6 +70,7 @@ namespace DevLib.Azure.Logging
             this.Tid = Environment.CurrentManagedThreadId;
             this.CommandLine = Environment.CommandLine;
             this.Is64BitProcess = Environment.Is64BitProcess;
+            this.StackTrace = Environment.StackTrace;
             Process currentProcess = Process.GetCurrentProcess();
             this.Pid = currentProcess.Id;
             this.ApplicationName = currentProcess.ProcessName;
@@ -127,7 +149,7 @@ namespace DevLib.Azure.Logging
         }
 
         /// <summary>
-        /// Gets or sets the event ID of this event. Defaults to 0 if none specified.
+        /// Gets or sets the event ID of this event. Defaults to null if none specified.
         /// </summary>
         public string EventId
         {
@@ -136,7 +158,7 @@ namespace DevLib.Azure.Logging
         }
 
         /// <summary>
-        /// Gets or sets instance of the web app that the even occurred on.
+        /// Gets or sets instance of the web app that the even occurred on. Defaults to null if none specified.
         /// </summary>
         public string InstanceId
         {
@@ -188,6 +210,15 @@ namespace DevLib.Azure.Logging
         {
             get;
             set;
+        }
+
+        /// <summary>
+        /// Returns a <see cref="System.String" /> that represents this instance.
+        /// </summary>
+        /// <returns>A <see cref="System.String" /> that represents this instance.</returns>
+        public override string ToString()
+        {
+            return $"[PK: {this.PartitionKey}] [RK: {this.RowKey}] [Timestamp: {this.Timestamp.UtcDateTime.ToString(DateTimeFormat)}] [Level: {this.Level}] [Message: {this.Message}] [EventTickCount: {this.EventTickCount}] [User: {this.User}] [Domain: {this.Domain}] [Machine: {this.Machine}] [WorkingSet: {this.WorkingSet}] [ApplicationName: {this.ApplicationName}] [EventId: {this.EventId}] [InstanceId: {this.InstanceId}] [Pid: {this.Pid}] [Tid: {this.Tid}] [StackTrace: {this.StackTrace}] [CmdLine: {this.CommandLine}] [Is64Bit: {this.Is64BitProcess}]".Replace(Environment.NewLine, " ");
         }
     }
 }

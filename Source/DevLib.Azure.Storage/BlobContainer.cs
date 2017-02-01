@@ -585,8 +585,8 @@ namespace DevLib.Azure.Storage
         /// </summary>
         /// <param name="blobName">A string containing the name of the blob.</param>
         /// <param name="data">A string containing the text to upload.</param>
-        /// <returns>The blob Uri string.</returns>
-        public string AppendBlobAppendText(string blobName, string data)
+        /// <returns>The current BlobContainer instance.</returns>
+        public BlobContainer AppendBlobAppendText(string blobName, string data)
         {
             blobName.ValidateBlobName();
             data.ValidateNull();
@@ -600,7 +600,7 @@ namespace DevLib.Azure.Storage
 
             blob.AppendText(data);
 
-            return blob.Uri.ToString();
+            return this;
         }
 
         /// <summary>
