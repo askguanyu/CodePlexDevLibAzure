@@ -18,7 +18,7 @@ namespace DevLib.Azure.Logging
         /// <summary>
         /// The date format.
         /// </summary>
-        private const string DateFormat = "yyyy-MM-ddTHH";
+        private const string DateFormat = "yyyy-MM-ddTHHUz";
 
         /// <summary>
         /// The time format.

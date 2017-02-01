@@ -11,14 +11,14 @@ namespace DevLib.Azure.NET45.UnitTest
         [TestMethod]
         public void When_GetStackFrameInfo()
         {
-            var result = Logger.GetStackFrameInfo();
+            var result = TableLogger.GetStackFrameInfo();
         }
 
         [TestMethod]
         public void When_Log()
         {
-            var logger = new Logger(TableClient.DevelopmentClient.GetTableStorage("log"));
-            new Logger("", (TableClient)null).Log(LoggingLevel.ALL, "hello1", "a1", "b1", "c1");
+            var logger = new TableLogger(TableClient.DevelopmentClient.GetTableStorage("log"));
+            new TableLogger("", (TableClient)null).Log(LoggingLevel.ALL, "hello1", "a1", "b1", "c1");
             logger.Log(LoggingLevel.ALL, "hello2", "a2", "b2", "c2");
             logger.LogDebug(new[] { "a", "b", "c" });
 
