@@ -572,26 +572,18 @@ namespace DevLib.Azure.Storage
 
             var result = new List<TableResult>();
 
-            if (!entities.Any())
-            {
-                return result;
-            }
+            var batchs = this.GroupBatchByPartitionKey(entities, 100);
 
-            foreach (var grouping in entities.GroupBy(i => i.PartitionKey))
+            foreach (var batch in batchs)
             {
-                var batchs = this.GroupBatch(grouping, 100);
+                var batchOperation = new TableBatchOperation();
 
-                foreach (var batch in batchs)
+                foreach (var entity in batch)
                 {
-                    var batchOperation = new TableBatchOperation();
-
-                    foreach (var entity in batch)
-                    {
-                        batchOperation.Insert(entity, echoContent);
-                    }
-
-                    result.AddRange(this._cloudTable.ExecuteBatch(batchOperation));
+                    batchOperation.Insert(entity, echoContent);
                 }
+
+                result.AddRange(this._cloudTable.ExecuteBatch(batchOperation));
             }
 
             return result;
@@ -1034,16 +1026,9 @@ namespace DevLib.Azure.Storage
         {
             entities.ValidateNull();
 
-            // need same pkey
-
             var result = new List<TableResult>();
 
-            if (!entities.Any())
-            {
-                return result;
-            }
-
-            var batchs = this.GroupBatch(entities, 100);
+            var batchs = this.GroupBatchByPartitionKey(entities, 100);
 
             foreach (var batch in batchs)
             {
@@ -1249,7 +1234,12 @@ namespace DevLib.Azure.Storage
 
             int restCount = source.Count();
 
-            if (batchSize < 1 || restCount < 1)
+            if (restCount < 1)
+            {
+                return result;
+            }
+
+            if (batchSize < 1)
             {
                 result.Add(source.ToList());
                 return result;
@@ -1266,6 +1256,15 @@ namespace DevLib.Azure.Storage
             while (restCount > 0);
 
             return result;
+        }
+
+        private List<List<ITableEntity>> GroupBatchByPartitionKey(IEnumerable<ITableEntity> source, int batchSize)
+        {
+            return source?
+                .GroupBy(i => i.PartitionKey)
+                .SelectMany(i => GroupBatch(i, batchSize))
+                .ToList()
+                ?? new List<List<ITableEntity>>();
         }
     }
 }
