@@ -20,7 +20,7 @@ namespace DevLib.Azure.NET45.UnitTest
         {
             var blobContainer = new BlobContainer("test1", "a", "key", isNewContainerPublic: false);
 
-            var url = blobContainer.GetBlobUriWithSASReadOnly("file1.txt", TimeSpan.FromMinutes(1));
+            var url = blobContainer.GetBlobUriWithSasReadOnly("file1.txt", TimeSpan.FromMinutes(1));
         }
     }
 }

@@ -16,7 +16,7 @@ namespace DevLib.Azure.Storage
     /// <summary>
     /// Represents a container in the Microsoft Azure Blob service.
     /// </summary>
-    public class BlobContainer
+    public partial class BlobContainer
     {
         /// <summary>
         /// Field _cloudBlobContainer.
@@ -431,8 +431,8 @@ namespace DevLib.Azure.Storage
         /// <param name="blobName">A string containing the name of the blob.</param>
         /// <param name="data">A System.IO.Stream object providing the blob content.</param>
         /// <param name="contentType">Type of the content.</param>
-        /// <returns>The blob Uri string.</returns>
-        public string CreateBlockBlob(string blobName, Stream data, string contentType = null)
+        /// <returns>The CloudBlockBlob instance.</returns>
+        public CloudBlockBlob CreateBlockBlob(string blobName, Stream data, string contentType = null)
         {
             blobName.ValidateBlobName();
             data.ValidateNull();
@@ -446,7 +446,7 @@ namespace DevLib.Azure.Storage
 
             blob.UploadFromStream(data);
 
-            return blob.Uri.ToString();
+            return blob;
         }
 
         /// <summary>
@@ -455,8 +455,8 @@ namespace DevLib.Azure.Storage
         /// <param name="blobName">A string containing the name of the blob.</param>
         /// <param name="data">An array of bytes.</param>
         /// <param name="contentType">Type of the content.</param>
-        /// <returns>The blob Uri string.</returns>
-        public string CreateBlockBlob(string blobName, byte[] data, string contentType = null)
+        /// <returns>The CloudBlockBlob instance.</returns>
+        public CloudBlockBlob CreateBlockBlob(string blobName, byte[] data, string contentType = null)
         {
             blobName.ValidateBlobName();
             data.ValidateNull();
@@ -470,7 +470,7 @@ namespace DevLib.Azure.Storage
 
             blob.UploadFromByteArray(data, 0, data.Length);
 
-            return blob.Uri.ToString();
+            return blob;
         }
 
         /// <summary>
@@ -479,8 +479,8 @@ namespace DevLib.Azure.Storage
         /// <param name="blobName">A string containing the name of the blob.</param>
         /// <param name="data">A string containing the text to upload.</param>
         /// <param name="contentType">Type of the content.</param>
-        /// <returns>The blob Uri string.</returns>
-        public string CreateBlockBlob(string blobName, string data, string contentType = null)
+        /// <returns>The CloudBlockBlob instance.</returns>
+        public CloudBlockBlob CreateBlockBlob(string blobName, string data, string contentType = null)
         {
             blobName.ValidateBlobName();
             data.ValidateNull();
@@ -494,7 +494,7 @@ namespace DevLib.Azure.Storage
 
             blob.UploadText(data);
 
-            return blob.Uri.ToString();
+            return blob;
         }
 
         /// <summary>
@@ -503,8 +503,8 @@ namespace DevLib.Azure.Storage
         /// <param name="blobName">A string containing the name of the blob.</param>
         /// <param name="filePath">A string containing the file path providing the blob content.</param>
         /// <param name="contentType">Type of the content.</param>
-        /// <returns>The blob Uri string.</returns>
-        public string UploadBlockBlob(string blobName, string filePath, string contentType = null)
+        /// <returns>The CloudBlockBlob instance.</returns>
+        public CloudBlockBlob UploadBlockBlob(string blobName, string filePath, string contentType = null)
         {
             blobName.ValidateBlobName();
             filePath.ValidateNull();
@@ -518,7 +518,7 @@ namespace DevLib.Azure.Storage
 
             blob.UploadFromFile(filePath);
 
-            return blob.Uri.ToString();
+            return blob;
         }
 
         /// <summary>
@@ -571,12 +571,15 @@ namespace DevLib.Azure.Storage
         /// <param name="blobName">A string containing the name of the blob.</param>
         /// <param name="localFilePath">A string containing the path to the target file.</param>
         /// <param name="mode">A System.IO.FileMode enumeration value that determines how to open or create the file.</param>
-        public void DownloadBlockBlobToFile(string blobName, string localFilePath, FileMode mode = FileMode.Create)
+        /// <returns>The CloudBlockBlob instance.</returns>
+        public CloudBlockBlob DownloadBlockBlobToFile(string blobName, string localFilePath, FileMode mode = FileMode.Create)
         {
             blobName.ValidateBlobName();
 
             var blob = this._cloudBlobContainer.GetBlockBlobReference(blobName);
             blob.DownloadToFile(localFilePath, mode);
+
+            return blob;
         }
 
         /// <summary>
@@ -585,8 +588,8 @@ namespace DevLib.Azure.Storage
         /// </summary>
         /// <param name="blobName">A string containing the name of the blob.</param>
         /// <param name="data">A string containing the text to upload.</param>
-        /// <returns>The current BlobContainer instance.</returns>
-        public BlobContainer AppendBlobAppendText(string blobName, string data)
+        /// <returns>The CloudAppendBlob instance.</returns>
+        public CloudAppendBlob AppendBlobAppendText(string blobName, string data)
         {
             blobName.ValidateBlobName();
             data.ValidateNull();
@@ -600,7 +603,7 @@ namespace DevLib.Azure.Storage
 
             blob.AppendText(data);
 
-            return this;
+            return blob;
         }
 
         /// <summary>
@@ -634,7 +637,7 @@ namespace DevLib.Azure.Storage
         /// <param name="startTime">The start time for a shared access signature associated with this shared access policy.</param>
         /// <param name="endTime">The expiry time for a shared access signature associated with this shared access policy.</param>
         /// <returns>The query string returned includes the leading question mark.</returns>
-        public string GetBlobSAS(string blobName, SharedAccessBlobPermissions permissions = SharedAccessBlobPermissions.Read, DateTimeOffset? startTime = null, DateTimeOffset? endTime = null)
+        public string GetBlobSas(string blobName, SharedAccessBlobPermissions permissions = SharedAccessBlobPermissions.Read, DateTimeOffset? startTime = null, DateTimeOffset? endTime = null)
         {
             return this.GetBlob(blobName).GetSharedAccessSignature(new SharedAccessBlobPolicy
             {
@@ -650,9 +653,9 @@ namespace DevLib.Azure.Storage
         /// <param name="blobName">A string containing the name of the blob.</param>
         /// <param name="expiryTimeSpan">The expiry time span.</param>
         /// <returns>The query string returned includes the leading question mark.</returns>
-        public string GetBlobSASReadOnly(string blobName, TimeSpan expiryTimeSpan)
+        public string GetBlobSasReadOnly(string blobName, TimeSpan expiryTimeSpan)
         {
-            return this.GetBlobSAS(blobName, SharedAccessBlobPermissions.Read, DateTimeOffset.UtcNow, DateTimeOffset.UtcNow.Add(expiryTimeSpan));
+            return this.GetBlobSas(blobName, SharedAccessBlobPermissions.Read, DateTimeOffset.UtcNow, DateTimeOffset.UtcNow.Add(expiryTimeSpan));
         }
 
         /// <summary>
@@ -673,7 +676,7 @@ namespace DevLib.Azure.Storage
         /// <param name="startTime">The start time for a shared access signature associated with this shared access policy.</param>
         /// <param name="endTime">The expiry time for a shared access signature associated with this shared access policy.</param>
         /// <returns>The blob Uri with SAS.</returns>
-        public Uri GetBlobUriWithSAS(string blobName, SharedAccessBlobPermissions permissions = SharedAccessBlobPermissions.Read, DateTimeOffset? startTime = null, DateTimeOffset? endTime = null)
+        public Uri GetBlobUriWithSas(string blobName, SharedAccessBlobPermissions permissions = SharedAccessBlobPermissions.Read, DateTimeOffset? startTime = null, DateTimeOffset? endTime = null)
         {
             var blob = this.GetBlob(blobName);
 
@@ -695,9 +698,9 @@ namespace DevLib.Azure.Storage
         /// <param name="blobName">A string containing the name of the blob.</param>
         /// <param name="expiryTimeSpan">The expiry time span.</param>
         /// <returns>The blob Uri with read only SAS.</returns>
-        public Uri GetBlobUriWithSASReadOnly(string blobName, TimeSpan expiryTimeSpan)
+        public Uri GetBlobUriWithSasReadOnly(string blobName, TimeSpan expiryTimeSpan)
         {
-            return this.GetBlobUriWithSAS(blobName, SharedAccessBlobPermissions.Read, DateTimeOffset.UtcNow, DateTimeOffset.UtcNow.Add(expiryTimeSpan));
+            return this.GetBlobUriWithSas(blobName, SharedAccessBlobPermissions.Read, DateTimeOffset.UtcNow, DateTimeOffset.UtcNow.Add(expiryTimeSpan));
         }
 
         /// <summary>
@@ -707,7 +710,7 @@ namespace DevLib.Azure.Storage
         /// <param name="startTime">The start time for a shared access signature associated with this shared access policy.</param>
         /// <param name="endTime">The expiry time for a shared access signature associated with this shared access policy.</param>
         /// <returns>The query string returned includes the leading question mark.</returns>
-        public string GetContainerSAS(SharedAccessBlobPermissions permissions = SharedAccessBlobPermissions.Read, DateTimeOffset? startTime = null, DateTimeOffset? endTime = null)
+        public string GetContainerSas(SharedAccessBlobPermissions permissions = SharedAccessBlobPermissions.Read, DateTimeOffset? startTime = null, DateTimeOffset? endTime = null)
         {
             return this._cloudBlobContainer.GetSharedAccessSignature(new SharedAccessBlobPolicy
             {
@@ -722,9 +725,9 @@ namespace DevLib.Azure.Storage
         /// </summary>
         /// <param name="expiryTimeSpan">The expiry time span.</param>
         /// <returns>The query string returned includes the leading question mark.</returns>
-        public string GetContainerSASReadOnly(TimeSpan expiryTimeSpan)
+        public string GetContainerSasReadOnly(TimeSpan expiryTimeSpan)
         {
-            return this.GetContainerSAS(SharedAccessBlobPermissions.Read, DateTimeOffset.UtcNow, DateTimeOffset.UtcNow.Add(expiryTimeSpan));
+            return this.GetContainerSas(SharedAccessBlobPermissions.Read, DateTimeOffset.UtcNow, DateTimeOffset.UtcNow.Add(expiryTimeSpan));
         }
 
         /// <summary>
@@ -743,7 +746,7 @@ namespace DevLib.Azure.Storage
         /// <param name="startTime">The start time for a shared access signature associated with this shared access policy.</param>
         /// <param name="endTime">The expiry time for a shared access signature associated with this shared access policy.</param>
         /// <returns>The container Uri with SAS.</returns>
-        public Uri GetContainerUriWithSAS(SharedAccessBlobPermissions permissions = SharedAccessBlobPermissions.Read, DateTimeOffset? startTime = null, DateTimeOffset? endTime = null)
+        public Uri GetContainerUriWithSas(SharedAccessBlobPermissions permissions = SharedAccessBlobPermissions.Read, DateTimeOffset? startTime = null, DateTimeOffset? endTime = null)
         {
             var uriBuilder = new UriBuilder(this._cloudBlobContainer.Uri);
 
@@ -762,9 +765,9 @@ namespace DevLib.Azure.Storage
         /// </summary>
         /// <param name="expiryTimeSpan">The expiry time span.</param>
         /// <returns>The container Uri with read only SAS.</returns>
-        public Uri GetContainerUriWithSASReadOnly(TimeSpan expiryTimeSpan)
+        public Uri GetContainerUriWithSasReadOnly(TimeSpan expiryTimeSpan)
         {
-            return this.GetContainerUriWithSAS(SharedAccessBlobPermissions.Read, DateTimeOffset.UtcNow, DateTimeOffset.UtcNow.Add(expiryTimeSpan));
+            return this.GetContainerUriWithSas(SharedAccessBlobPermissions.Read, DateTimeOffset.UtcNow, DateTimeOffset.UtcNow.Add(expiryTimeSpan));
         }
 
         /// <summary>

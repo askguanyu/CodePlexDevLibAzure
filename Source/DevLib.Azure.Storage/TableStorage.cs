@@ -9,6 +9,8 @@ namespace DevLib.Azure.Storage
     using System.Collections.Generic;
     using System.Linq;
     using System.Net;
+    using System.Threading;
+    using System.Threading.Tasks;
     using Microsoft.WindowsAzure.Storage;
     using Microsoft.WindowsAzure.Storage.Auth;
     using Microsoft.WindowsAzure.Storage.Table;
@@ -531,6 +533,34 @@ namespace DevLib.Azure.Storage
         }
 
         /// <summary>
+        /// Inserts the given entity into the table.
+        /// </summary>
+        /// <param name="entity">The Microsoft.WindowsAzure.Storage.Table.ITableEntity object to be inserted into the table.</param>
+        /// <param name="partitionKey">A string containing the partition key of the entity to retrieve.</param>
+        /// <param name="rowKey">A string containing the row key of the entity to retrieve.</param>
+        /// <param name="echoContent">true if the message payload should be returned in the response to the insert operation. false otherwise.</param>
+        /// <param name="cancellationToken">A <see cref="T:System.Threading.CancellationToken" /> to observe while waiting for a task to complete.</param>
+        /// <returns>A Microsoft.WindowsAzure.Storage.Table.TableResult object.</returns>
+        public Task<TableResult> InsertAsync(ITableEntity entity, string partitionKey = null, string rowKey = null, bool echoContent = false, CancellationToken? cancellationToken = null)
+        {
+            entity.ValidateNull();
+
+            if (partitionKey != null)
+            {
+                partitionKey.ValidateTablePropertyValue();
+                entity.PartitionKey = partitionKey;
+            }
+
+            if (rowKey != null)
+            {
+                rowKey.ValidateTablePropertyValue();
+                entity.RowKey = rowKey;
+            }
+
+            return this._cloudTable.ExecuteAsync(TableOperation.Insert(entity, echoContent), cancellationToken ?? CancellationToken.None);
+        }
+
+        /// <summary>
         /// Executes a batch inserts operation on the table.
         /// </summary>
         /// <param name="entities">The entities to be inserted into the table.</param>
@@ -542,18 +572,26 @@ namespace DevLib.Azure.Storage
 
             var result = new List<TableResult>();
 
-            var batchs = this.GroupBatch(entities, 100);
-
-            foreach (var batch in batchs)
+            if (!entities.Any())
             {
-                var batchOperation = new TableBatchOperation();
+                return result;
+            }
 
-                foreach (var entity in batch)
+            foreach (var grouping in entities.GroupBy(i => i.PartitionKey))
+            {
+                var batchs = this.GroupBatch(grouping, 100);
+
+                foreach (var batch in batchs)
                 {
-                    batchOperation.Insert(entity, echoContent);
-                }
+                    var batchOperation = new TableBatchOperation();
 
-                result.AddRange(this._cloudTable.ExecuteBatch(batchOperation));
+                    foreach (var entity in batch)
+                    {
+                        batchOperation.Insert(entity, echoContent);
+                    }
+
+                    result.AddRange(this._cloudTable.ExecuteBatch(batchOperation));
+                }
             }
 
             return result;
@@ -996,7 +1034,14 @@ namespace DevLib.Azure.Storage
         {
             entities.ValidateNull();
 
+            // need same pkey
+
             var result = new List<TableResult>();
+
+            if (!entities.Any())
+            {
+                return result;
+            }
 
             var batchs = this.GroupBatch(entities, 100);
 
@@ -1068,6 +1113,18 @@ namespace DevLib.Azure.Storage
             var entities = this._cloudTable.ExecuteQuery(query);
 
             return this.Delete(entities);
+        }
+
+        /// <summary>
+        /// Removes all elements from the table.
+        /// </summary>
+        public void Clear()
+        {
+            var entities = this
+                ._cloudTable
+                .ExecuteQuery(new TableQuery());
+
+            this.Delete(entities);
         }
 
         /// <summary>

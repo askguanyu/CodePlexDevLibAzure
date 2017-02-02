@@ -471,7 +471,7 @@ namespace DevLib.Azure.Storage
         }
 
         /// <summary>
-        /// Removes all elements from the <see cref="T:System.Collections.IDictionary" /> object.
+        /// Removes all elements from the table dictionary.
         /// </summary>
         public void Clear()
         {

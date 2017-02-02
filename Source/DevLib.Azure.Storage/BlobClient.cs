@@ -15,7 +15,7 @@ namespace DevLib.Azure.Storage
     /// <summary>
     /// Provides a client-side logical representation of Microsoft Azure Blob storage.
     /// </summary>
-    public class BlobClient
+    public partial class BlobClient
     {
         /// <summary>
         /// The dev store account blob client.

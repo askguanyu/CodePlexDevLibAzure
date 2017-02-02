@@ -15,7 +15,7 @@ namespace DevLib.Azure.Storage
     /// <summary>
     /// Provides a client-side logical representation of the Microsoft Azure File service. This client is used to configure and execute requests against the File service.
     /// </summary>
-    public class FileClient
+    public partial class FileClient
     {
         /// <summary>
         /// The dev store account file client.
@@ -181,7 +181,7 @@ namespace DevLib.Azure.Storage
         /// </summary>
         /// <param name="shareName">A string containing the name of the share.</param>
         /// <returns>true if the share did not already exist and was created; otherwise false.</returns>
-        public bool DeleteContainerIfExists(string shareName)
+        public bool DeleteShareIfExists(string shareName)
         {
             shareName.ValidateShareName();
 

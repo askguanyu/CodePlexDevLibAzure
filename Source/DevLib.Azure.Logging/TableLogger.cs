@@ -161,7 +161,7 @@ namespace DevLib.Azure.Logging
             {
                 try
                 {
-                    this._tableStorage.Insert(messageEntity);
+                    this._tableStorage.InsertAsync(messageEntity);
                 }
                 catch (Exception e)
                 {
@@ -170,7 +170,7 @@ namespace DevLib.Azure.Logging
                     try
                     {
                         messageEntity.RowKey = Guid.NewGuid().ToString();
-                        this._tableStorage.Insert(messageEntity);
+                        this._tableStorage.InsertAsync(messageEntity);
                     }
                     catch (Exception ex)
                     {

@@ -9,10 +9,14 @@
     <Import_RootNamespace>DevLib.Azure.Storage</Import_RootNamespace>
   </PropertyGroup>
   <ItemGroup>
+    <Compile Include="$(MSBuildThisFileDirectory)BlobClientAsync.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)BlobContainer.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)BlobClient.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)BlobContainerAsync.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)FileClient.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)FileClientAsync.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)FileStorage.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)FileStorageAsync.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)InternalLogger.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)QueueClient.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)QueueStorage.cs" />
