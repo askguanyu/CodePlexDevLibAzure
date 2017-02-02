@@ -668,7 +668,7 @@ namespace DevLib.Azure.Storage
 
             var result = new List<TableResult>();
 
-            var batchs = this.GroupBatch(entities, 100);
+            var batchs = this.GroupBatchByPartitionKey(entities, 100);
 
             foreach (var batch in batchs)
             {
@@ -764,7 +764,7 @@ namespace DevLib.Azure.Storage
 
             var result = new List<TableResult>();
 
-            var batchs = this.GroupBatch(entities, 100);
+            var batchs = this.GroupBatchByPartitionKey(entities, 100);
 
             foreach (var batch in batchs)
             {
@@ -858,7 +858,7 @@ namespace DevLib.Azure.Storage
 
             var result = new List<TableResult>();
 
-            var batchs = this.GroupBatch(entities, 100);
+            var batchs = this.GroupBatchByPartitionKey(entities, 100);
 
             foreach (var batch in batchs)
             {
@@ -950,7 +950,7 @@ namespace DevLib.Azure.Storage
 
             var result = new List<TableResult>();
 
-            var batchs = this.GroupBatch(entities, 100);
+            var batchs = this.GroupBatchByPartitionKey(entities, 100);
 
             foreach (var batch in batchs)
             {
@@ -1103,13 +1103,16 @@ namespace DevLib.Azure.Storage
         /// <summary>
         /// Removes all elements from the table.
         /// </summary>
-        public void Clear()
+        /// <returns>The current TableStorage instance.</returns>
+        public TableStorage Clear()
         {
             var entities = this
                 ._cloudTable
                 .ExecuteQuery(new TableQuery());
 
             this.Delete(entities);
+
+            return this;
         }
 
         /// <summary>
@@ -1144,7 +1147,7 @@ namespace DevLib.Azure.Storage
         /// <param name="startTime">The start time for a shared access signature associated with this shared access policy.</param>
         /// <param name="endTime">The expiry time for a shared access signature associated with this shared access policy.</param>
         /// <returns>The query string returned includes the leading question mark.</returns>
-        public string GetTableSAS(SharedAccessTablePermissions permissions = SharedAccessTablePermissions.Query, DateTimeOffset? startTime = null, DateTimeOffset? endTime = null)
+        public string GetTableSas(SharedAccessTablePermissions permissions = SharedAccessTablePermissions.Query, DateTimeOffset? startTime = null, DateTimeOffset? endTime = null)
         {
             return this._cloudTable.GetSharedAccessSignature(new SharedAccessTablePolicy
             {
@@ -1159,9 +1162,9 @@ namespace DevLib.Azure.Storage
         /// </summary>
         /// <param name="expiryTimeSpan">The expiry time span.</param>
         /// <returns>The query string returned includes the leading question mark.</returns>
-        public string GetTableSASReadOnly(TimeSpan expiryTimeSpan)
+        public string GetTableSasReadOnly(TimeSpan expiryTimeSpan)
         {
-            return this.GetTableSAS(SharedAccessTablePermissions.Query, DateTimeOffset.UtcNow, DateTimeOffset.UtcNow.Add(expiryTimeSpan));
+            return this.GetTableSas(SharedAccessTablePermissions.Query, DateTimeOffset.UtcNow, DateTimeOffset.UtcNow.Add(expiryTimeSpan));
         }
 
         /// <summary>
@@ -1180,11 +1183,11 @@ namespace DevLib.Azure.Storage
         /// <param name="startTime">The start time for a shared access signature associated with this shared access policy.</param>
         /// <param name="endTime">The expiry time for a shared access signature associated with this shared access policy.</param>
         /// <returns>The table Uri with SAS.</returns>
-        public Uri GetTableUriWithSAS(SharedAccessTablePermissions permissions = SharedAccessTablePermissions.Query, DateTimeOffset? startTime = null, DateTimeOffset? endTime = null)
+        public Uri GetTableUriWithSas(SharedAccessTablePermissions permissions = SharedAccessTablePermissions.Query, DateTimeOffset? startTime = null, DateTimeOffset? endTime = null)
         {
             var uriBuilder = new UriBuilder(this._cloudTable.Uri);
 
-            uriBuilder.Query = this.GetTableSAS(permissions, startTime, endTime).TrimStart('?');
+            uriBuilder.Query = this.GetTableSas(permissions, startTime, endTime).TrimStart('?');
 
             return uriBuilder.Uri;
         }
@@ -1194,9 +1197,9 @@ namespace DevLib.Azure.Storage
         /// </summary>
         /// <param name="expiryTimeSpan">The expiry time span.</param>
         /// <returns>The table Uri with query only SAS.</returns>
-        public Uri GetTableUriWithSASReadOnly(TimeSpan expiryTimeSpan)
+        public Uri GetTableUriWithSasReadOnly(TimeSpan expiryTimeSpan)
         {
-            return this.GetTableUriWithSAS(SharedAccessTablePermissions.Query, DateTimeOffset.UtcNow, DateTimeOffset.UtcNow.Add(expiryTimeSpan));
+            return this.GetTableUriWithSas(SharedAccessTablePermissions.Query, DateTimeOffset.UtcNow, DateTimeOffset.UtcNow.Add(expiryTimeSpan));
         }
 
         /// <summary>
@@ -1214,6 +1217,15 @@ namespace DevLib.Azure.Storage
             {
                 cloudTableClient.DefaultRequestOptions.RetryPolicy = StorageConstants.DefaultExponentialRetry;
             }
+        }
+
+        private List<List<ITableEntity>> GroupBatchByPartitionKey(IEnumerable<ITableEntity> source, int batchSize)
+        {
+            return source?
+                .GroupBy(i => i.PartitionKey)
+                .SelectMany(i => GroupBatch(i, batchSize))
+                .ToList()
+                ?? new List<List<ITableEntity>>();
         }
 
         /// <summary>
@@ -1256,15 +1268,6 @@ namespace DevLib.Azure.Storage
             while (restCount > 0);
 
             return result;
-        }
-
-        private List<List<ITableEntity>> GroupBatchByPartitionKey(IEnumerable<ITableEntity> source, int batchSize)
-        {
-            return source?
-                .GroupBy(i => i.PartitionKey)
-                .SelectMany(i => GroupBatch(i, batchSize))
-                .ToList()
-                ?? new List<List<ITableEntity>>();
         }
     }
 }

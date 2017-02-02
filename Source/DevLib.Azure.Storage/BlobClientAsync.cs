@@ -37,15 +37,16 @@ namespace DevLib.Azure.Storage
         /// <param name="containerName">Name of the container.</param>
         /// <param name="cancellationToken">A <see cref="T:System.Threading.CancellationToken" /> to observe while waiting for a task to complete.</param>
         /// <returns>true if the container did not already exist and was created; otherwise false.</returns>
-        public async Task<bool> DeleteContainerIfExistsAsync(string containerName, CancellationToken? cancellationToken = null)
+        public Task<bool> DeleteContainerIfExistsAsync(string containerName, CancellationToken? cancellationToken = null)
         {
             containerName.ValidateContainerName();
 
-            var container = await Task.Run(
-                () => this._cloudBlobClient.GetContainerReference(containerName),
-                cancellationToken ?? CancellationToken.None);
-
-            return await container.DeleteIfExistsAsync(cancellationToken ?? CancellationToken.None);
+            return Task.Run(() =>
+            {
+                var container = this._cloudBlobClient.GetContainerReference(containerName);
+                return container.DeleteIfExistsAsync(cancellationToken ?? CancellationToken.None);
+            },
+            cancellationToken ?? CancellationToken.None);
         }
 
         /// <summary>

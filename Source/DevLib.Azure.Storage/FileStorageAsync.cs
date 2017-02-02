@@ -10,8 +10,7 @@ namespace DevLib.Azure.Storage
     using System.IO;
     using System.Linq;
     using System.Threading;
-    using Microsoft.WindowsAzure.Storage;
-    using Microsoft.WindowsAzure.Storage.Auth;
+    using System.Threading.Tasks;
     using Microsoft.WindowsAzure.Storage.File;
 
     /// <summary>
@@ -25,16 +24,20 @@ namespace DevLib.Azure.Storage
         /// <param name="directoryName">A System.String containing the name of the subdirectory; null will get the root directory.</param>
         /// <param name="cancellationToken">A <see cref="T:System.Threading.CancellationToken" /> to observe while waiting for a task to complete.</param>
         /// <returns>A Microsoft.WindowsAzure.Storage.File.CloudFileDirectory object.</returns>
-        public CloudFileDirectory GetDirectoryAsync(string directoryName = null, CancellationToken? cancellationToken = null)
+        public Task<CloudFileDirectory> GetDirectoryAsync(string directoryName = null, CancellationToken? cancellationToken = null)
         {
             if (directoryName != null)
             {
                 directoryName.ValidateDirectoryName();
             }
 
-            var rootDirectory = this._cloudFileShare.GetRootDirectoryReference();
+            return Task.Run(() =>
+            {
+                var rootDirectory = this._cloudFileShare.GetRootDirectoryReference();
 
-            return directoryName != null ? rootDirectory.GetDirectoryReference(directoryName) : rootDirectory;
+                return directoryName != null ? rootDirectory.GetDirectoryReference(directoryName) : rootDirectory;
+            },
+            cancellationToken ?? CancellationToken.None);
         }
 
         /// <summary>
@@ -44,7 +47,7 @@ namespace DevLib.Azure.Storage
         /// <param name="directoryName">A System.String containing the name of the subdirectory; null will get the root directory.</param>
         /// <param name="cancellationToken">A <see cref="T:System.Threading.CancellationToken" /> to observe while waiting for a task to complete.</param>
         /// <returns>A Microsoft.WindowsAzure.Storage.File.CloudFile object.</returns>
-        public CloudFile GetFileAsync(string fileName, string directoryName = null, CancellationToken? cancellationToken = null)
+        public Task<CloudFile> GetFileAsync(string fileName, string directoryName = null, CancellationToken? cancellationToken = null)
         {
             fileName.ValidateFileName();
 
@@ -53,23 +56,23 @@ namespace DevLib.Azure.Storage
                 directoryName.ValidateDirectoryName();
             }
 
-            var rootDirectory = this._cloudFileShare.GetRootDirectoryReference();
-            var directory = directoryName != null ? rootDirectory.GetDirectoryReference(directoryName) : rootDirectory;
-            var file = directory.GetFileReference(fileName);
-
-            return file;
+            return Task.Run(() =>
+            {
+                var rootDirectory = this._cloudFileShare.GetRootDirectoryReference();
+                var directory = directoryName != null ? rootDirectory.GetDirectoryReference(directoryName) : rootDirectory;
+                return directory.GetFileReference(fileName);
+            },
+            cancellationToken ?? CancellationToken.None);
         }
 
         /// <summary>
         /// Creates the share if it does not already exist.
         /// </summary>
         /// <param name="cancellationToken">A <see cref="T:System.Threading.CancellationToken" /> to observe while waiting for a task to complete.</param>
-        /// <returns>FileShare instance.</returns>
-        public FileStorage CreateIfNotExistsAsync(CancellationToken? cancellationToken = null)
+        /// <returns>true if the share did not already exist and was created; otherwise false.</returns>
+        public Task<bool> CreateIfNotExistsAsync(CancellationToken? cancellationToken = null)
         {
-            this._cloudFileShare.CreateIfNotExists();
-
-            return this;
+            return this._cloudFileShare.CreateIfNotExistsAsync(cancellationToken ?? CancellationToken.None);
         }
 
         /// <summary>
@@ -77,9 +80,9 @@ namespace DevLib.Azure.Storage
         /// </summary>
         /// <param name="cancellationToken">A <see cref="T:System.Threading.CancellationToken" /> to observe while waiting for a task to complete.</param>
         /// <returns>true if the share exists; otherwise, false.</returns>
-        public bool ShareExistsAsync(CancellationToken? cancellationToken = null)
+        public Task<bool> ShareExistsAsync(CancellationToken? cancellationToken = null)
         {
-            return this._cloudFileShare.Exists();
+            return this._cloudFileShare.ExistsAsync(cancellationToken ?? CancellationToken.None);
         }
 
         /// <summary>
@@ -88,14 +91,18 @@ namespace DevLib.Azure.Storage
         /// <param name="directoryName">Name of the directory.</param>
         /// <param name="cancellationToken">A <see cref="T:System.Threading.CancellationToken" /> to observe while waiting for a task to complete.</param>
         /// <returns>true if the directory exists; otherwise, false.</returns>
-        public bool DirectoryExistsAsync(string directoryName, CancellationToken? cancellationToken = null)
+        public Task<bool> DirectoryExistsAsync(string directoryName, CancellationToken? cancellationToken = null)
         {
             directoryName.ValidateDirectoryName();
 
-            var rootDirectory = this._cloudFileShare.GetRootDirectoryReference();
-            var directory = rootDirectory.GetDirectoryReference(directoryName);
+            return Task.Run(() =>
+            {
+                var rootDirectory = this._cloudFileShare.GetRootDirectoryReference();
+                var directory = rootDirectory.GetDirectoryReference(directoryName);
 
-            return directory.Exists();
+                return directory.ExistsAsync(cancellationToken ?? CancellationToken.None);
+            },
+            cancellationToken ?? CancellationToken.None);
         }
 
         /// <summary>
@@ -105,7 +112,7 @@ namespace DevLib.Azure.Storage
         /// <param name="directoryName">A System.String containing the name of the subdirectory; null will get the root directory.</param>
         /// <param name="cancellationToken">A <see cref="T:System.Threading.CancellationToken" /> to observe while waiting for a task to complete.</param>
         /// <returns>true if the file exists; otherwise, false.</returns>
-        public bool FileExistsAsync(string fileName, string directoryName = null, CancellationToken? cancellationToken = null)
+        public Task<bool> FileExistsAsync(string fileName, string directoryName = null, CancellationToken? cancellationToken = null)
         {
             fileName.ValidateFileName();
 
@@ -114,11 +121,16 @@ namespace DevLib.Azure.Storage
                 directoryName.ValidateDirectoryName();
             }
 
-            var rootDirectory = this._cloudFileShare.GetRootDirectoryReference();
-            var directory = directoryName != null ? rootDirectory.GetDirectoryReference(directoryName) : rootDirectory;
-            var file = directory.GetFileReference(fileName);
+            return Task.Run(() =>
+            {
+                var rootDirectory = this._cloudFileShare.GetRootDirectoryReference();
+                var directory = directoryName != null ? rootDirectory.GetDirectoryReference(directoryName) : rootDirectory;
+                var file = directory.GetFileReference(fileName);
 
-            return file.Exists();
+                return file.ExistsAsync(cancellationToken ?? CancellationToken.None);
+            },
+            cancellationToken ?? CancellationToken.None);
+
         }
 
         /// <summary>
@@ -127,14 +139,18 @@ namespace DevLib.Azure.Storage
         /// <param name="directoryName">Name of the directory.</param>
         /// <param name="cancellationToken">A <see cref="T:System.Threading.CancellationToken" /> to observe while waiting for a task to complete.</param>
         /// <returns>true if the directory did not already exist and was created; otherwise false.</returns>
-        public bool CreateDirectoryIfNotExistsAsync(string directoryName, CancellationToken? cancellationToken = null)
+        public Task<bool> CreateDirectoryIfNotExistsAsync(string directoryName, CancellationToken? cancellationToken = null)
         {
             directoryName.ValidateDirectoryName();
 
-            var rootDirectory = this._cloudFileShare.GetRootDirectoryReference();
-            var directory = rootDirectory.GetDirectoryReference(directoryName);
+            return Task.Run(() =>
+            {
+                var rootDirectory = this._cloudFileShare.GetRootDirectoryReference();
+                var directory = rootDirectory.GetDirectoryReference(directoryName);
 
-            return directory.CreateIfNotExists();
+                return directory.CreateIfNotExistsAsync(cancellationToken ?? CancellationToken.None);
+            },
+            cancellationToken ?? CancellationToken.None);
         }
 
         /// <summary>
@@ -144,7 +160,7 @@ namespace DevLib.Azure.Storage
         /// <param name="directoryName">A System.String containing the name of the subdirectory; null will get the root directory.</param>
         /// <param name="cancellationToken">A <see cref="T:System.Threading.CancellationToken" /> to observe while waiting for a task to complete.</param>
         /// <returns>The CloudFile instance.</returns>
-        public CloudFile OverwriteFileAsync(string fileName, string directoryName = null, CancellationToken? cancellationToken = null)
+        public Task<CloudFile> OverwriteFileAsync(string fileName, string directoryName = null, CancellationToken? cancellationToken = null)
         {
             fileName.ValidateFileName();
 
@@ -153,13 +169,17 @@ namespace DevLib.Azure.Storage
                 directoryName.ValidateDirectoryName();
             }
 
-            var rootDirectory = this._cloudFileShare.GetRootDirectoryReference();
-            var directory = directoryName != null ? rootDirectory.GetDirectoryReference(directoryName) : rootDirectory;
-            var file = directory.GetFileReference(fileName);
+            return Task.Run(() =>
+            {
+                var rootDirectory = this._cloudFileShare.GetRootDirectoryReference();
+                var directory = directoryName != null ? rootDirectory.GetDirectoryReference(directoryName) : rootDirectory;
+                var file = directory.GetFileReference(fileName);
 
-            file.Create(long.MaxValue);
+                file.CreateAsync(long.MaxValue, cancellationToken ?? CancellationToken.None);
 
-            return file;
+                return file;
+            },
+            cancellationToken ?? CancellationToken.None);
         }
 
         /// <summary>
@@ -169,7 +189,7 @@ namespace DevLib.Azure.Storage
         /// <param name="directoryName">A System.String containing the name of the subdirectory; null will get the root directory.</param>
         /// <param name="cancellationToken">A <see cref="T:System.Threading.CancellationToken" /> to observe while waiting for a task to complete.</param>
         /// <returns>The CloudFile instance.</returns>
-        public CloudFile CreateFileIfNotExistsAsync(string fileName, string directoryName = null, CancellationToken? cancellationToken = null)
+        public Task<CloudFile> CreateFileIfNotExistsAsync(string fileName, string directoryName = null, CancellationToken? cancellationToken = null)
         {
             fileName.ValidateFileName();
 
@@ -178,16 +198,20 @@ namespace DevLib.Azure.Storage
                 directoryName.ValidateDirectoryName();
             }
 
-            var rootDirectory = this._cloudFileShare.GetRootDirectoryReference();
-            var directory = directoryName != null ? rootDirectory.GetDirectoryReference(directoryName) : rootDirectory;
-            var file = directory.GetFileReference(fileName);
-
-            if (!file.Exists())
+            return Task.Run(async () =>
             {
-                file.Create(long.MaxValue);
-            }
+                var rootDirectory = this._cloudFileShare.GetRootDirectoryReference();
+                var directory = directoryName != null ? rootDirectory.GetDirectoryReference(directoryName) : rootDirectory;
+                var file = directory.GetFileReference(fileName);
 
-            return file;
+                if (!await file.ExistsAsync(cancellationToken ?? CancellationToken.None))
+                {
+                    await file.CreateAsync(long.MaxValue, cancellationToken ?? CancellationToken.None);
+                }
+
+                return file;
+            },
+            cancellationToken ?? CancellationToken.None);
         }
 
         /// <summary>
@@ -196,14 +220,18 @@ namespace DevLib.Azure.Storage
         /// <param name="directoryName">Name of the directory.</param>
         /// <param name="cancellationToken">A <see cref="T:System.Threading.CancellationToken" /> to observe while waiting for a task to complete.</param>
         /// <returns>true if the directory did already exist and was deleted; otherwise false.</returns>
-        public bool DeleteDirectoryIfExistsAsync(string directoryName, CancellationToken? cancellationToken = null)
+        public Task<bool> DeleteDirectoryIfExistsAsync(string directoryName, CancellationToken? cancellationToken = null)
         {
             directoryName.ValidateDirectoryName();
 
-            var rootDirectory = this._cloudFileShare.GetRootDirectoryReference();
-            var directory = rootDirectory.GetDirectoryReference(directoryName);
+            return Task.Run(() =>
+            {
+                var rootDirectory = this._cloudFileShare.GetRootDirectoryReference();
+                var directory = rootDirectory.GetDirectoryReference(directoryName);
 
-            return directory.DeleteIfExists();
+                return directory.DeleteIfExistsAsync(cancellationToken ?? CancellationToken.None);
+            },
+            cancellationToken ?? CancellationToken.None);
         }
 
         /// <summary>
@@ -213,7 +241,7 @@ namespace DevLib.Azure.Storage
         /// <param name="directoryName">A System.String containing the name of the subdirectory; null will get the root directory.</param>
         /// <param name="cancellationToken">A <see cref="T:System.Threading.CancellationToken" /> to observe while waiting for a task to complete.</param>
         /// <returns>true if the file did already exist and was deleted; otherwise false.</returns>
-        public bool DeleteFileIfExistsAsync(string fileName, string directoryName = null, CancellationToken? cancellationToken = null)
+        public Task<bool> DeleteFileIfExistsAsync(string fileName, string directoryName = null, CancellationToken? cancellationToken = null)
         {
             fileName.ValidateFileName();
 
@@ -222,11 +250,15 @@ namespace DevLib.Azure.Storage
                 directoryName.ValidateDirectoryName();
             }
 
-            var rootDirectory = this._cloudFileShare.GetRootDirectoryReference();
-            var directory = directoryName != null ? rootDirectory.GetDirectoryReference(directoryName) : rootDirectory;
-            var file = directory.GetFileReference(fileName);
+            return Task.Run(() =>
+            {
+                var rootDirectory = this._cloudFileShare.GetRootDirectoryReference();
+                var directory = directoryName != null ? rootDirectory.GetDirectoryReference(directoryName) : rootDirectory;
+                var file = directory.GetFileReference(fileName);
 
-            return file.DeleteIfExists();
+                return file.DeleteIfExistsAsync(cancellationToken ?? CancellationToken.None);
+            },
+            cancellationToken ?? CancellationToken.None);
         }
 
         /// <summary>
@@ -234,9 +266,9 @@ namespace DevLib.Azure.Storage
         /// </summary>
         /// <param name="cancellationToken">A <see cref="T:System.Threading.CancellationToken" /> to observe while waiting for a task to complete.</param>
         /// <returns>true if the share did not already exist and was created; otherwise false.</returns>
-        public bool DeleteShareIfExistsAsync(CancellationToken? cancellationToken = null)
+        public Task<bool> DeleteShareIfExistsAsync(CancellationToken? cancellationToken = null)
         {
-            return this._cloudFileShare.DeleteIfExists();
+            return this._cloudFileShare.DeleteIfExistsAsync(cancellationToken ?? CancellationToken.None);
         }
 
         /// <summary>
@@ -247,7 +279,7 @@ namespace DevLib.Azure.Storage
         /// <param name="directoryName">A System.String containing the name of the subdirectory; null will get the root directory.</param>
         /// <param name="cancellationToken">A <see cref="T:System.Threading.CancellationToken" /> to observe while waiting for a task to complete.</param>
         /// <returns>The CloudFile instance.</returns>
-        public CloudFile CreateFileAsync(string fileName, string data, string directoryName = null, CancellationToken? cancellationToken = null)
+        public Task<CloudFile> CreateFileAsync(string fileName, string data, string directoryName = null, CancellationToken? cancellationToken = null)
         {
             fileName.ValidateFileName();
             data.ValidateNull();
@@ -257,18 +289,22 @@ namespace DevLib.Azure.Storage
                 directoryName.ValidateDirectoryName();
             }
 
-            var rootDirectory = this._cloudFileShare.GetRootDirectoryReference();
-            var directory = directoryName != null ? rootDirectory.GetDirectoryReference(directoryName) : rootDirectory;
-            var file = directory.GetFileReference(fileName);
-
-            if (!file.Exists())
+            return Task.Run(async () =>
             {
-                file.Create(long.MaxValue);
-            }
+                var rootDirectory = this._cloudFileShare.GetRootDirectoryReference();
+                var directory = directoryName != null ? rootDirectory.GetDirectoryReference(directoryName) : rootDirectory;
+                var file = directory.GetFileReference(fileName);
 
-            file.UploadText(data);
+                if (!await file.ExistsAsync(cancellationToken ?? CancellationToken.None))
+                {
+                    await file.CreateAsync(long.MaxValue, cancellationToken ?? CancellationToken.None);
+                }
 
-            return file;
+                await file.UploadTextAsync(data, cancellationToken ?? CancellationToken.None);
+
+                return file;
+            },
+            cancellationToken ?? CancellationToken.None);
         }
 
         /// <summary>
@@ -279,7 +315,7 @@ namespace DevLib.Azure.Storage
         /// <param name="directoryName">A System.String containing the name of the subdirectory; null will get the root directory.</param>
         /// <param name="cancellationToken">A <see cref="T:System.Threading.CancellationToken" /> to observe while waiting for a task to complete.</param>
         /// <returns>The CloudFile instance.</returns>
-        public CloudFile CreateFileAsync(string fileName, Stream data, string directoryName = null, CancellationToken? cancellationToken = null)
+        public Task<CloudFile> CreateFileAsync(string fileName, Stream data, string directoryName = null, CancellationToken? cancellationToken = null)
         {
             fileName.ValidateFileName();
             data.ValidateNull();
@@ -289,18 +325,22 @@ namespace DevLib.Azure.Storage
                 directoryName.ValidateDirectoryName();
             }
 
-            var rootDirectory = this._cloudFileShare.GetRootDirectoryReference();
-            var directory = directoryName != null ? rootDirectory.GetDirectoryReference(directoryName) : rootDirectory;
-            var file = directory.GetFileReference(fileName);
-
-            if (!file.Exists())
+            return Task.Run(async () =>
             {
-                file.Create(long.MaxValue);
-            }
+                var rootDirectory = this._cloudFileShare.GetRootDirectoryReference();
+                var directory = directoryName != null ? rootDirectory.GetDirectoryReference(directoryName) : rootDirectory;
+                var file = directory.GetFileReference(fileName);
 
-            file.UploadFromStream(data);
+                if (!await file.ExistsAsync(cancellationToken ?? CancellationToken.None))
+                {
+                    await file.CreateAsync(long.MaxValue, cancellationToken ?? CancellationToken.None);
+                }
 
-            return file;
+                await file.UploadFromStreamAsync(data, cancellationToken ?? CancellationToken.None);
+
+                return file;
+            },
+            cancellationToken ?? CancellationToken.None);
         }
 
         /// <summary>
@@ -311,7 +351,7 @@ namespace DevLib.Azure.Storage
         /// <param name="directoryName">A System.String containing the name of the subdirectory; null will get the root directory.</param>
         /// <param name="cancellationToken">A <see cref="T:System.Threading.CancellationToken" /> to observe while waiting for a task to complete.</param>
         /// <returns>The CloudFile instance.</returns>
-        public CloudFile CreateFileAsync(string fileName, byte[] data, string directoryName = null, CancellationToken? cancellationToken = null)
+        public Task<CloudFile> CreateFileAsync(string fileName, byte[] data, string directoryName = null, CancellationToken? cancellationToken = null)
         {
             fileName.ValidateFileName();
             data.ValidateNull();
@@ -321,18 +361,22 @@ namespace DevLib.Azure.Storage
                 directoryName.ValidateDirectoryName();
             }
 
-            var rootDirectory = this._cloudFileShare.GetRootDirectoryReference();
-            var directory = directoryName != null ? rootDirectory.GetDirectoryReference(directoryName) : rootDirectory;
-            var file = directory.GetFileReference(fileName);
-
-            if (!file.Exists())
+            return Task.Run(async () =>
             {
-                file.Create(long.MaxValue);
-            }
+                var rootDirectory = this._cloudFileShare.GetRootDirectoryReference();
+                var directory = directoryName != null ? rootDirectory.GetDirectoryReference(directoryName) : rootDirectory;
+                var file = directory.GetFileReference(fileName);
 
-            file.UploadFromByteArray(data, 0, data.Length);
+                if (!await file.ExistsAsync(cancellationToken ?? CancellationToken.None))
+                {
+                    await file.CreateAsync(long.MaxValue, cancellationToken ?? CancellationToken.None);
+                }
 
-            return file;
+                await file.UploadFromByteArrayAsync(data, 0, data.Length, cancellationToken ?? CancellationToken.None);
+
+                return file;
+            },
+            cancellationToken ?? CancellationToken.None);
         }
 
         /// <summary>
@@ -343,7 +387,7 @@ namespace DevLib.Azure.Storage
         /// <param name="directoryName">A System.String containing the name of the subdirectory; null will get the root directory.</param>
         /// <param name="cancellationToken">A <see cref="T:System.Threading.CancellationToken" /> to observe while waiting for a task to complete.</param>
         /// <returns>The CloudFile instance.</returns>
-        public CloudFile UploadFileAsync(string fileName, string sourceFilePath, string directoryName = null, CancellationToken? cancellationToken = null)
+        public Task<CloudFile> UploadFileAsync(string fileName, string sourceFilePath, string directoryName = null, CancellationToken? cancellationToken = null)
         {
             fileName.ValidateFileName();
             sourceFilePath.ValidateNull();
@@ -353,18 +397,22 @@ namespace DevLib.Azure.Storage
                 directoryName.ValidateDirectoryName();
             }
 
-            var rootDirectory = this._cloudFileShare.GetRootDirectoryReference();
-            var directory = directoryName != null ? rootDirectory.GetDirectoryReference(directoryName) : rootDirectory;
-            var file = directory.GetFileReference(fileName);
-
-            if (!file.Exists())
+            return Task.Run(async () =>
             {
-                file.Create(long.MaxValue);
-            }
+                var rootDirectory = this._cloudFileShare.GetRootDirectoryReference();
+                var directory = directoryName != null ? rootDirectory.GetDirectoryReference(directoryName) : rootDirectory;
+                var file = directory.GetFileReference(fileName);
 
-            file.UploadFromFile(sourceFilePath);
+                if (!await file.ExistsAsync(cancellationToken ?? CancellationToken.None))
+                {
+                    await file.CreateAsync(long.MaxValue, cancellationToken ?? CancellationToken.None);
+                }
 
-            return file;
+                await file.UploadFromFileAsync(sourceFilePath, cancellationToken ?? CancellationToken.None);
+
+                return file;
+            },
+            cancellationToken ?? CancellationToken.None);
         }
 
         /// <summary>
@@ -374,7 +422,7 @@ namespace DevLib.Azure.Storage
         /// <param name="directoryName">A System.String containing the name of the subdirectory; null will get the root directory.</param>
         /// <param name="cancellationToken">A <see cref="T:System.Threading.CancellationToken" /> to observe while waiting for a task to complete.</param>
         /// <returns>The contents of the file, as a string.</returns>
-        public string DownloadTextAsync(string fileName, string directoryName = null, CancellationToken? cancellationToken = null)
+        public Task<string> DownloadTextAsync(string fileName, string directoryName = null, CancellationToken? cancellationToken = null)
         {
             fileName.ValidateFileName();
 
@@ -383,11 +431,15 @@ namespace DevLib.Azure.Storage
                 directoryName.ValidateDirectoryName();
             }
 
-            var rootDirectory = this._cloudFileShare.GetRootDirectoryReference();
-            var directory = directoryName != null ? rootDirectory.GetDirectoryReference(directoryName) : rootDirectory;
-            var file = directory.GetFileReference(fileName);
+            return Task.Run(() =>
+            {
+                var rootDirectory = this._cloudFileShare.GetRootDirectoryReference();
+                var directory = directoryName != null ? rootDirectory.GetDirectoryReference(directoryName) : rootDirectory;
+                var file = directory.GetFileReference(fileName);
 
-            return file.DownloadText();
+                return file.DownloadTextAsync(cancellationToken ?? CancellationToken.None);
+            },
+            cancellationToken ?? CancellationToken.None);
         }
 
         /// <summary>
@@ -397,7 +449,7 @@ namespace DevLib.Azure.Storage
         /// <param name="directoryName">A System.String containing the name of the subdirectory; null will get the root directory.</param>
         /// <param name="cancellationToken">A <see cref="T:System.Threading.CancellationToken" /> to observe while waiting for a task to complete.</param>
         /// <returns>The contents of the file, as MemoryStream.</returns>
-        public MemoryStream DownloadToStreamAsync(string fileName, string directoryName = null, CancellationToken? cancellationToken = null)
+        public Task<MemoryStream> DownloadToStreamAsync(string fileName, string directoryName = null, CancellationToken? cancellationToken = null)
         {
             fileName.ValidateFileName();
 
@@ -406,15 +458,19 @@ namespace DevLib.Azure.Storage
                 directoryName.ValidateDirectoryName();
             }
 
-            var rootDirectory = this._cloudFileShare.GetRootDirectoryReference();
-            var directory = directoryName != null ? rootDirectory.GetDirectoryReference(directoryName) : rootDirectory;
-            var file = directory.GetFileReference(fileName);
+            return Task.Run(async () =>
+            {
+                var rootDirectory = this._cloudFileShare.GetRootDirectoryReference();
+                var directory = directoryName != null ? rootDirectory.GetDirectoryReference(directoryName) : rootDirectory;
+                var file = directory.GetFileReference(fileName);
 
-            var stream = new MemoryStream();
-            file.DownloadToStream(stream);
-            stream.Seek(0, SeekOrigin.Begin);
+                var stream = new MemoryStream();
+                await file.DownloadToStreamAsync(stream, cancellationToken ?? CancellationToken.None);
+                stream.Seek(0, SeekOrigin.Begin);
 
-            return stream;
+                return stream;
+            },
+            cancellationToken ?? CancellationToken.None);
         }
 
         /// <summary>
@@ -426,7 +482,7 @@ namespace DevLib.Azure.Storage
         /// <param name="mode">A System.IO.FileMode enumeration value that determines how to open or create the file.</param>
         /// <param name="cancellationToken">A <see cref="T:System.Threading.CancellationToken" /> to observe while waiting for a task to complete.</param>
         /// <returns>The CloudFile instance.</returns>
-        public CloudFile DownloadToFileAsync(string fileName, string localFilePath, string directoryName = null, FileMode mode = FileMode.Create, CancellationToken? cancellationToken = null)
+        public Task<CloudFile> DownloadToFileAsync(string fileName, string localFilePath, string directoryName = null, FileMode mode = FileMode.Create, CancellationToken? cancellationToken = null)
         {
             fileName.ValidateFileName();
 
@@ -435,13 +491,17 @@ namespace DevLib.Azure.Storage
                 directoryName.ValidateDirectoryName();
             }
 
-            var rootDirectory = this._cloudFileShare.GetRootDirectoryReference();
-            var directory = directoryName != null ? rootDirectory.GetDirectoryReference(directoryName) : rootDirectory;
-            var file = directory.GetFileReference(fileName);
+            return Task.Run(async () =>
+            {
+                var rootDirectory = this._cloudFileShare.GetRootDirectoryReference();
+                var directory = directoryName != null ? rootDirectory.GetDirectoryReference(directoryName) : rootDirectory;
+                var file = directory.GetFileReference(fileName);
 
-            file.DownloadToFile(localFilePath, mode);
+                await file.DownloadToFileAsync(localFilePath, mode, cancellationToken ?? CancellationToken.None);
 
-            return file;
+                return file;
+            },
+            cancellationToken ?? CancellationToken.None);
         }
 
         /// <summary>
@@ -450,17 +510,21 @@ namespace DevLib.Azure.Storage
         /// <param name="directoryName">A System.String containing the name of the subdirectory; null will get the root directory.</param>
         /// <param name="cancellationToken">A <see cref="T:System.Threading.CancellationToken" /> to observe while waiting for a task to complete.</param>
         /// <returns>An enumerable collection of objects that implement Microsoft.WindowsAzure.Storage.File.IListFileItem.</returns>
-        public List<IListFileItem> ListFilesAndDirectoriesAsync(string directoryName = null, CancellationToken? cancellationToken = null)
+        public Task<List<IListFileItem>> ListFilesAndDirectoriesAsync(string directoryName = null, CancellationToken? cancellationToken = null)
         {
             if (directoryName != null)
             {
                 directoryName.ValidateDirectoryName();
             }
 
-            var rootDirectory = this._cloudFileShare.GetRootDirectoryReference();
-            var directory = directoryName != null ? rootDirectory.GetDirectoryReference(directoryName) : rootDirectory;
+            return Task.Run(() =>
+            {
+                var rootDirectory = this._cloudFileShare.GetRootDirectoryReference();
+                var directory = directoryName != null ? rootDirectory.GetDirectoryReference(directoryName) : rootDirectory;
 
-            return directory.ListFilesAndDirectories().ToList();
+                return directory.ListFilesAndDirectories().ToList();
+            },
+            cancellationToken ?? CancellationToken.None);
         }
 
         /// <summary>
@@ -469,17 +533,21 @@ namespace DevLib.Azure.Storage
         /// <param name="directoryName">A System.String containing the name of the subdirectory; null will get the root directory.</param>
         /// <param name="cancellationToken">A <see cref="T:System.Threading.CancellationToken" /> to observe while waiting for a task to complete.</param>
         /// <returns>The number of elements contained in the share.</returns>
-        public int FilesAndDirectoriesCountAsync(string directoryName = null, CancellationToken? cancellationToken = null)
+        public Task<int> FilesAndDirectoriesCountAsync(string directoryName = null, CancellationToken? cancellationToken = null)
         {
             if (directoryName != null)
             {
                 directoryName.ValidateDirectoryName();
             }
 
-            var rootDirectory = this._cloudFileShare.GetRootDirectoryReference();
-            var directory = directoryName != null ? rootDirectory.GetDirectoryReference(directoryName) : rootDirectory;
+            return Task.Run(() =>
+            {
+                var rootDirectory = this._cloudFileShare.GetRootDirectoryReference();
+                var directory = directoryName != null ? rootDirectory.GetDirectoryReference(directoryName) : rootDirectory;
 
-            return directory.ListFilesAndDirectories().Count();
+                return directory.ListFilesAndDirectories().Count();
+            },
+            cancellationToken ?? CancellationToken.None);
         }
 
         /// <summary>
@@ -492,14 +560,29 @@ namespace DevLib.Azure.Storage
         /// <param name="endTime">The expiry time for a shared access signature associated with this shared access policy.</param>
         /// <param name="cancellationToken">A <see cref="T:System.Threading.CancellationToken" /> to observe while waiting for a task to complete.</param>
         /// <returns>The query string returned includes the leading question mark.</returns>
-        public string GetFileSasAsync(string fileName, string directoryName = null, SharedAccessFilePermissions permissions = SharedAccessFilePermissions.Read, DateTimeOffset? startTime = null, DateTimeOffset? endTime = null, CancellationToken? cancellationToken = null)
+        public Task<string> GetFileSasAsync(string fileName, string directoryName = null, SharedAccessFilePermissions permissions = SharedAccessFilePermissions.Read, DateTimeOffset? startTime = null, DateTimeOffset? endTime = null, CancellationToken? cancellationToken = null)
         {
-            return this.GetFile(fileName, directoryName).GetSharedAccessSignature(new SharedAccessFilePolicy
+            fileName.ValidateFileName();
+
+            if (directoryName != null)
             {
-                Permissions = permissions,
-                SharedAccessStartTime = startTime,
-                SharedAccessExpiryTime = endTime
-            });
+                directoryName.ValidateDirectoryName();
+            }
+
+            return Task.Run(() =>
+            {
+                var rootDirectory = this._cloudFileShare.GetRootDirectoryReference();
+                var directory = directoryName != null ? rootDirectory.GetDirectoryReference(directoryName) : rootDirectory;
+                var file = directory.GetFileReference(fileName);
+
+                return file.GetSharedAccessSignature(new SharedAccessFilePolicy
+                {
+                    Permissions = permissions,
+                    SharedAccessStartTime = startTime,
+                    SharedAccessExpiryTime = endTime
+                });
+            },
+            cancellationToken ?? CancellationToken.None);
         }
 
         /// <summary>
@@ -510,9 +593,9 @@ namespace DevLib.Azure.Storage
         /// <param name="directoryName">A System.String containing the name of the subdirectory; null will get the root directory.</param>
         /// <param name="cancellationToken">A <see cref="T:System.Threading.CancellationToken" /> to observe while waiting for a task to complete.</param>
         /// <returns>The query string returned includes the leading question mark.</returns>
-        public string GetFileSasReadOnlyAsync(string fileName, TimeSpan expiryTimeSpan, string directoryName = null, CancellationToken? cancellationToken = null)
+        public Task<string> GetFileSasReadOnlyAsync(string fileName, TimeSpan expiryTimeSpan, string directoryName = null, CancellationToken? cancellationToken = null)
         {
-            return this.GetFileSas(fileName, directoryName, SharedAccessFilePermissions.Read, DateTimeOffset.UtcNow, DateTimeOffset.UtcNow.Add(expiryTimeSpan));
+            return this.GetFileSasAsync(fileName, directoryName, SharedAccessFilePermissions.Read, DateTimeOffset.UtcNow, DateTimeOffset.UtcNow.Add(expiryTimeSpan), cancellationToken);
         }
 
         /// <summary>
@@ -522,9 +605,22 @@ namespace DevLib.Azure.Storage
         /// <param name="directoryName">A System.String containing the name of the subdirectory; null will get the root directory.</param>
         /// <param name="cancellationToken">A <see cref="T:System.Threading.CancellationToken" /> to observe while waiting for a task to complete.</param>
         /// <returns>The file URI.</returns>
-        public Uri GetFileUriAsync(string fileName, string directoryName = null, CancellationToken? cancellationToken = null)
+        public Task<Uri> GetFileUriAsync(string fileName, string directoryName = null, CancellationToken? cancellationToken = null)
         {
-            return this.GetFile(fileName, directoryName).Uri;
+            fileName.ValidateFileName();
+
+            if (directoryName != null)
+            {
+                directoryName.ValidateDirectoryName();
+            }
+
+            return Task.Run(() =>
+            {
+                var rootDirectory = this._cloudFileShare.GetRootDirectoryReference();
+                var directory = directoryName != null ? rootDirectory.GetDirectoryReference(directoryName) : rootDirectory;
+                return directory.GetFileReference(fileName).Uri;
+            },
+            cancellationToken ?? CancellationToken.None);
         }
 
         /// <summary>
@@ -533,9 +629,20 @@ namespace DevLib.Azure.Storage
         /// <param name="directoryName">A System.String containing the name of the subdirectory; null will get the root directory.</param>
         /// <param name="cancellationToken">A <see cref="T:System.Threading.CancellationToken" /> to observe while waiting for a task to complete.</param>
         /// <returns>The directory URI for the primary location.</returns>
-        public Uri GetDirectoryUriAsync(string directoryName = null, CancellationToken? cancellationToken = null)
+        public Task<Uri> GetDirectoryUriAsync(string directoryName = null, CancellationToken? cancellationToken = null)
         {
-            return this.GetDirectory(directoryName).Uri;
+            if (directoryName != null)
+            {
+                directoryName.ValidateDirectoryName();
+            }
+
+            return Task.Run(() =>
+            {
+                var rootDirectory = this._cloudFileShare.GetRootDirectoryReference();
+
+                return (directoryName != null ? rootDirectory.GetDirectoryReference(directoryName) : rootDirectory).Uri;
+            },
+            cancellationToken ?? CancellationToken.None);
         }
 
         /// <summary>
@@ -548,20 +655,32 @@ namespace DevLib.Azure.Storage
         /// <param name="endTime">The expiry time for a shared access signature associated with this shared access policy.</param>
         /// <param name="cancellationToken">A <see cref="T:System.Threading.CancellationToken" /> to observe while waiting for a task to complete.</param>
         /// <returns>The file Uri with SAS.</returns>
-        public Uri GetFileUriWithSasAsync(string fileName, string directoryName = null, SharedAccessFilePermissions permissions = SharedAccessFilePermissions.Read, DateTimeOffset? startTime = null, DateTimeOffset? endTime = null, CancellationToken? cancellationToken = null)
+        public Task<Uri> GetFileUriWithSasAsync(string fileName, string directoryName = null, SharedAccessFilePermissions permissions = SharedAccessFilePermissions.Read, DateTimeOffset? startTime = null, DateTimeOffset? endTime = null, CancellationToken? cancellationToken = null)
         {
-            var file = this.GetFile(fileName, directoryName);
+            fileName.ValidateFileName();
 
-            var uriBuilder = new UriBuilder(file.Uri);
-
-            uriBuilder.Query = file.GetSharedAccessSignature(new SharedAccessFilePolicy()
+            if (directoryName != null)
             {
-                Permissions = permissions,
-                SharedAccessStartTime = startTime,
-                SharedAccessExpiryTime = endTime
-            }).TrimStart('?');
+                directoryName.ValidateDirectoryName();
+            }
 
-            return uriBuilder.Uri;
+            return Task.Run(() =>
+            {
+                var rootDirectory = this._cloudFileShare.GetRootDirectoryReference();
+                var directory = directoryName != null ? rootDirectory.GetDirectoryReference(directoryName) : rootDirectory;
+                var file = directory.GetFileReference(fileName);
+                var uriBuilder = new UriBuilder(file.Uri);
+
+                uriBuilder.Query = file.GetSharedAccessSignature(new SharedAccessFilePolicy()
+                {
+                    Permissions = permissions,
+                    SharedAccessStartTime = startTime,
+                    SharedAccessExpiryTime = endTime
+                }).TrimStart('?');
+
+                return uriBuilder.Uri;
+            },
+            cancellationToken ?? CancellationToken.None);
         }
 
         /// <summary>
@@ -572,9 +691,9 @@ namespace DevLib.Azure.Storage
         /// <param name="directoryName">A System.String containing the name of the subdirectory; null will get the root directory.</param>
         /// <param name="cancellationToken">A <see cref="T:System.Threading.CancellationToken" /> to observe while waiting for a task to complete.</param>
         /// <returns>The file Uri with read only SAS.</returns>
-        public Uri GetFileUriWithSasReadOnlyAsync(string fileName, TimeSpan expiryTimeSpan, string directoryName = null, CancellationToken? cancellationToken = null)
+        public Task<Uri> GetFileUriWithSasReadOnlyAsync(string fileName, TimeSpan expiryTimeSpan, string directoryName = null, CancellationToken? cancellationToken = null)
         {
-            return this.GetFileUriWithSas(fileName, directoryName, SharedAccessFilePermissions.Read, DateTimeOffset.UtcNow, DateTimeOffset.UtcNow.Add(expiryTimeSpan));
+            return this.GetFileUriWithSasAsync(fileName, directoryName, SharedAccessFilePermissions.Read, DateTimeOffset.UtcNow, DateTimeOffset.UtcNow.Add(expiryTimeSpan), cancellationToken);
         }
 
         /// <summary>
@@ -585,14 +704,18 @@ namespace DevLib.Azure.Storage
         /// <param name="endTime">The expiry time for a shared access signature associated with this shared access policy.</param>
         /// <param name="cancellationToken">A <see cref="T:System.Threading.CancellationToken" /> to observe while waiting for a task to complete.</param>
         /// <returns>The query string returned includes the leading question mark.</returns>
-        public string GetFileShareSasAsync(SharedAccessFilePermissions permissions = SharedAccessFilePermissions.Read, DateTimeOffset? startTime = null, DateTimeOffset? endTime = null, CancellationToken? cancellationToken = null)
+        public Task<string> GetFileShareSasAsync(SharedAccessFilePermissions permissions = SharedAccessFilePermissions.Read, DateTimeOffset? startTime = null, DateTimeOffset? endTime = null, CancellationToken? cancellationToken = null)
         {
-            return this._cloudFileShare.GetSharedAccessSignature(new SharedAccessFilePolicy
+            return Task.Run(() =>
             {
-                Permissions = permissions,
-                SharedAccessStartTime = startTime,
-                SharedAccessExpiryTime = endTime
-            });
+                return this._cloudFileShare.GetSharedAccessSignature(new SharedAccessFilePolicy
+                {
+                    Permissions = permissions,
+                    SharedAccessStartTime = startTime,
+                    SharedAccessExpiryTime = endTime
+                });
+            },
+            cancellationToken ?? CancellationToken.None);
         }
 
         /// <summary>
@@ -601,19 +724,18 @@ namespace DevLib.Azure.Storage
         /// <param name="expiryTimeSpan">The expiry time span.</param>
         /// <param name="cancellationToken">A <see cref="T:System.Threading.CancellationToken" /> to observe while waiting for a task to complete.</param>
         /// <returns>The query string returned includes the leading question mark.</returns>
-        public string GetFileShareSasReadOnlyAsync(TimeSpan expiryTimeSpan, CancellationToken? cancellationToken = null)
+        public Task<string> GetFileShareSasReadOnlyAsync(TimeSpan expiryTimeSpan, CancellationToken? cancellationToken = null)
         {
-            return this.GetFileShareSas(SharedAccessFilePermissions.Read, DateTimeOffset.UtcNow, DateTimeOffset.UtcNow.Add(expiryTimeSpan));
+            return this.GetFileShareSasAsync(SharedAccessFilePermissions.Read, DateTimeOffset.UtcNow, DateTimeOffset.UtcNow.Add(expiryTimeSpan), cancellationToken);
         }
 
         /// <summary>
         /// Gets the file share URI.
         /// </summary>
-        /// <param name="cancellationToken">A <see cref="T:System.Threading.CancellationToken" /> to observe while waiting for a task to complete.</param>
         /// <returns>The file share URI.</returns>
-        public Uri GetFileShareUriAsync()
+        public Task<Uri> GetFileShareUriAsync()
         {
-            return this._cloudFileShare.Uri;
+            return Task.FromResult(this._cloudFileShare.Uri);
         }
 
         /// <summary>
@@ -624,18 +746,22 @@ namespace DevLib.Azure.Storage
         /// <param name="endTime">The expiry time for a shared access signature associated with this shared access policy.</param>
         /// <param name="cancellationToken">A <see cref="T:System.Threading.CancellationToken" /> to observe while waiting for a task to complete.</param>
         /// <returns>The file share Uri with SAS.</returns>
-        public Uri GetFileShareUriWithSasAsync(SharedAccessFilePermissions permissions = SharedAccessFilePermissions.Read, DateTimeOffset? startTime = null, DateTimeOffset? endTime = null, CancellationToken? cancellationToken = null)
+        public Task<Uri> GetFileShareUriWithSasAsync(SharedAccessFilePermissions permissions = SharedAccessFilePermissions.Read, DateTimeOffset? startTime = null, DateTimeOffset? endTime = null, CancellationToken? cancellationToken = null)
         {
-            var uriBuilder = new UriBuilder(this._cloudFileShare.Uri);
-
-            uriBuilder.Query = this._cloudFileShare.GetSharedAccessSignature(new SharedAccessFilePolicy()
+            return Task.Run(() =>
             {
-                Permissions = permissions,
-                SharedAccessStartTime = startTime,
-                SharedAccessExpiryTime = endTime
-            }).TrimStart('?');
+                var uriBuilder = new UriBuilder(this._cloudFileShare.Uri);
 
-            return uriBuilder.Uri;
+                uriBuilder.Query = this._cloudFileShare.GetSharedAccessSignature(new SharedAccessFilePolicy()
+                {
+                    Permissions = permissions,
+                    SharedAccessStartTime = startTime,
+                    SharedAccessExpiryTime = endTime
+                }).TrimStart('?');
+
+                return uriBuilder.Uri;
+            },
+            cancellationToken ?? CancellationToken.None);
         }
 
         /// <summary>
@@ -644,9 +770,9 @@ namespace DevLib.Azure.Storage
         /// <param name="expiryTimeSpan">The expiry time span.</param>
         /// <param name="cancellationToken">A <see cref="T:System.Threading.CancellationToken" /> to observe while waiting for a task to complete.</param>
         /// <returns>The file share Uri with read only SAS.</returns>
-        public Uri GetFileShareUriWithSasReadOnlyAsync(TimeSpan expiryTimeSpan, CancellationToken? cancellationToken = null)
+        public Task<Uri> GetFileShareUriWithSasReadOnlyAsync(TimeSpan expiryTimeSpan, CancellationToken? cancellationToken = null)
         {
-            return this.GetFileShareUriWithSas(SharedAccessFilePermissions.Read, DateTimeOffset.UtcNow, DateTimeOffset.UtcNow.Add(expiryTimeSpan));
+            return this.GetFileShareUriWithSasAsync(SharedAccessFilePermissions.Read, DateTimeOffset.UtcNow, DateTimeOffset.UtcNow.Add(expiryTimeSpan),cancellationToken);
         }
 
         /// <summary>
@@ -659,7 +785,7 @@ namespace DevLib.Azure.Storage
         /// <param name="destFileShare">The destination file share.</param>
         /// <param name="cancellationToken">A <see cref="T:System.Threading.CancellationToken" /> to observe while waiting for a task to complete.</param>
         /// <returns>The copy ID associated with the copy operation; empty if source file does not exist.</returns>
-        public string StartCopyFileAsync(string sourceFileName, string destFileName, string sourceDirectoryName = null, string destDirectoryName = null, FileStorage destFileShare = null, CancellationToken? cancellationToken = null)
+        public async Task<string> StartCopyFileAsync(string sourceFileName, string destFileName, string sourceDirectoryName = null, string destDirectoryName = null, FileStorage destFileShare = null, CancellationToken? cancellationToken = null)
         {
             sourceFileName.ValidateFileName();
 
@@ -675,13 +801,13 @@ namespace DevLib.Azure.Storage
                 destDirectoryName.ValidateDirectoryName();
             }
 
-            var sourceFile = this.GetFile(sourceFileName, sourceDirectoryName);
+            var sourceFile = await this.GetFileAsync(sourceFileName, sourceDirectoryName, cancellationToken ?? CancellationToken.None);
 
-            if (sourceFile.Exists())
+            if (await sourceFile.ExistsAsync(cancellationToken ?? CancellationToken.None))
             {
-                var destFile = (destFileShare ?? this).GetFile(destFileName, destDirectoryName);
+                var destFile = await (destFileShare ?? this).GetFileAsync(destFileName, destDirectoryName, cancellationToken ?? CancellationToken.None);
 
-                return destFile.StartCopy(sourceFile);
+                return await destFile.StartCopyAsync(sourceFile, cancellationToken ?? CancellationToken.None);
             }
             else
             {

@@ -38,7 +38,7 @@ namespace DevLib.Azure.NET45.UnitTest
         {
             var table = new TableStorage("table1", _account, _key);
 
-            var result = table.GetTableUriWithSASReadOnly(TimeSpan.FromDays(30));
+            var result = table.GetTableUriWithSasReadOnly(TimeSpan.FromDays(30));
         }
 
         [TestMethod]

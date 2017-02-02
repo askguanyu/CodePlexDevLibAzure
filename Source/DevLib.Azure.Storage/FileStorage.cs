@@ -244,12 +244,10 @@ namespace DevLib.Azure.Storage
         /// <summary>
         /// Creates the share if it does not already exist.
         /// </summary>
-        /// <returns>FileShare instance.</returns>
-        public FileStorage CreateIfNotExists()
+        /// <returns>true if the share did not already exist and was created; otherwise false.</returns>
+        public bool CreateIfNotExists()
         {
-            this._cloudFileShare.CreateIfNotExists();
-
-            return this;
+            return this._cloudFileShare.CreateIfNotExists();
         }
 
         /// <summary>
