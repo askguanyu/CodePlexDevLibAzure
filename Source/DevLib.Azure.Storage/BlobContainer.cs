@@ -421,6 +421,8 @@ namespace DevLib.Azure.Storage
         /// <returns>true if the blob did already exist and was deleted; otherwise false.</returns>
         public bool DeleteBlobIfExists(string blobName)
         {
+            blobName.ValidateBlobName();
+
             var blob = this._cloudBlobContainer.GetBlobReference(blobName);
             return blob.DeleteIfExists();
         }
@@ -614,6 +616,7 @@ namespace DevLib.Azure.Storage
         public CloudAppendBlob GetAppendBlob(string blobName)
         {
             blobName.ValidateBlobName();
+
             return this._cloudBlobContainer.GetAppendBlobReference(blobName);
         }
 

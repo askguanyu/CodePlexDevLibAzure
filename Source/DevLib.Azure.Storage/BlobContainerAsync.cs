@@ -24,14 +24,18 @@ namespace DevLib.Azure.Storage
         /// <param name="newContainerAccessType">Access type for the newly created container.</param>
         /// <param name="cancellationToken">A <see cref="T:System.Threading.CancellationToken" /> to observe while waiting for a task to complete.</param>
         /// <returns>BlobContainer instance.</returns>
-        public async Task<BlobContainer> CreateIfNotExistsAsync(BlobContainerPublicAccessType newContainerAccessType, CancellationToken? cancellationToken = null)
+        public Task<BlobContainer> CreateIfNotExistsAsync(BlobContainerPublicAccessType newContainerAccessType, CancellationToken? cancellationToken = null)
         {
-            if (await this._cloudBlobContainer.CreateIfNotExistsAsync(cancellationToken ?? CancellationToken.None))
+            return Task.Run(async () =>
             {
-                this.SetAccessPermission(newContainerAccessType);
-            }
+                if (await this._cloudBlobContainer.CreateIfNotExistsAsync(cancellationToken ?? CancellationToken.None))
+                {
+                    this.SetAccessPermission(newContainerAccessType);
+                }
 
-            return this;
+                return this;
+            },
+            cancellationToken ?? CancellationToken.None);
         }
 
         /// <summary>
@@ -61,15 +65,16 @@ namespace DevLib.Azure.Storage
         /// <param name="blobName">Name of the blob.</param>
         /// <param name="cancellationToken">A <see cref="T:System.Threading.CancellationToken" /> to observe while waiting for a task to complete.</param>
         /// <returns>true if the container exists; otherwise false.</returns>
-        public async Task<bool> ExistsAsync(string blobName, CancellationToken? cancellationToken = null)
+        public Task<bool> ExistsAsync(string blobName, CancellationToken? cancellationToken = null)
         {
             blobName.ValidateBlobName();
 
-            var blob = await Task.Run(
-                () => this._cloudBlobContainer.GetBlobReference(blobName),
-                cancellationToken ?? CancellationToken.None);
-
-            return await blob.ExistsAsync(cancellationToken ?? CancellationToken.None);
+            return Task.Run(() =>
+            {
+                var blob = this._cloudBlobContainer.GetBlobReference(blobName);
+                return blob.ExistsAsync(cancellationToken ?? CancellationToken.None);
+            },
+            cancellationToken ?? CancellationToken.None);
         }
 
         /// <summary>
@@ -91,13 +96,11 @@ namespace DevLib.Azure.Storage
         /// <param name="useFlatBlobListing">A boolean value that specifies whether to list blobs in a flat listing, or whether to list blobs hierarchically, by virtual directory.</param>
         /// <param name="cancellationToken">A <see cref="T:System.Threading.CancellationToken" /> to observe while waiting for a task to complete.</param>
         /// <returns>The number of elements contained in the container.</returns>
-        public async Task<int> BlobsCountAsync(bool useFlatBlobListing = false, CancellationToken? cancellationToken = null)
+        public Task<int> BlobsCountAsync(bool useFlatBlobListing = false, CancellationToken? cancellationToken = null)
         {
-            var result = await Task.Run(
-                () => this._cloudBlobContainer.ListBlobs(useFlatBlobListing: useFlatBlobListing),
+            return Task.Run(
+                () => this._cloudBlobContainer.ListBlobs(useFlatBlobListing: useFlatBlobListing).Count(),
                 cancellationToken ?? CancellationToken.None);
-
-            return result.Count();
         }
 
         /// <summary>
@@ -116,13 +119,16 @@ namespace DevLib.Azure.Storage
         /// <param name="blobName">A string containing the name of the blob.</param>
         /// <param name="cancellationToken">A <see cref="T:System.Threading.CancellationToken" /> to observe while waiting for a task to complete.</param>
         /// <returns>true if the blob did already exist and was deleted; otherwise false.</returns>
-        public async Task<bool> DeleteBlobIfExistsAsync(string blobName, CancellationToken? cancellationToken = null)
+        public Task<bool> DeleteBlobIfExistsAsync(string blobName, CancellationToken? cancellationToken = null)
         {
-            var blob = await Task.Run(
-                () => this._cloudBlobContainer.GetBlobReference(blobName),
-                cancellationToken ?? CancellationToken.None);
+            blobName.ValidateBlobName();
 
-            return await blob.DeleteIfExistsAsync(cancellationToken ?? CancellationToken.None);
+            return Task.Run(() =>
+            {
+                var blob = this._cloudBlobContainer.GetBlobReference(blobName);
+                return blob.DeleteIfExistsAsync(cancellationToken ?? CancellationToken.None);
+            },
+            cancellationToken ?? CancellationToken.None);
         }
 
         /// <summary>
@@ -133,23 +139,25 @@ namespace DevLib.Azure.Storage
         /// <param name="contentType">Type of the content.</param>
         /// <param name="cancellationToken">A <see cref="T:System.Threading.CancellationToken" /> to observe while waiting for a task to complete.</param>
         /// <returns>The CloudBlockBlob instance.</returns>
-        public async Task<CloudBlockBlob> CreateBlockBlobAsync(string blobName, Stream data, string contentType = null, CancellationToken? cancellationToken = null)
+        public Task<CloudBlockBlob> CreateBlockBlobAsync(string blobName, Stream data, string contentType = null, CancellationToken? cancellationToken = null)
         {
             blobName.ValidateBlobName();
             data.ValidateNull();
 
-            var blob = await Task.Run(
-                () => this._cloudBlobContainer.GetBlockBlobReference(blobName),
-                cancellationToken ?? CancellationToken.None);
-
-            if (!string.IsNullOrWhiteSpace(contentType))
+            return Task.Run(async () =>
             {
-                blob.Properties.ContentType = contentType;
-            }
+                var blob = this._cloudBlobContainer.GetBlockBlobReference(blobName);
 
-            await blob.UploadFromStreamAsync(data, cancellationToken ?? CancellationToken.None);
+                if (!string.IsNullOrWhiteSpace(contentType))
+                {
+                    blob.Properties.ContentType = contentType;
+                }
 
-            return blob;
+                await blob.UploadFromStreamAsync(data, cancellationToken ?? CancellationToken.None);
+
+                return blob;
+            },
+            cancellationToken ?? CancellationToken.None);
         }
 
         /// <summary>
@@ -160,23 +168,25 @@ namespace DevLib.Azure.Storage
         /// <param name="contentType">Type of the content.</param>
         /// <param name="cancellationToken">A <see cref="T:System.Threading.CancellationToken" /> to observe while waiting for a task to complete.</param>
         /// <returns>The CloudBlockBlob instance.</returns>
-        public async Task<CloudBlockBlob> CreateBlockBlobAsync(string blobName, byte[] data, string contentType = null, CancellationToken? cancellationToken = null)
+        public Task<CloudBlockBlob> CreateBlockBlobAsync(string blobName, byte[] data, string contentType = null, CancellationToken? cancellationToken = null)
         {
             blobName.ValidateBlobName();
             data.ValidateNull();
 
-            var blob = await Task.Run(
-                () => this._cloudBlobContainer.GetBlockBlobReference(blobName),
-                cancellationToken ?? CancellationToken.None);
-
-            if (!string.IsNullOrWhiteSpace(contentType))
+            return Task.Run(async () =>
             {
-                blob.Properties.ContentType = contentType;
-            }
+                var blob = this._cloudBlobContainer.GetBlockBlobReference(blobName);
 
-            await blob.UploadFromByteArrayAsync(data, 0, data.Length, cancellationToken ?? CancellationToken.None);
+                if (!string.IsNullOrWhiteSpace(contentType))
+                {
+                    blob.Properties.ContentType = contentType;
+                }
 
-            return blob;
+                await blob.UploadFromByteArrayAsync(data, 0, data.Length, cancellationToken ?? CancellationToken.None);
+
+                return blob;
+            },
+            cancellationToken ?? CancellationToken.None);
         }
 
         /// <summary>
@@ -187,23 +197,25 @@ namespace DevLib.Azure.Storage
         /// <param name="contentType">Type of the content.</param>
         /// <param name="cancellationToken">A <see cref="T:System.Threading.CancellationToken" /> to observe while waiting for a task to complete.</param>
         /// <returns>The CloudBlockBlob instance.</returns>
-        public async Task<CloudBlockBlob> CreateBlockBlobAsync(string blobName, string data, string contentType = null, CancellationToken? cancellationToken = null)
+        public Task<CloudBlockBlob> CreateBlockBlobAsync(string blobName, string data, string contentType = null, CancellationToken? cancellationToken = null)
         {
             blobName.ValidateBlobName();
             data.ValidateNull();
 
-            var blob = await Task.Run(
-                () => this._cloudBlobContainer.GetBlockBlobReference(blobName),
-                cancellationToken ?? CancellationToken.None);
-
-            if (!string.IsNullOrWhiteSpace(contentType))
+            return Task.Run(async () =>
             {
-                blob.Properties.ContentType = contentType;
-            }
+                var blob = this._cloudBlobContainer.GetBlockBlobReference(blobName);
 
-            await blob.UploadTextAsync(data, cancellationToken ?? CancellationToken.None);
+                if (!string.IsNullOrWhiteSpace(contentType))
+                {
+                    blob.Properties.ContentType = contentType;
+                }
 
-            return blob;
+                await blob.UploadTextAsync(data, cancellationToken ?? CancellationToken.None);
+
+                return blob;
+            },
+            cancellationToken ?? CancellationToken.None);
         }
 
         /// <summary>
@@ -214,23 +226,25 @@ namespace DevLib.Azure.Storage
         /// <param name="contentType">Type of the content.</param>
         /// <param name="cancellationToken">A <see cref="T:System.Threading.CancellationToken" /> to observe while waiting for a task to complete.</param>
         /// <returns>The CloudBlockBlob instance.</returns>
-        public async Task<CloudBlockBlob> UploadBlockBlobAsync(string blobName, string filePath, string contentType = null, CancellationToken? cancellationToken = null)
+        public Task<CloudBlockBlob> UploadBlockBlobAsync(string blobName, string filePath, string contentType = null, CancellationToken? cancellationToken = null)
         {
             blobName.ValidateBlobName();
             filePath.ValidateNull();
 
-            var blob = await Task.Run(
-                () => this._cloudBlobContainer.GetBlockBlobReference(blobName),
-                cancellationToken ?? CancellationToken.None);
-
-            if (!string.IsNullOrWhiteSpace(contentType))
+            return Task.Run(async () =>
             {
-                blob.Properties.ContentType = contentType;
-            }
+                var blob = this._cloudBlobContainer.GetBlockBlobReference(blobName);
 
-            await blob.UploadFromFileAsync(filePath, cancellationToken ?? CancellationToken.None);
+                if (!string.IsNullOrWhiteSpace(contentType))
+                {
+                    blob.Properties.ContentType = contentType;
+                }
 
-            return blob;
+                await blob.UploadFromFileAsync(filePath, cancellationToken ?? CancellationToken.None);
+
+                return blob;
+            },
+            cancellationToken ?? CancellationToken.None);
         }
 
         /// <summary>
@@ -254,15 +268,16 @@ namespace DevLib.Azure.Storage
         /// <param name="blobName">A string containing the name of the blob.</param>
         /// <param name="cancellationToken">A <see cref="T:System.Threading.CancellationToken" /> to observe while waiting for a task to complete.</param>
         /// <returns>The contents of the blob, as a string.</returns>
-        public async Task<string> DownloadBlockBlobTextAsync(string blobName, CancellationToken? cancellationToken = null)
+        public Task<string> DownloadBlockBlobTextAsync(string blobName, CancellationToken? cancellationToken = null)
         {
             blobName.ValidateBlobName();
 
-            var blob = await Task.Run(
-                () => this._cloudBlobContainer.GetBlockBlobReference(blobName),
-                cancellationToken ?? CancellationToken.None);
-
-            return await blob.DownloadTextAsync(cancellationToken ?? CancellationToken.None);
+            return Task.Run(() =>
+            {
+                var blob = this._cloudBlobContainer.GetBlockBlobReference(blobName);
+                return blob.DownloadTextAsync(cancellationToken ?? CancellationToken.None);
+            },
+            cancellationToken ?? CancellationToken.None);
         }
 
         /// <summary>
@@ -271,19 +286,21 @@ namespace DevLib.Azure.Storage
         /// <param name="blobName">A string containing the name of the blob.</param>
         /// <param name="cancellationToken">A <see cref="T:System.Threading.CancellationToken" /> to observe while waiting for a task to complete.</param>
         /// <returns>A System.IO.Stream object representing the target stream.</returns>
-        public async Task<MemoryStream> DownloadBlockBlobToStreamAsync(string blobName, CancellationToken? cancellationToken = null)
+        public Task<MemoryStream> DownloadBlockBlobToStreamAsync(string blobName, CancellationToken? cancellationToken = null)
         {
             blobName.ValidateBlobName();
 
-            var blob = await Task.Run(
-                () => this._cloudBlobContainer.GetBlockBlobReference(blobName),
-                cancellationToken ?? CancellationToken.None);
+            return Task.Run(async () =>
+            {
+                var blob = this._cloudBlobContainer.GetBlockBlobReference(blobName);
 
-            var stream = new MemoryStream();
-            await blob.DownloadToStreamAsync(stream, cancellationToken ?? CancellationToken.None);
-            stream.Seek(0, SeekOrigin.Begin);
+                var stream = new MemoryStream();
+                await blob.DownloadToStreamAsync(stream, cancellationToken ?? CancellationToken.None);
+                stream.Seek(0, SeekOrigin.Begin);
 
-            return stream;
+                return stream;
+            },
+            cancellationToken ?? CancellationToken.None);
         }
 
         /// <summary>
@@ -294,17 +311,20 @@ namespace DevLib.Azure.Storage
         /// <param name="mode">A System.IO.FileMode enumeration value that determines how to open or create the file.</param>
         /// <param name="cancellationToken">A <see cref="T:System.Threading.CancellationToken" /> to observe while waiting for a task to complete.</param>
         /// <returns>The CloudBlockBlob instance.</returns>
-        public async Task<CloudBlockBlob> DownloadBlockBlobToFileAsync(string blobName, string localFilePath, FileMode mode = FileMode.Create, CancellationToken? cancellationToken = null)
+        public Task<CloudBlockBlob> DownloadBlockBlobToFileAsync(string blobName, string localFilePath, FileMode mode = FileMode.Create, CancellationToken? cancellationToken = null)
         {
             blobName.ValidateBlobName();
 
-            var blob = await Task.Run(
-                () => this._cloudBlobContainer.GetBlockBlobReference(blobName),
-                cancellationToken ?? CancellationToken.None);
+            return Task.Run(async () =>
+            {
+                var blob = this._cloudBlobContainer.GetBlockBlobReference(blobName);
 
-            await blob.DownloadToFileAsync(localFilePath, mode, cancellationToken ?? CancellationToken.None);
+                var stream = new MemoryStream();
+                await blob.DownloadToFileAsync(localFilePath, mode, cancellationToken ?? CancellationToken.None);
 
-            return blob;
+                return blob;
+            },
+            cancellationToken ?? CancellationToken.None);
         }
 
         /// <summary>
@@ -315,23 +335,25 @@ namespace DevLib.Azure.Storage
         /// <param name="data">A string containing the text to upload.</param>
         /// <param name="cancellationToken">A <see cref="T:System.Threading.CancellationToken" /> to observe while waiting for a task to complete.</param>
         /// <returns>A Microsoft.WindowsAzure.Storage.Blob.CloudAppendBlob object.</returns>
-        public async Task<CloudAppendBlob> AppendBlobAppendTextAsync(string blobName, string data, CancellationToken? cancellationToken = null)
+        public Task<CloudAppendBlob> AppendBlobAppendTextAsync(string blobName, string data, CancellationToken? cancellationToken = null)
         {
             blobName.ValidateBlobName();
             data.ValidateNull();
 
-            var blob = await Task.Run(
-                () => this._cloudBlobContainer.GetAppendBlobReference(blobName),
-                cancellationToken ?? CancellationToken.None);
-
-            if (!await blob.ExistsAsync(cancellationToken ?? CancellationToken.None))
+            return Task.Run(async () =>
             {
-                await blob.CreateOrReplaceAsync(cancellationToken ?? CancellationToken.None);
-            }
+                var blob = this._cloudBlobContainer.GetAppendBlobReference(blobName);
 
-            await blob.AppendTextAsync(data, cancellationToken ?? CancellationToken.None);
+                if (!await blob.ExistsAsync(cancellationToken ?? CancellationToken.None))
+                {
+                    await blob.CreateOrReplaceAsync(cancellationToken ?? CancellationToken.None);
+                }
 
-            return blob;
+                await blob.AppendTextAsync(data, cancellationToken ?? CancellationToken.None);
+
+                return blob;
+            },
+            cancellationToken ?? CancellationToken.None);
         }
 
         /// <summary>
@@ -377,19 +399,18 @@ namespace DevLib.Azure.Storage
         {
             blobName.ValidateBlobName();
 
-            return Task.Run(
-                () =>
-                {
-                    var blob = this._cloudBlobContainer.GetBlobReference(blobName);
+            return Task.Run(() =>
+            {
+                var blob = this._cloudBlobContainer.GetBlobReference(blobName);
 
-                    return blob.GetSharedAccessSignature(new SharedAccessBlobPolicy
-                    {
-                        Permissions = permissions,
-                        SharedAccessStartTime = startTime,
-                        SharedAccessExpiryTime = endTime
-                    });
-                },
-                cancellationToken ?? CancellationToken.None);
+                return blob.GetSharedAccessSignature(new SharedAccessBlobPolicy
+                {
+                    Permissions = permissions,
+                    SharedAccessStartTime = startTime,
+                    SharedAccessExpiryTime = endTime
+                });
+            },
+            cancellationToken ?? CancellationToken.None);
         }
 
         /// <summary>
@@ -432,23 +453,22 @@ namespace DevLib.Azure.Storage
         {
             blobName.ValidateBlobName();
 
-            return Task.Run(
-                () =>
+            return Task.Run(() =>
+            {
+                var blob = this._cloudBlobContainer.GetBlobReference(blobName);
+
+                var uriBuilder = new UriBuilder(blob.Uri);
+
+                uriBuilder.Query = blob.GetSharedAccessSignature(new SharedAccessBlobPolicy()
                 {
-                    var blob = this._cloudBlobContainer.GetBlobReference(blobName);
+                    Permissions = permissions,
+                    SharedAccessStartTime = startTime,
+                    SharedAccessExpiryTime = endTime
+                }).TrimStart('?');
 
-                    var uriBuilder = new UriBuilder(blob.Uri);
-
-                    uriBuilder.Query = blob.GetSharedAccessSignature(new SharedAccessBlobPolicy()
-                    {
-                        Permissions = permissions,
-                        SharedAccessStartTime = startTime,
-                        SharedAccessExpiryTime = endTime
-                    }).TrimStart('?');
-
-                    return uriBuilder.Uri;
-                },
-                cancellationToken ?? CancellationToken.None);
+                return uriBuilder.Uri;
+            },
+            cancellationToken ?? CancellationToken.None);
         }
 
         /// <summary>
@@ -513,21 +533,20 @@ namespace DevLib.Azure.Storage
         /// <returns>The container Uri with SAS.</returns>
         public Task<Uri> GetContainerUriWithSasAsync(SharedAccessBlobPermissions permissions = SharedAccessBlobPermissions.Read, DateTimeOffset? startTime = null, DateTimeOffset? endTime = null, CancellationToken? cancellationToken = null)
         {
-            return Task.Run(
-                () =>
+            return Task.Run(() =>
+            {
+                var uriBuilder = new UriBuilder(this._cloudBlobContainer.Uri);
+
+                uriBuilder.Query = this._cloudBlobContainer.GetSharedAccessSignature(new SharedAccessBlobPolicy()
                 {
-                    var uriBuilder = new UriBuilder(this._cloudBlobContainer.Uri);
+                    Permissions = permissions,
+                    SharedAccessStartTime = startTime,
+                    SharedAccessExpiryTime = endTime
+                }).TrimStart('?');
 
-                    uriBuilder.Query = this._cloudBlobContainer.GetSharedAccessSignature(new SharedAccessBlobPolicy()
-                    {
-                        Permissions = permissions,
-                        SharedAccessStartTime = startTime,
-                        SharedAccessExpiryTime = endTime
-                    }).TrimStart('?');
-
-                    return uriBuilder.Uri;
-                },
-                cancellationToken ?? CancellationToken.None);
+                return uriBuilder.Uri;
+            },
+            cancellationToken ?? CancellationToken.None);
         }
 
         /// <summary>
@@ -549,23 +568,27 @@ namespace DevLib.Azure.Storage
         /// <param name="destContainer">The destination container.</param>
         /// <param name="cancellationToken">A <see cref="T:System.Threading.CancellationToken" /> to observe while waiting for a task to complete.</param>
         /// <returns>The copy ID associated with the copy operation; empty if source blob does not exist.</returns>
-        public async Task<string> StartCopyBlockBlobAsync(string sourceBlobName, string destBlobName, BlobContainer destContainer = null, CancellationToken? cancellationToken = null)
+        public Task<string> StartCopyBlockBlobAsync(string sourceBlobName, string destBlobName, BlobContainer destContainer = null, CancellationToken? cancellationToken = null)
         {
             sourceBlobName.ValidateBlobName();
             destBlobName.ValidateBlobName();
 
-            var sourceBlob = await this.GetBlockBlobAsync(sourceBlobName, cancellationToken ?? CancellationToken.None);
-
-            if (await sourceBlob.ExistsAsync(cancellationToken ?? CancellationToken.None))
+            return Task.Run(() =>
             {
-                var destBlob = await (destContainer ?? this).GetBlockBlobAsync(destBlobName, cancellationToken ?? CancellationToken.None);
+                var sourceBlob = this.GetBlockBlob(sourceBlobName);
 
-                return await destBlob.StartCopyAsync(sourceBlob, cancellationToken ?? CancellationToken.None);
-            }
-            else
-            {
-                return string.Empty;
-            }
+                if (sourceBlob.Exists())
+                {
+                    var destBlob = (destContainer ?? this).GetBlockBlob(destBlobName);
+
+                    return destBlob.StartCopyAsync(sourceBlob, cancellationToken ?? CancellationToken.None);
+                }
+                else
+                {
+                    return Task.FromResult(string.Empty);
+                }
+            },
+            cancellationToken ?? CancellationToken.None);
         }
     }
 }
