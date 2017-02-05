@@ -339,6 +339,26 @@ namespace DevLib.Azure.Storage
         }
 
         /// <summary>
+        /// Retrieves the contents of the given entity in a table.
+        /// </summary>
+        /// <param name="partitionKey">A string containing the partition key of the entity to retrieve.</param>
+        /// <param name="rowKey">A string containing the row key of the entity to retrieve.</param>
+        /// <returns>The DynamicTableEntity instance.</returns>
+        public DynamicTableEntity RetrieveDynamicTableEntity(string partitionKey, string rowKey)
+        {
+            partitionKey.ValidateTablePropertyValue();
+            rowKey.ValidateTablePropertyValue();
+
+            var query = new TableQuery()
+                .Where(TableQuery.CombineFilters(
+                    TableQuery.GenerateFilterCondition("PartitionKey", QueryComparisons.Equal, partitionKey),
+                    "and",
+                    TableQuery.GenerateFilterCondition("RowKey", QueryComparisons.Equal, rowKey)));
+
+            return this._cloudTable.ExecuteQuery(query).FirstOrDefault();
+        }
+
+        /// <summary>
         /// Retrieves an enumerable collection of Microsoft.WindowsAzure.Storage.Table.DynamicTableEntity objects by the partition key.
         /// </summary>
         /// <param name="partitionKey">A string containing the partition key of the entity to retrieve.</param>
@@ -350,6 +370,21 @@ namespace DevLib.Azure.Storage
             var query = new TableQuery().Where(TableQuery.GenerateFilterCondition("PartitionKey", QueryComparisons.Equal, partitionKey));
 
             return this._cloudTable.ExecuteQuery(query).ToList();
+        }
+
+        /// <summary>
+        /// Retrieves an enumerable collection of ITableEntity objects by the partition key.
+        /// </summary>
+        /// <typeparam name="TElement">The type of the element.</typeparam>
+        /// <param name="partitionKey">A string containing the partition key of the entity to retrieve.</param>
+        /// <returns>An enumerable collection, specialized for type TElement, of the results of executing the query.</returns>
+        public List<TElement> RetrieveByPartitionKey<TElement>(string partitionKey) where TElement : ITableEntity, new()
+        {
+            partitionKey.ValidateTablePropertyValue();
+
+            var query = new TableQuery<TElement>().Where(TableQuery.GenerateFilterCondition("PartitionKey", QueryComparisons.Equal, partitionKey));
+
+            return this._cloudTable.ExecuteQuery<TElement>(query).ToList();
         }
 
         /// <summary>
@@ -387,6 +422,16 @@ namespace DevLib.Azure.Storage
         public List<DynamicTableEntity> ListEntities()
         {
             return this._cloudTable.ExecuteQuery(new TableQuery()).ToList();
+        }
+
+        /// <summary>
+        /// Returns a list of all the entities in the table.
+        /// </summary>
+        /// <typeparam name="TElement">The type of the element.</typeparam>
+        /// <returns>A list of all the entities in the table.</returns>
+        public List<TElement> ListEntities<TElement>() where TElement : ITableEntity, new()
+        {
+            return this._cloudTable.ExecuteQuery<TElement>(new TableQuery<TElement>()).ToList();
         }
 
         /// <summary>
@@ -462,21 +507,6 @@ namespace DevLib.Azure.Storage
                 .Select(i => i.PartitionKey)
                 .Distinct()
                 .ToList();
-        }
-
-        /// <summary>
-        /// Retrieves an enumerable collection of ITableEntity objects by the partition key.
-        /// </summary>
-        /// <typeparam name="TElement">The type of the element.</typeparam>
-        /// <param name="partitionKey">A string containing the partition key of the entity to retrieve.</param>
-        /// <returns>An enumerable collection, specialized for type TElement, of the results of executing the query.</returns>
-        public List<TElement> RetrieveByPartitionKey<TElement>(string partitionKey) where TElement : ITableEntity, new()
-        {
-            partitionKey.ValidateTablePropertyValue();
-
-            var query = new TableQuery<TElement>().Where(TableQuery.GenerateFilterCondition("PartitionKey", QueryComparisons.Equal, partitionKey));
-
-            return this._cloudTable.ExecuteQuery<TElement>(query).ToList();
         }
 
         /// <summary>

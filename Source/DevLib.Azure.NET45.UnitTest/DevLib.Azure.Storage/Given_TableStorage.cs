@@ -72,5 +72,22 @@ namespace DevLib.Azure.NET45.UnitTest
 
             var result = table.ListRowKeys();
         }
+
+        [TestMethod]
+        public void When_InsertOrReplace1()
+        {
+            var table = new TableStorage("table2", StorageConstants.DevelopmentStorageConnectionString);
+
+            table.InsertOrMerge(new TestEntity { PartitionKey = "p1", RowKey = "r1", ColumnA = "a", ColumnB = "b" });
+            table.InsertOrMerge(new TestEntity { PartitionKey = "p1", RowKey = "r1", ColumnA = "c", ColumnB = null });
+
+        }
+    }
+
+    public class TestEntity : TableEntity
+    {
+        public string ColumnA { get; set; }
+
+        public string ColumnB { get; set; }
     }
 }

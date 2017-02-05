@@ -184,6 +184,31 @@ namespace DevLib.Azure.Storage
         }
 
         /// <summary>
+        /// Retrieves the contents of the given entity in a table.
+        /// </summary>
+        /// <param name="partitionKey">A string containing the partition key of the entity to retrieve.</param>
+        /// <param name="rowKey">A string containing the row key of the entity to retrieve.</param>
+        /// <param name="cancellationToken">A <see cref="T:System.Threading.CancellationToken" /> to observe while waiting for a task to complete.</param>
+        /// <returns>The DynamicTableEntity instance.</returns>
+        public Task<DynamicTableEntity> RetrieveDynamicTableEntityAsync(string partitionKey, string rowKey, CancellationToken? cancellationToken = null)
+        {
+            partitionKey.ValidateTablePropertyValue();
+            rowKey.ValidateTablePropertyValue();
+
+            return Task.Run(() =>
+            {
+                var query = new TableQuery()
+                    .Where(TableQuery.CombineFilters(
+                        TableQuery.GenerateFilterCondition("PartitionKey", QueryComparisons.Equal, partitionKey),
+                        "and",
+                        TableQuery.GenerateFilterCondition("RowKey", QueryComparisons.Equal, rowKey)));
+
+                return this._cloudTable.ExecuteQuery(query).FirstOrDefault();
+            },
+            cancellationToken ?? CancellationToken.None);
+        }
+
+        /// <summary>
         /// Retrieves an enumerable collection of Microsoft.WindowsAzure.Storage.Table.DynamicTableEntity objects by the partition key.
         /// </summary>
         /// <param name="partitionKey">A string containing the partition key of the entity to retrieve.</param>
@@ -249,6 +274,19 @@ namespace DevLib.Azure.Storage
         {
             return Task.Run(
                 () => this._cloudTable.ExecuteQuery(new TableQuery()).ToList(),
+                cancellationToken ?? CancellationToken.None);
+        }
+
+        /// <summary>
+        /// Returns a list of all the entities in the table.
+        /// </summary>
+        /// <typeparam name="TElement">The type of the element.</typeparam>
+        /// <param name="cancellationToken">A <see cref="T:System.Threading.CancellationToken" /> to observe while waiting for a task to complete.</param>
+        /// <returns>A list of all the entities in the table.</returns>
+        public Task<List<TElement>> ListEntitiesAsync<TElement>(CancellationToken? cancellationToken = null) where TElement : ITableEntity, new()
+        {
+            return Task.Run(
+                () => this._cloudTable.ExecuteQuery<TElement>(new TableQuery<TElement>()).ToList(),
                 cancellationToken ?? CancellationToken.None);
         }
 
