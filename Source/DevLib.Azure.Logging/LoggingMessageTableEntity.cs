@@ -223,7 +223,7 @@ namespace DevLib.Azure.Logging
         /// <returns>A <see cref="System.String" /> that represents this instance.</returns>
         public override string ToString()
         {
-            return $"[PK: {this.PartitionKey}] [RK: {this.RowKey}] [Timestamp: {this.Timestamp.UtcDateTime.ToString(DateTimeFormat)}] [Level: {this.Level}] [Message: {this.Message}] [EventTickCount: {this.EventTickCount}] [User: {this.User}] [Domain: {this.Domain}] [Machine: {this.Machine}] [WorkingSet: {this.WorkingSet}] [ApplicationName: {this.ApplicationName}] [EventId: {this.EventId}] [InstanceId: {this.InstanceId}] [Pid: {this.Pid}] [Tid: {this.Tid}] [StackTrace: {this.StackTrace}] [CmdLine: {this.CommandLine}] [Is64Bit: {this.Is64BitProcess}] [Tag: {this.Tag}]".Replace(Environment.NewLine, " ");
+            return $"[Timestamp: {this.Timestamp.UtcDateTime.ToString(DateTimeFormat)}] [Level: {this.Level}] [Message: {this.Message}] [PK: {this.PartitionKey}] [RK: {this.RowKey}] [EventTickCount: {this.EventTickCount}] [User: {this.User}] [Domain: {this.Domain}] [Machine: {this.Machine}] [WorkingSet: {this.WorkingSet}] [ApplicationName: {this.ApplicationName}] [EventId: {this.EventId}] [InstanceId: {this.InstanceId}] [Pid: {this.Pid}] [Tid: {this.Tid}] [StackTrace: {this.StackTrace}] [CmdLine: {this.CommandLine}] [Is64Bit: {this.Is64BitProcess}] [Tag: {this.Tag}]".Replace(Environment.NewLine, " ");
         }
     }
 }
