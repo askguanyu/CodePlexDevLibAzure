@@ -15,7 +15,7 @@ namespace DevLib.Azure.Storage
     /// <summary>
     /// Provides a client-side logical representation of the Microsoft Azure Table Service.
     /// </summary>
-    public class TableClient
+    public partial class TableClient
     {
         /// <summary>
         /// The dev store account table client.

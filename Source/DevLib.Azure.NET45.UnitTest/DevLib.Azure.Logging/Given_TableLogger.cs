@@ -6,7 +6,7 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 namespace DevLib.Azure.NET45.UnitTest
 {
     [TestClass]
-    public class Given_Logger
+    public class Given_TableLogger
     {
         [TestMethod]
         public void When_GetStackFrameInfo()
@@ -17,12 +17,12 @@ namespace DevLib.Azure.NET45.UnitTest
         [TestMethod]
         public void When_Log()
         {
-            var logger = new TableLogger(TableClient.DevelopmentClient.GetTableStorage("log"));
-            new TableLogger("", (TableClient)null).Log(LoggingLevel.ALL, "hello1", "a1", "b1", "c1");
+            var logger = new TableLogger("logtest", "");
+            //new TableLogger("", (TableClient)null).Log(LoggingLevel.ALL, "hello1", "a1", "b1", "c1");
             logger.Log(LoggingLevel.ALL, "hello2", "a2", "b2", "c2");
             logger.LogDebug(new[] { "a", "b", "c" });
 
-            var messageEntity1 = new LoggingMessageTableEntity();
+            //var messageEntity1 = new LoggingMessageTableEntity();
             //var messageEntity2 = new LoggingMessageTableEntity();
 
             //TableClient.DevelopmentClient.GetTableStorage("log").Insert(messageEntity1);

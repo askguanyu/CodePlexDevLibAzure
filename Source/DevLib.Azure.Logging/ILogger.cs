@@ -11,6 +11,18 @@ namespace DevLib.Azure.Logging
     public interface ILogger
     {
         /// <summary>
+        /// Gets or sets the level criteria.
+        /// </summary>
+        LoggingLevel LoggingLevelCriteria { get; set; }
+
+        /// <summary>
+        /// Logs the specified message entity.
+        /// </summary>
+        /// <param name="messageEntity">The message entity.</param>
+        /// <returns>The current ILogger instance.</returns>
+        ILogger Log(LoggingMessageTableEntity messageEntity);
+
+        /// <summary>
         /// Logs the message with specified level.
         /// </summary>
         /// <param name="level">The logging level.</param>

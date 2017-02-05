@@ -15,7 +15,7 @@ namespace DevLib.Azure.Storage
     /// <summary>
     /// This class represents a queue in the Microsoft Azure Queue service.
     /// </summary>
-    public class QueueStorage
+    public partial class QueueStorage
     {
         /// <summary>
         /// Field _cloudQueue.
@@ -232,12 +232,10 @@ namespace DevLib.Azure.Storage
         /// <summary>
         /// Creates the queue if it does not already exist.
         /// </summary>
-        /// <returns>QueueStorage instance.</returns>
-        public QueueStorage CreateIfNotExists()
+        /// <returns>true if the queue did not already exist and was created; otherwise false.</returns>
+        public bool CreateIfNotExists()
         {
-            this._cloudQueue.CreateIfNotExists();
-
-            return this;
+            return this._cloudQueue.CreateIfNotExists();
         }
 
         /// <summary>
@@ -505,7 +503,7 @@ namespace DevLib.Azure.Storage
         /// <param name="startTime">The start time for a shared access signature associated with this shared access policy.</param>
         /// <param name="endTime">The expiry time for a shared access signature associated with this shared access policy.</param>
         /// <returns>The query string returned includes the leading question mark.</returns>
-        public string GetQueueSAS(SharedAccessQueuePermissions permissions = SharedAccessQueuePermissions.Read, DateTimeOffset? startTime = null, DateTimeOffset? endTime = null)
+        public string GetQueueSas(SharedAccessQueuePermissions permissions = SharedAccessQueuePermissions.Read, DateTimeOffset? startTime = null, DateTimeOffset? endTime = null)
         {
             return this._cloudQueue.GetSharedAccessSignature(new SharedAccessQueuePolicy
             {
@@ -520,9 +518,9 @@ namespace DevLib.Azure.Storage
         /// </summary>
         /// <param name="expiryTimeSpan">The expiry time span.</param>
         /// <returns>The query string returned includes the leading question mark.</returns>
-        public string GetQueueSASReadOnly(TimeSpan expiryTimeSpan)
+        public string GetQueueSasReadOnly(TimeSpan expiryTimeSpan)
         {
-            return this.GetQueueSAS(SharedAccessQueuePermissions.Read, DateTimeOffset.UtcNow, DateTimeOffset.UtcNow.Add(expiryTimeSpan));
+            return this.GetQueueSas(SharedAccessQueuePermissions.Read, DateTimeOffset.UtcNow, DateTimeOffset.UtcNow.Add(expiryTimeSpan));
         }
 
         /// <summary>
@@ -541,11 +539,11 @@ namespace DevLib.Azure.Storage
         /// <param name="startTime">The start time for a shared access signature associated with this shared access policy.</param>
         /// <param name="endTime">The expiry time for a shared access signature associated with this shared access policy.</param>
         /// <returns>The queue Uri with SAS.</returns>
-        public Uri GetQueueUriWithSAS(SharedAccessQueuePermissions permissions = SharedAccessQueuePermissions.Read, DateTimeOffset? startTime = null, DateTimeOffset? endTime = null)
+        public Uri GetQueueUriWithSas(SharedAccessQueuePermissions permissions = SharedAccessQueuePermissions.Read, DateTimeOffset? startTime = null, DateTimeOffset? endTime = null)
         {
             var uriBuilder = new UriBuilder(this._cloudQueue.Uri);
 
-            uriBuilder.Query = this.GetQueueSAS(permissions, startTime, endTime).TrimStart('?');
+            uriBuilder.Query = this.GetQueueSas(permissions, startTime, endTime).TrimStart('?');
 
             return uriBuilder.Uri;
         }
@@ -555,9 +553,9 @@ namespace DevLib.Azure.Storage
         /// </summary>
         /// <param name="expiryTimeSpan">The expiry time span.</param>
         /// <returns>The queue Uri with query only SAS.</returns>
-        public Uri GetQueueUriWithSASReadOnly(TimeSpan expiryTimeSpan)
+        public Uri GetQueueUriWithSasReadOnly(TimeSpan expiryTimeSpan)
         {
-            return this.GetQueueUriWithSAS(SharedAccessQueuePermissions.Read, DateTimeOffset.UtcNow, DateTimeOffset.UtcNow.Add(expiryTimeSpan));
+            return this.GetQueueUriWithSas(SharedAccessQueuePermissions.Read, DateTimeOffset.UtcNow, DateTimeOffset.UtcNow.Add(expiryTimeSpan));
         }
 
         /// <summary>

@@ -47,7 +47,8 @@ namespace DevLib.Azure.Logging
         /// Method Log.
         /// </summary>
         /// <param name="objs">Diagnostic messages or objects to log.</param>
-        public static void Log(params object[] objs)
+        /// <returns>Rendered log message.</returns>
+        public static string Log(params object[] objs)
         {
 #if DEBUG
             if (objs != null)
@@ -62,15 +63,19 @@ namespace DevLib.Azure.Logging
                             Debug.WriteLine(message);
                             Console.WriteLine(message);
                             AppendToFile(message);
+                            return message;
                         }
                         catch (Exception e)
                         {
                             Debug.WriteLine(e.ToString());
                             Console.WriteLine(e.ToString());
+                            return e.ToString();
                         }
                     }
                 }
             }
+
+            return string.Empty;
 #else
             if (File.Exists(GlobalDebugFlagFile) || File.Exists(DebugFlagFile))
             {
@@ -85,15 +90,19 @@ namespace DevLib.Azure.Logging
                                 string message = RenderLog(objs);
                                 Debug.WriteLine(message);
                                 AppendToFile(message);
+                                return message;
                             }
                             catch (Exception e)
                             {
                                 Debug.WriteLine(e.ToString());
+                                return e.ToString();
                             }
                         }
                     }
                 }
             }
+
+            return string.Empty;
 #endif
         }
 

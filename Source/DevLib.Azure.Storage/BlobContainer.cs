@@ -341,23 +341,25 @@ namespace DevLib.Azure.Storage
         /// Creates the container if it does not already exist.
         /// </summary>
         /// <param name="newContainerAccessType">Access type for the newly created container.</param>
-        /// <returns>BlobContainer instance.</returns>
-        public BlobContainer CreateIfNotExists(BlobContainerPublicAccessType newContainerAccessType)
+        /// <returns>true if the container did not already exist and was created; otherwise false.</returns>
+        public bool CreateIfNotExists(BlobContainerPublicAccessType newContainerAccessType)
         {
-            if (this._cloudBlobContainer.CreateIfNotExists())
+            var result = this._cloudBlobContainer.CreateIfNotExists();
+
+            if (result)
             {
                 this.SetAccessPermission(newContainerAccessType);
             }
 
-            return this;
+            return result;
         }
 
         /// <summary>
         /// Creates the container if it does not already exist.
         /// </summary>
         /// <param name="isNewContainerPublic">true to set the newly created container to public; false to set it to private.</param>
-        /// <returns>BlobContainer instance.</returns>
-        public BlobContainer CreateIfNotExists(bool isNewContainerPublic = true)
+        /// <returns>true if the container did not already exist and was created; otherwise false.</returns>
+        public bool CreateIfNotExists(bool isNewContainerPublic = true)
         {
             return this.CreateIfNotExists(isNewContainerPublic ? BlobContainerPublicAccessType.Container : BlobContainerPublicAccessType.Off);
         }
@@ -753,12 +755,7 @@ namespace DevLib.Azure.Storage
         {
             var uriBuilder = new UriBuilder(this._cloudBlobContainer.Uri);
 
-            uriBuilder.Query = this._cloudBlobContainer.GetSharedAccessSignature(new SharedAccessBlobPolicy()
-            {
-                Permissions = permissions,
-                SharedAccessStartTime = startTime,
-                SharedAccessExpiryTime = endTime
-            }).TrimStart('?');
+            uriBuilder.Query = this.GetContainerSas(permissions, startTime, endTime).TrimStart('?');
 
             return uriBuilder.Uri;
         }

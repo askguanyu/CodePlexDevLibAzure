@@ -213,12 +213,17 @@ namespace DevLib.Azure.Logging
         }
 
         /// <summary>
+        /// Gets or sets the tag.
+        /// </summary>
+        public string Tag { get; set; }
+
+        /// <summary>
         /// Returns a <see cref="System.String" /> that represents this instance.
         /// </summary>
         /// <returns>A <see cref="System.String" /> that represents this instance.</returns>
         public override string ToString()
         {
-            return $"[PK: {this.PartitionKey}] [RK: {this.RowKey}] [Timestamp: {this.Timestamp.UtcDateTime.ToString(DateTimeFormat)}] [Level: {this.Level}] [Message: {this.Message}] [EventTickCount: {this.EventTickCount}] [User: {this.User}] [Domain: {this.Domain}] [Machine: {this.Machine}] [WorkingSet: {this.WorkingSet}] [ApplicationName: {this.ApplicationName}] [EventId: {this.EventId}] [InstanceId: {this.InstanceId}] [Pid: {this.Pid}] [Tid: {this.Tid}] [StackTrace: {this.StackTrace}] [CmdLine: {this.CommandLine}] [Is64Bit: {this.Is64BitProcess}]".Replace(Environment.NewLine, " ");
+            return $"[PK: {this.PartitionKey}] [RK: {this.RowKey}] [Timestamp: {this.Timestamp.UtcDateTime.ToString(DateTimeFormat)}] [Level: {this.Level}] [Message: {this.Message}] [EventTickCount: {this.EventTickCount}] [User: {this.User}] [Domain: {this.Domain}] [Machine: {this.Machine}] [WorkingSet: {this.WorkingSet}] [ApplicationName: {this.ApplicationName}] [EventId: {this.EventId}] [InstanceId: {this.InstanceId}] [Pid: {this.Pid}] [Tid: {this.Tid}] [StackTrace: {this.StackTrace}] [CmdLine: {this.CommandLine}] [Is64Bit: {this.Is64BitProcess}] [Tag: {this.Tag}]".Replace(Environment.NewLine, " ");
         }
     }
 }

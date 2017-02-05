@@ -16,7 +16,7 @@ namespace DevLib.Azure.Storage
     /// <summary>
     /// Provides a client-side logical representation of the Microsoft Azure Queue service. This client is used to configure and execute requests against the Queue service.
     /// </summary>
-    public class QueueClient
+    public partial class QueueClient
     {
         /// <summary>
         /// The dev store account queue client.

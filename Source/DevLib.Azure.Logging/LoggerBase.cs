@@ -18,6 +18,11 @@ namespace DevLib.Azure.Logging
     public abstract class LoggerBase : ILogger
     {
         /// <summary>
+        /// Gets or sets the level criteria.
+        /// </summary>
+        public LoggingLevel LoggingLevelCriteria { get; set; } = LoggingLevel.ALL;
+
+        /// <summary>
         /// Builds a readable representation of the stack trace.
         /// </summary>
         /// <param name="skipFrames">The number of frames up the stack to skip.</param>
@@ -74,6 +79,21 @@ namespace DevLib.Azure.Logging
             {
                 return "<null>";
             }
+        }
+
+        /// <summary>
+        /// Logs the specified message entity.
+        /// </summary>
+        /// <param name="messageEntity">The message entity.</param>
+        /// <returns>The current ILogger instance.</returns>
+        public ILogger Log(LoggingMessageTableEntity messageEntity)
+        {
+            if (messageEntity != null)
+            {
+                this.InternalLog(messageEntity);
+            }
+
+            return this;
         }
 
         /// <summary>
@@ -315,6 +335,11 @@ namespace DevLib.Azure.Logging
         /// <returns>The current ILogger instance.</returns>
         private ILogger InternalLog(LoggingLevel level, object message, string applicationName, string eventId, string instanceId)
         {
+            if (level < this.LoggingLevelCriteria)
+            {
+                return this;
+            }
+
             var messageEntity = new LoggingMessageTableEntity
             {
                 Level = level.ToString(),
@@ -345,6 +370,11 @@ namespace DevLib.Azure.Logging
         /// <returns>The current ILogger instance.</returns>
         private ILogger InternalLog(LoggingLevel level, object[] messages, string applicationName, string eventId, string instanceId)
         {
+            if (level < this.LoggingLevelCriteria)
+            {
+                return this;
+            }
+
             var messageEntity = new LoggingMessageTableEntity
             {
                 Level = level.ToString(),

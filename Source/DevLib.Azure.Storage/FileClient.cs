@@ -221,11 +221,10 @@ namespace DevLib.Azure.Storage
         /// Gets the number of elements contained in the FileShare.
         /// </summary>
         /// <param name="prefix">The share name prefix.</param>
-        /// <param name="detailsIncluded">A value that indicates whether to return share metadata with the listing.</param>
         /// <returns>The number of elements contained in the FileShare.</returns>
-        public int SharesCount(string prefix = null, ShareListingDetails detailsIncluded = ShareListingDetails.None)
+        public int SharesCount(string prefix = null)
         {
-            return this._cloudFileClient.ListShares(prefix, detailsIncluded).Count();
+            return this._cloudFileClient.ListShares(prefix).Count();
         }
 
         /// <summary>

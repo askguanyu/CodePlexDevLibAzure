@@ -130,7 +130,6 @@ namespace DevLib.Azure.Storage
                 return file.ExistsAsync(cancellationToken ?? CancellationToken.None);
             },
             cancellationToken ?? CancellationToken.None);
-
         }
 
         /// <summary>
@@ -169,13 +168,13 @@ namespace DevLib.Azure.Storage
                 directoryName.ValidateDirectoryName();
             }
 
-            return Task.Run(() =>
+            return Task.Run(async () =>
             {
                 var rootDirectory = this._cloudFileShare.GetRootDirectoryReference();
                 var directory = directoryName != null ? rootDirectory.GetDirectoryReference(directoryName) : rootDirectory;
                 var file = directory.GetFileReference(fileName);
 
-                file.CreateAsync(long.MaxValue, cancellationToken ?? CancellationToken.None);
+                await file.CreateAsync(long.MaxValue, cancellationToken ?? CancellationToken.None);
 
                 return file;
             },
@@ -752,12 +751,7 @@ namespace DevLib.Azure.Storage
             {
                 var uriBuilder = new UriBuilder(this._cloudFileShare.Uri);
 
-                uriBuilder.Query = this._cloudFileShare.GetSharedAccessSignature(new SharedAccessFilePolicy()
-                {
-                    Permissions = permissions,
-                    SharedAccessStartTime = startTime,
-                    SharedAccessExpiryTime = endTime
-                }).TrimStart('?');
+                uriBuilder.Query = this.GetFileShareSas(permissions, startTime, endTime).TrimStart('?');
 
                 return uriBuilder.Uri;
             },
@@ -772,7 +766,7 @@ namespace DevLib.Azure.Storage
         /// <returns>The file share Uri with read only SAS.</returns>
         public Task<Uri> GetFileShareUriWithSasReadOnlyAsync(TimeSpan expiryTimeSpan, CancellationToken? cancellationToken = null)
         {
-            return this.GetFileShareUriWithSasAsync(SharedAccessFilePermissions.Read, DateTimeOffset.UtcNow, DateTimeOffset.UtcNow.Add(expiryTimeSpan),cancellationToken);
+            return this.GetFileShareUriWithSasAsync(SharedAccessFilePermissions.Read, DateTimeOffset.UtcNow, DateTimeOffset.UtcNow.Add(expiryTimeSpan), cancellationToken);
         }
 
         /// <summary>
@@ -785,7 +779,7 @@ namespace DevLib.Azure.Storage
         /// <param name="destFileShare">The destination file share.</param>
         /// <param name="cancellationToken">A <see cref="T:System.Threading.CancellationToken" /> to observe while waiting for a task to complete.</param>
         /// <returns>The copy ID associated with the copy operation; empty if source file does not exist.</returns>
-        public async Task<string> StartCopyFileAsync(string sourceFileName, string destFileName, string sourceDirectoryName = null, string destDirectoryName = null, FileStorage destFileShare = null, CancellationToken? cancellationToken = null)
+        public Task<string> StartCopyFileAsync(string sourceFileName, string destFileName, string sourceDirectoryName = null, string destDirectoryName = null, FileStorage destFileShare = null, CancellationToken? cancellationToken = null)
         {
             sourceFileName.ValidateFileName();
 
@@ -801,19 +795,22 @@ namespace DevLib.Azure.Storage
                 destDirectoryName.ValidateDirectoryName();
             }
 
-            var sourceFile = await this.GetFileAsync(sourceFileName, sourceDirectoryName, cancellationToken ?? CancellationToken.None);
-
-            if (await sourceFile.ExistsAsync(cancellationToken ?? CancellationToken.None))
+            return Task.Run(() =>
             {
-                var destFile = await (destFileShare ?? this).GetFileAsync(destFileName, destDirectoryName, cancellationToken ?? CancellationToken.None);
+                var sourceFile = this.GetFile(sourceFileName, sourceDirectoryName);
 
-                return await destFile.StartCopyAsync(sourceFile, cancellationToken ?? CancellationToken.None);
-            }
-            else
-            {
-                return string.Empty;
-            }
+                if (sourceFile.Exists())
+                {
+                    var destFile = (destFileShare ?? this).GetFile(destFileName, destDirectoryName);
+
+                    return destFile.StartCopyAsync(sourceFile, cancellationToken ?? CancellationToken.None);
+                }
+                else
+                {
+                    return Task.FromResult(string.Empty);
+                }
+            },
+            cancellationToken ?? CancellationToken.None);
         }
-
     }
 }

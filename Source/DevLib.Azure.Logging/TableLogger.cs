@@ -161,16 +161,17 @@ namespace DevLib.Azure.Logging
             {
                 try
                 {
-                    this._tableStorage.InsertAsync(messageEntity);
+                    this._tableStorage.Insert(messageEntity);
                 }
                 catch (Exception e)
                 {
-                    InternalLogger.Log(e);
+                    var internalError = InternalLogger.Log(e);
 
                     try
                     {
-                        messageEntity.RowKey = Guid.NewGuid().ToString();
-                        this._tableStorage.InsertAsync(messageEntity);
+                        messageEntity.RowKey = $"internal[{Guid.NewGuid().ToString().Replace("-", string.Empty).ToLowerInvariant()}]";
+                        messageEntity.Tag = internalError;
+                        this._tableStorage.Insert(messageEntity);
                     }
                     catch (Exception ex)
                     {
@@ -180,7 +181,7 @@ namespace DevLib.Azure.Logging
             }
             else
             {
-                InternalLogger.Log("DevLib.Azure.Logging.Logger._tableStorage is null");
+                InternalLogger.Log("DevLib.Azure.Logging.TableLogger._tableStorage is null");
             }
         }
     }

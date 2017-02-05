@@ -778,12 +778,7 @@ namespace DevLib.Azure.Storage
         {
             var uriBuilder = new UriBuilder(this._cloudFileShare.Uri);
 
-            uriBuilder.Query = this._cloudFileShare.GetSharedAccessSignature(new SharedAccessFilePolicy()
-            {
-                Permissions = permissions,
-                SharedAccessStartTime = startTime,
-                SharedAccessExpiryTime = endTime
-            }).TrimStart('?');
+            uriBuilder.Query = this.GetFileShareSas(permissions, startTime, endTime).TrimStart('?');
 
             return uriBuilder.Uri;
         }

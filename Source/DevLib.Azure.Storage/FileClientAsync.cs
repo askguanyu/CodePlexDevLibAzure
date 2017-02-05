@@ -10,12 +10,44 @@ namespace DevLib.Azure.Storage
     using System.Threading;
     using System.Threading.Tasks;
     using Microsoft.WindowsAzure.Storage.File;
+    using Microsoft.WindowsAzure.Storage.Shared.Protocol;
 
     /// <summary>
     /// Provides a client-side logical representation of the Microsoft Azure File service. This client is used to configure and execute requests against the File service.
     /// </summary>
     public partial class FileClient
     {
+        /// <summary>
+        /// Sets the file client CORS.
+        /// </summary>
+        /// <param name="cancellationToken">A <see cref="T:System.Threading.CancellationToken" /> to observe while waiting for a task to complete.</param>
+        /// <returns>The current FileClient.</returns>
+        public Task<FileClient> SetCorsAsync(CancellationToken? cancellationToken = null)
+        {
+            return Task.Run(async () =>
+            {
+                var serviceProperties = await this._cloudFileClient.GetServicePropertiesAsync(cancellationToken ?? CancellationToken.None);
+
+                if (serviceProperties.Cors == null)
+                {
+                    serviceProperties.Cors = new CorsProperties();
+                }
+
+                serviceProperties.Cors.CorsRules.Add(new CorsRule()
+                {
+                    AllowedHeaders = new List<string>() { "*" },
+                    AllowedMethods = CorsHttpMethods.Put | CorsHttpMethods.Get | CorsHttpMethods.Head | CorsHttpMethods.Post,
+                    AllowedOrigins = new List<string>() { "*" },
+                    ExposedHeaders = new List<string>() { "*" },
+                });
+
+                await this._cloudFileClient.SetServicePropertiesAsync(serviceProperties, cancellationToken ?? CancellationToken.None);
+
+                return this;
+            },
+            cancellationToken ?? CancellationToken.None);
+        }
+
         /// <summary>
         /// Gets the file share.
         /// </summary>
@@ -25,9 +57,20 @@ namespace DevLib.Azure.Storage
         /// <returns>FileShare instance.</returns>
         public Task<FileStorage> GetShareAsync(string shareName, bool createIfNotExists = true, CancellationToken? cancellationToken = null)
         {
-            return Task.Run(
-                () => this.GetShare(shareName, createIfNotExists),
-                cancellationToken ?? CancellationToken.None);
+            shareName.ValidateShareName();
+
+            return Task.Run(() =>
+            {
+                var share = this._cloudFileClient.GetShareReference(shareName);
+
+                if (createIfNotExists)
+                {
+                    share.CreateIfNotExists();
+                }
+
+                return new FileStorage(share);
+            },
+            cancellationToken ?? CancellationToken.None);
         }
 
         /// <summary>
@@ -36,15 +79,16 @@ namespace DevLib.Azure.Storage
         /// <param name="shareName">A string containing the name of the share.</param>
         /// <param name="cancellationToken">A <see cref="T:System.Threading.CancellationToken" /> to observe while waiting for a task to complete.</param>
         /// <returns>true if the share did not already exist and was created; otherwise false.</returns>
-        public async Task<bool> DeleteShareIfExistsAsync(string shareName, CancellationToken? cancellationToken = null)
+        public Task<bool> DeleteShareIfExistsAsync(string shareName, CancellationToken? cancellationToken = null)
         {
             shareName.ValidateShareName();
 
-            var share = await Task.Run(
-                () => this._cloudFileClient.GetShareReference(shareName),
-                cancellationToken ?? CancellationToken.None);
-
-            return await share.DeleteIfExistsAsync(cancellationToken ?? CancellationToken.None);
+            return Task.Run(() =>
+            {
+                var share = this._cloudFileClient.GetShareReference(shareName);
+                return share.DeleteIfExistsAsync(cancellationToken ?? CancellationToken.None);
+            },
+            cancellationToken ?? CancellationToken.None);
         }
 
         /// <summary>
@@ -53,15 +97,16 @@ namespace DevLib.Azure.Storage
         /// <param name="shareName">A string containing the name of the share.</param>
         /// <param name="cancellationToken">A <see cref="T:System.Threading.CancellationToken" /> to observe while waiting for a task to complete.</param>
         /// <returns>true if the share exists; otherwise false.</returns>
-        public async Task<bool> ShareExistsAsync(string shareName, CancellationToken? cancellationToken = null)
+        public Task<bool> ShareExistsAsync(string shareName, CancellationToken? cancellationToken = null)
         {
             shareName.ValidateShareName();
 
-            var share = await Task.Run(
-                () => this._cloudFileClient.GetShareReference(shareName),
-                cancellationToken ?? CancellationToken.None);
-
-            return await share.ExistsAsync(cancellationToken ?? CancellationToken.None);
+            return Task.Run(() =>
+            {
+                var share = this._cloudFileClient.GetShareReference(shareName);
+                return share.ExistsAsync(cancellationToken ?? CancellationToken.None);
+            },
+            cancellationToken ?? CancellationToken.None);
         }
 
         /// <summary>
@@ -82,13 +127,12 @@ namespace DevLib.Azure.Storage
         /// Gets the number of elements contained in the FileShare.
         /// </summary>
         /// <param name="prefix">The share name prefix.</param>
-        /// <param name="detailsIncluded">A value that indicates whether to return share metadata with the listing.</param>
         /// <param name="cancellationToken">A <see cref="T:System.Threading.CancellationToken" /> to observe while waiting for a task to complete.</param>
         /// <returns>The number of elements contained in the FileShare.</returns>
-        public Task<int> SharesCountAsync(string prefix = null, ShareListingDetails detailsIncluded = ShareListingDetails.None, CancellationToken? cancellationToken = null)
+        public Task<int> SharesCountAsync(string prefix = null, CancellationToken? cancellationToken = null)
         {
             return Task.Run(
-                () => this._cloudFileClient.ListShares(prefix, detailsIncluded).Count(),
+                () => this._cloudFileClient.ListShares(prefix).Count(),
                 cancellationToken ?? CancellationToken.None);
         }
     }

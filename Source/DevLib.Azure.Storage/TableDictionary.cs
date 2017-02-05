@@ -17,7 +17,7 @@ namespace DevLib.Azure.Storage
     /// <summary>
     /// Represents a Microsoft Azure table as a dictionary.
     /// </summary>
-    public class TableDictionary : IDictionary<string, object>, ICollection<KeyValuePair<string, object>>, IReadOnlyCollection<KeyValuePair<string, object>>, IEnumerable<KeyValuePair<string, object>>, IEnumerable
+    public partial class TableDictionary : IDictionary<string, object>, ICollection<KeyValuePair<string, object>>, IReadOnlyCollection<KeyValuePair<string, object>>, IEnumerable<KeyValuePair<string, object>>, IEnumerable
     {
         /// <summary>
         /// The partition key prefix.

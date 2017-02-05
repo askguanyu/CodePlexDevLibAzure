@@ -18,8 +18,13 @@ namespace DevLib.Azure.Storage
     /// <summary>
     /// Represents a Microsoft Azure table.
     /// </summary>
-    public class TableStorage
+    public partial class TableStorage
     {
+        /// <summary>
+        /// The batch operation size.
+        /// </summary>
+        private const int BatchOperationSize = 100;
+
         /// <summary>
         /// Field _cloudTable.
         /// </summary>
@@ -207,12 +212,10 @@ namespace DevLib.Azure.Storage
         /// <summary>
         /// Creates the table if it does not already exist.
         /// </summary>
-        /// <returns>TableStorage instance.</returns>
-        public TableStorage CreateIfNotExists()
+        /// <returns>true if table was created; otherwise, false.</returns>
+        public bool CreateIfNotExists()
         {
-            this._cloudTable.CreateIfNotExists();
-
-            return this;
+            return this._cloudTable.CreateIfNotExists();
         }
 
         /// <summary>
@@ -533,34 +536,6 @@ namespace DevLib.Azure.Storage
         }
 
         /// <summary>
-        /// Inserts the given entity into the table.
-        /// </summary>
-        /// <param name="entity">The Microsoft.WindowsAzure.Storage.Table.ITableEntity object to be inserted into the table.</param>
-        /// <param name="partitionKey">A string containing the partition key of the entity to retrieve.</param>
-        /// <param name="rowKey">A string containing the row key of the entity to retrieve.</param>
-        /// <param name="echoContent">true if the message payload should be returned in the response to the insert operation. false otherwise.</param>
-        /// <param name="cancellationToken">A <see cref="T:System.Threading.CancellationToken" /> to observe while waiting for a task to complete.</param>
-        /// <returns>A Microsoft.WindowsAzure.Storage.Table.TableResult object.</returns>
-        public Task<TableResult> InsertAsync(ITableEntity entity, string partitionKey = null, string rowKey = null, bool echoContent = false, CancellationToken? cancellationToken = null)
-        {
-            entity.ValidateNull();
-
-            if (partitionKey != null)
-            {
-                partitionKey.ValidateTablePropertyValue();
-                entity.PartitionKey = partitionKey;
-            }
-
-            if (rowKey != null)
-            {
-                rowKey.ValidateTablePropertyValue();
-                entity.RowKey = rowKey;
-            }
-
-            return this._cloudTable.ExecuteAsync(TableOperation.Insert(entity, echoContent), cancellationToken ?? CancellationToken.None);
-        }
-
-        /// <summary>
         /// Executes a batch inserts operation on the table.
         /// </summary>
         /// <param name="entities">The entities to be inserted into the table.</param>
@@ -572,7 +547,7 @@ namespace DevLib.Azure.Storage
 
             var result = new List<TableResult>();
 
-            var batchs = this.GroupBatchByPartitionKey(entities, 100);
+            var batchs = this.GroupBatchByPartitionKey(entities, BatchOperationSize);
 
             foreach (var batch in batchs)
             {
@@ -668,7 +643,7 @@ namespace DevLib.Azure.Storage
 
             var result = new List<TableResult>();
 
-            var batchs = this.GroupBatchByPartitionKey(entities, 100);
+            var batchs = this.GroupBatchByPartitionKey(entities, BatchOperationSize);
 
             foreach (var batch in batchs)
             {
@@ -764,7 +739,7 @@ namespace DevLib.Azure.Storage
 
             var result = new List<TableResult>();
 
-            var batchs = this.GroupBatchByPartitionKey(entities, 100);
+            var batchs = this.GroupBatchByPartitionKey(entities, BatchOperationSize);
 
             foreach (var batch in batchs)
             {
@@ -858,7 +833,7 @@ namespace DevLib.Azure.Storage
 
             var result = new List<TableResult>();
 
-            var batchs = this.GroupBatchByPartitionKey(entities, 100);
+            var batchs = this.GroupBatchByPartitionKey(entities, BatchOperationSize);
 
             foreach (var batch in batchs)
             {
@@ -950,7 +925,7 @@ namespace DevLib.Azure.Storage
 
             var result = new List<TableResult>();
 
-            var batchs = this.GroupBatchByPartitionKey(entities, 100);
+            var batchs = this.GroupBatchByPartitionKey(entities, BatchOperationSize);
 
             foreach (var batch in batchs)
             {
@@ -1028,7 +1003,7 @@ namespace DevLib.Azure.Storage
 
             var result = new List<TableResult>();
 
-            var batchs = this.GroupBatchByPartitionKey(entities, 100);
+            var batchs = this.GroupBatchByPartitionKey(entities, BatchOperationSize);
 
             foreach (var batch in batchs)
             {
@@ -1219,11 +1194,17 @@ namespace DevLib.Azure.Storage
             }
         }
 
+        /// <summary>
+        /// Groups the batch by partition key.
+        /// </summary>
+        /// <param name="source">The source.</param>
+        /// <param name="batchSize">Size of the batch.</param>
+        /// <returns>A list of IEnumerable{T} that contains the sub collection of source.</returns>
         private List<List<ITableEntity>> GroupBatchByPartitionKey(IEnumerable<ITableEntity> source, int batchSize)
         {
-            return source?
-                .GroupBy(i => i.PartitionKey)
-                .SelectMany(i => GroupBatch(i, batchSize))
+            return source
+                ?.GroupBy(i => i.PartitionKey)
+                .SelectMany(i => this.GroupBatch(i, batchSize))
                 .ToList()
                 ?? new List<List<ITableEntity>>();
         }

@@ -23,17 +23,19 @@ namespace DevLib.Azure.Storage
         /// </summary>
         /// <param name="newContainerAccessType">Access type for the newly created container.</param>
         /// <param name="cancellationToken">A <see cref="T:System.Threading.CancellationToken" /> to observe while waiting for a task to complete.</param>
-        /// <returns>BlobContainer instance.</returns>
-        public Task<BlobContainer> CreateIfNotExistsAsync(BlobContainerPublicAccessType newContainerAccessType, CancellationToken? cancellationToken = null)
+        /// <returns>true if the container did not already exist and was created; otherwise false.</returns>
+        public Task<bool> CreateIfNotExistsAsync(BlobContainerPublicAccessType newContainerAccessType, CancellationToken? cancellationToken = null)
         {
             return Task.Run(async () =>
             {
-                if (await this._cloudBlobContainer.CreateIfNotExistsAsync(cancellationToken ?? CancellationToken.None))
+                var result = await this._cloudBlobContainer.CreateIfNotExistsAsync(cancellationToken ?? CancellationToken.None);
+
+                if (result)
                 {
                     this.SetAccessPermission(newContainerAccessType);
                 }
 
-                return this;
+                return result;
             },
             cancellationToken ?? CancellationToken.None);
         }
@@ -43,8 +45,8 @@ namespace DevLib.Azure.Storage
         /// </summary>
         /// <param name="isNewContainerPublic">true to set the newly created container to public; false to set it to private.</param>
         /// <param name="cancellationToken">A <see cref="T:System.Threading.CancellationToken" /> to observe while waiting for a task to complete.</param>
-        /// <returns>BlobContainer instance.</returns>
-        public Task<BlobContainer> CreateIfNotExistsAsync(bool isNewContainerPublic = true, CancellationToken? cancellationToken = null)
+        /// <returns>true if the container did not already exist and was created; otherwise false.</returns>
+        public Task<bool> CreateIfNotExistsAsync(bool isNewContainerPublic = true, CancellationToken? cancellationToken = null)
         {
             return this.CreateIfNotExistsAsync(isNewContainerPublic ? BlobContainerPublicAccessType.Container : BlobContainerPublicAccessType.Off, cancellationToken);
         }
@@ -494,12 +496,7 @@ namespace DevLib.Azure.Storage
         public Task<string> GetContainerSasAsync(SharedAccessBlobPermissions permissions = SharedAccessBlobPermissions.Read, DateTimeOffset? startTime = null, DateTimeOffset? endTime = null, CancellationToken? cancellationToken = null)
         {
             return Task.Run(
-                () => this._cloudBlobContainer.GetSharedAccessSignature(new SharedAccessBlobPolicy
-                {
-                    Permissions = permissions,
-                    SharedAccessStartTime = startTime,
-                    SharedAccessExpiryTime = endTime
-                }),
+                () => this.GetContainerSas(permissions, startTime, endTime),
                 cancellationToken ?? CancellationToken.None);
         }
 
@@ -537,12 +534,7 @@ namespace DevLib.Azure.Storage
             {
                 var uriBuilder = new UriBuilder(this._cloudBlobContainer.Uri);
 
-                uriBuilder.Query = this._cloudBlobContainer.GetSharedAccessSignature(new SharedAccessBlobPolicy()
-                {
-                    Permissions = permissions,
-                    SharedAccessStartTime = startTime,
-                    SharedAccessExpiryTime = endTime
-                }).TrimStart('?');
+                uriBuilder.Query = this.GetContainerSas(permissions, startTime, endTime).TrimStart('?');
 
                 return uriBuilder.Uri;
             },
