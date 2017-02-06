@@ -1,14 +1,14 @@
 ﻿//-----------------------------------------------------------------------
-// <copyright file="LoggingLevel.cs" company="YuGuan Corporation">
+// <copyright file="LogLevel.cs" company="YuGuan Corporation">
 //     Copyright (c) YuGuan Corporation. All rights reserved.
 // </copyright>
 //-----------------------------------------------------------------------
 namespace DevLib.Azure.Logging
 {
     /// <summary>
-    /// Message logging level.
+    /// Message log level.
     /// </summary>
-    public enum LoggingLevel
+    public enum LogLevel
     {
         /// <summary>
         /// Represents turn off message.

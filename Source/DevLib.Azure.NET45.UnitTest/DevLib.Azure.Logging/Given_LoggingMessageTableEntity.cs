@@ -10,7 +10,7 @@ namespace DevLib.Azure.NET45.UnitTest
         [TestMethod]
         public void When_Ctor()
         {
-            LoggingMessageTableEntity msg = new LoggingMessageTableEntity();
+            LogMessageTableEntity msg = new LogMessageTableEntity();
 
         }
     }

@@ -20,7 +20,7 @@ namespace DevLib.Azure.Logging
         /// <summary>
         /// Gets or sets the level criteria.
         /// </summary>
-        public LoggingLevel LoggingLevelCriteria { get; set; } = LoggingLevel.ALL;
+        public LogLevel LogLevelCriteria { get; set; } = LogLevel.ALL;
 
         /// <summary>
         /// Builds a readable representation of the stack trace.
@@ -86,7 +86,7 @@ namespace DevLib.Azure.Logging
         /// </summary>
         /// <param name="messageEntity">The message entity.</param>
         /// <returns>The current ILogger instance.</returns>
-        public ILogger Log(LoggingMessageTableEntity messageEntity)
+        public ILogger Log(LogMessageTableEntity messageEntity)
         {
             if (messageEntity != null)
             {
@@ -105,9 +105,9 @@ namespace DevLib.Azure.Logging
         /// <param name="eventId">The event identifier.</param>
         /// <param name="instanceId">The instance identifier.</param>
         /// <returns>The current ILogger instance.</returns>
-        public ILogger Log(LoggingLevel level, object message, string applicationName = null, string eventId = null, string instanceId = null)
+        public ILogger Log(LogLevel level, object message, string applicationName = null, string eventId = null, string instanceId = null)
         {
-            if (level == LoggingLevel.OFF)
+            if (level == LogLevel.OFF)
             {
                 return this;
             }
@@ -124,9 +124,9 @@ namespace DevLib.Azure.Logging
         /// <param name="eventId">The event identifier.</param>
         /// <param name="instanceId">The instance identifier.</param>
         /// <returns>The current ILogger instance.</returns>
-        public ILogger Log(LoggingLevel level, object[] messages, string applicationName = null, string eventId = null, string instanceId = null)
+        public ILogger Log(LogLevel level, object[] messages, string applicationName = null, string eventId = null, string instanceId = null)
         {
-            if (level == LoggingLevel.OFF)
+            if (level == LogLevel.OFF)
             {
                 return this;
             }
@@ -144,7 +144,7 @@ namespace DevLib.Azure.Logging
         /// <returns>The current ILogger instance.</returns>
         public ILogger Log(object message, string applicationName = null, string eventId = null, string instanceId = null)
         {
-            return this.InternalLog(LoggingLevel.ALL, message, applicationName, eventId, instanceId);
+            return this.InternalLog(LogLevel.ALL, message, applicationName, eventId, instanceId);
         }
 
         /// <summary>
@@ -157,7 +157,7 @@ namespace DevLib.Azure.Logging
         /// <returns>The current ILogger instance.</returns>
         public ILogger Log(object[] messages, string applicationName = null, string eventId = null, string instanceId = null)
         {
-            return this.InternalLog(LoggingLevel.ALL, messages, applicationName, eventId, instanceId);
+            return this.InternalLog(LogLevel.ALL, messages, applicationName, eventId, instanceId);
         }
 
         /// <summary>
@@ -170,7 +170,7 @@ namespace DevLib.Azure.Logging
         /// <returns>The current ILogger instance.</returns>
         public ILogger LogDebug(object message, string applicationName = null, string eventId = null, string instanceId = null)
         {
-            return this.InternalLog(LoggingLevel.DBG, message, applicationName, eventId, instanceId);
+            return this.InternalLog(LogLevel.DBG, message, applicationName, eventId, instanceId);
         }
 
         /// <summary>
@@ -183,7 +183,7 @@ namespace DevLib.Azure.Logging
         /// <returns>The current ILogger instance.</returns>
         public ILogger LogDebug(object[] messages, string applicationName = null, string eventId = null, string instanceId = null)
         {
-            return this.InternalLog(LoggingLevel.DBG, messages, applicationName, eventId, instanceId);
+            return this.InternalLog(LogLevel.DBG, messages, applicationName, eventId, instanceId);
         }
 
         /// <summary>
@@ -196,7 +196,7 @@ namespace DevLib.Azure.Logging
         /// <returns>The current ILogger instance.</returns>
         public ILogger LogInfo(object message, string applicationName = null, string eventId = null, string instanceId = null)
         {
-            return this.InternalLog(LoggingLevel.INF, message, applicationName, eventId, instanceId);
+            return this.InternalLog(LogLevel.INF, message, applicationName, eventId, instanceId);
         }
 
         /// <summary>
@@ -209,7 +209,7 @@ namespace DevLib.Azure.Logging
         /// <returns>The current ILogger instance.</returns>
         public ILogger LogInfo(object[] messages, string applicationName = null, string eventId = null, string instanceId = null)
         {
-            return this.InternalLog(LoggingLevel.INF, messages, applicationName, eventId, instanceId);
+            return this.InternalLog(LogLevel.INF, messages, applicationName, eventId, instanceId);
         }
 
         /// <summary>
@@ -222,7 +222,7 @@ namespace DevLib.Azure.Logging
         /// <returns>The current ILogger instance.</returns>
         public ILogger LogWarning(object message, string applicationName = null, string eventId = null, string instanceId = null)
         {
-            return this.InternalLog(LoggingLevel.WRN, message, applicationName, eventId, instanceId);
+            return this.InternalLog(LogLevel.WRN, message, applicationName, eventId, instanceId);
         }
 
         /// <summary>
@@ -235,7 +235,7 @@ namespace DevLib.Azure.Logging
         /// <returns>The current ILogger instance.</returns>
         public ILogger LogWarning(object[] messages, string applicationName = null, string eventId = null, string instanceId = null)
         {
-            return this.InternalLog(LoggingLevel.WRN, messages, applicationName, eventId, instanceId);
+            return this.InternalLog(LogLevel.WRN, messages, applicationName, eventId, instanceId);
         }
 
         /// <summary>
@@ -248,7 +248,7 @@ namespace DevLib.Azure.Logging
         /// <returns>The current ILogger instance.</returns>
         public ILogger LogException(object message, string applicationName = null, string eventId = null, string instanceId = null)
         {
-            return this.InternalLog(LoggingLevel.EXP, message, applicationName, eventId, instanceId);
+            return this.InternalLog(LogLevel.EXP, message, applicationName, eventId, instanceId);
         }
 
         /// <summary>
@@ -261,7 +261,7 @@ namespace DevLib.Azure.Logging
         /// <returns>The current ILogger instance.</returns>
         public ILogger LogException(object[] messages, string applicationName = null, string eventId = null, string instanceId = null)
         {
-            return this.InternalLog(LoggingLevel.EXP, messages, applicationName, eventId, instanceId);
+            return this.InternalLog(LogLevel.EXP, messages, applicationName, eventId, instanceId);
         }
 
         /// <summary>
@@ -274,7 +274,7 @@ namespace DevLib.Azure.Logging
         /// <returns>The current ILogger instance.</returns>
         public ILogger LogError(object message, string applicationName = null, string eventId = null, string instanceId = null)
         {
-            return this.InternalLog(LoggingLevel.ERR, message, applicationName, eventId, instanceId);
+            return this.InternalLog(LogLevel.ERR, message, applicationName, eventId, instanceId);
         }
 
         /// <summary>
@@ -287,7 +287,7 @@ namespace DevLib.Azure.Logging
         /// <returns>The current ILogger instance.</returns>
         public ILogger LogError(object[] messages, string applicationName = null, string eventId = null, string instanceId = null)
         {
-            return this.InternalLog(LoggingLevel.ERR, messages, applicationName, eventId, instanceId);
+            return this.InternalLog(LogLevel.ERR, messages, applicationName, eventId, instanceId);
         }
 
         /// <summary>
@@ -300,7 +300,7 @@ namespace DevLib.Azure.Logging
         /// <returns>The current ILogger instance.</returns>
         public ILogger LogFatal(object message, string applicationName = null, string eventId = null, string instanceId = null)
         {
-            return this.InternalLog(LoggingLevel.FAL, message, applicationName, eventId, instanceId);
+            return this.InternalLog(LogLevel.FAL, message, applicationName, eventId, instanceId);
         }
 
         /// <summary>
@@ -313,14 +313,14 @@ namespace DevLib.Azure.Logging
         /// <returns>The current ILogger instance.</returns>
         public ILogger LogFatal(object[] messages, string applicationName = null, string eventId = null, string instanceId = null)
         {
-            return this.InternalLog(LoggingLevel.FAL, messages, applicationName, eventId, instanceId);
+            return this.InternalLog(LogLevel.FAL, messages, applicationName, eventId, instanceId);
         }
 
         /// <summary>
         /// Logs the message.
         /// </summary>
         /// <param name="messageEntity">The message entity.</param>
-        protected virtual void InternalLog(LoggingMessageTableEntity messageEntity)
+        protected virtual void InternalLog(LogMessageTableEntity messageEntity)
         {
         }
 
@@ -333,14 +333,14 @@ namespace DevLib.Azure.Logging
         /// <param name="eventId">The event identifier.</param>
         /// <param name="instanceId">The instance identifier.</param>
         /// <returns>The current ILogger instance.</returns>
-        private ILogger InternalLog(LoggingLevel level, object message, string applicationName, string eventId, string instanceId)
+        private ILogger InternalLog(LogLevel level, object message, string applicationName, string eventId, string instanceId)
         {
-            if (level < this.LoggingLevelCriteria)
+            if (level < this.LogLevelCriteria)
             {
                 return this;
             }
 
-            var messageEntity = new LoggingMessageTableEntity
+            var messageEntity = new LogMessageTableEntity
             {
                 Level = level.ToString(),
                 Message = message?.ToString() ?? string.Empty,
@@ -368,14 +368,14 @@ namespace DevLib.Azure.Logging
         /// <param name="eventId">The event identifier.</param>
         /// <param name="instanceId">The instance identifier.</param>
         /// <returns>The current ILogger instance.</returns>
-        private ILogger InternalLog(LoggingLevel level, object[] messages, string applicationName, string eventId, string instanceId)
+        private ILogger InternalLog(LogLevel level, object[] messages, string applicationName, string eventId, string instanceId)
         {
-            if (level < this.LoggingLevelCriteria)
+            if (level < this.LogLevelCriteria)
             {
                 return this;
             }
 
-            var messageEntity = new LoggingMessageTableEntity
+            var messageEntity = new LogMessageTableEntity
             {
                 Level = level.ToString(),
                 Message = messages != null ? string.Join(", ", messages.Select(i => i?.ToString() ?? string.Empty)) : string.Empty,

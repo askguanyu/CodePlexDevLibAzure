@@ -13,14 +13,14 @@ namespace DevLib.Azure.Logging
         /// <summary>
         /// Gets or sets the level criteria.
         /// </summary>
-        LoggingLevel LoggingLevelCriteria { get; set; }
+        LogLevel LogLevelCriteria { get; set; }
 
         /// <summary>
         /// Logs the specified message entity.
         /// </summary>
         /// <param name="messageEntity">The message entity.</param>
         /// <returns>The current ILogger instance.</returns>
-        ILogger Log(LoggingMessageTableEntity messageEntity);
+        ILogger Log(LogMessageTableEntity messageEntity);
 
         /// <summary>
         /// Logs the message with specified level.
@@ -31,7 +31,7 @@ namespace DevLib.Azure.Logging
         /// <param name="eventId">The event identifier.</param>
         /// <param name="instanceId">The instance identifier.</param>
         /// <returns>The current ILogger instance.</returns>
-        ILogger Log(LoggingLevel level, object message, string applicationName = null, string eventId = null, string instanceId = null);
+        ILogger Log(LogLevel level, object message, string applicationName = null, string eventId = null, string instanceId = null);
 
         /// <summary>
         /// Logs the messages with specified level.
@@ -42,7 +42,7 @@ namespace DevLib.Azure.Logging
         /// <param name="eventId">The event identifier.</param>
         /// <param name="instanceId">The instance identifier.</param>
         /// <returns>The current ILogger instance.</returns>
-        ILogger Log(LoggingLevel level, object[] messages, string applicationName = null, string eventId = null, string instanceId = null);
+        ILogger Log(LogLevel level, object[] messages, string applicationName = null, string eventId = null, string instanceId = null);
 
         /// <summary>
         /// Logs the message.

@@ -1,5 +1,5 @@
 ﻿//-----------------------------------------------------------------------
-// <copyright file="LoggingMessageTableEntity.cs" company="YuGuan Corporation">
+// <copyright file="LogMessageTableEntity.cs" company="YuGuan Corporation">
 //     Copyright (c) YuGuan Corporation. All rights reserved.
 // </copyright>
 //-----------------------------------------------------------------------
@@ -13,7 +13,7 @@ namespace DevLib.Azure.Logging
     /// <summary>
     /// Represents the logging message object type for a table entity in the Table service.
     /// </summary>
-    public class LoggingMessageTableEntity : TableEntity
+    public class LogMessageTableEntity : TableEntity
     {
         /// <summary>
         /// The date format.
@@ -31,9 +31,9 @@ namespace DevLib.Azure.Logging
         private const string DateTimeFormat = "yyyy-MM-ddTHH:mm:ss.fffZ";
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="LoggingMessageTableEntity"/> class.
+        /// Initializes a new instance of the <see cref="LogMessageTableEntity"/> class.
         /// </summary>
-        public LoggingMessageTableEntity()
+        public LogMessageTableEntity()
             : base()
         {
             this.EventTickCount = Stopwatch.GetTimestamp();
@@ -54,11 +54,11 @@ namespace DevLib.Azure.Logging
         }
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="LoggingMessageTableEntity"/> class.
+        /// Initializes a new instance of the <see cref="LogMessageTableEntity"/> class.
         /// </summary>
         /// <param name="partitionKey">The partition key.</param>
         /// <param name="rowKey">The row key.</param>
-        public LoggingMessageTableEntity(string partitionKey, string rowKey)
+        public LogMessageTableEntity(string partitionKey, string rowKey)
             : base(partitionKey, rowKey)
         {
             this.EventTickCount = Stopwatch.GetTimestamp();
@@ -215,7 +215,11 @@ namespace DevLib.Azure.Logging
         /// <summary>
         /// Gets or sets the tag.
         /// </summary>
-        public string Tag { get; set; }
+        public string Tag
+        {
+            get;
+            set;
+        }
 
         /// <summary>
         /// Returns a <see cref="System.String" /> that represents this instance.
@@ -223,7 +227,7 @@ namespace DevLib.Azure.Logging
         /// <returns>A <see cref="System.String" /> that represents this instance.</returns>
         public override string ToString()
         {
-            return $"[Timestamp: {this.Timestamp.UtcDateTime.ToString(DateTimeFormat)}] [Level: {this.Level}] [Message: {this.Message}] [PK: {this.PartitionKey}] [RK: {this.RowKey}] [EventTickCount: {this.EventTickCount}] [User: {this.User}] [Domain: {this.Domain}] [Machine: {this.Machine}] [WorkingSet: {this.WorkingSet}] [ApplicationName: {this.ApplicationName}] [EventId: {this.EventId}] [InstanceId: {this.InstanceId}] [Pid: {this.Pid}] [Tid: {this.Tid}] [StackTrace: {this.StackTrace}] [CmdLine: {this.CommandLine}] [Is64Bit: {this.Is64BitProcess}] [Tag: {this.Tag}]".Replace(Environment.NewLine, " ");
+            return $"[PK: {this.PartitionKey}] [RK: {this.RowKey}] [Level: {this.Level}] [Message: {this.Message}] [Pid: {this.Pid}] [Tid: {this.Tid}] [Timestamp: {this.Timestamp.UtcDateTime.ToString(DateTimeFormat)}] [EventTickCount: {this.EventTickCount}] [User: {this.User}] [Domain: {this.Domain}] [Machine: {this.Machine}] [WorkingSet: {this.WorkingSet}] [ApplicationName: {this.ApplicationName}] [EventId: {this.EventId}] [InstanceId: {this.InstanceId}] [StackTrace: {this.StackTrace}] [CmdLine: {this.CommandLine}] [Is64Bit: {this.Is64BitProcess}] [Tag: {this.Tag}]".Replace(Environment.NewLine, " ");
         }
     }
 }

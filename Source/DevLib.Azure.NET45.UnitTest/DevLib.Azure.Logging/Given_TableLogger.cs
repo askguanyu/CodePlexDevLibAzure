@@ -19,7 +19,7 @@ namespace DevLib.Azure.NET45.UnitTest
         {
             var logger = new TableLogger("logtest", "");
             //new TableLogger("", (TableClient)null).Log(LoggingLevel.ALL, "hello1", "a1", "b1", "c1");
-            logger.Log(LoggingLevel.ALL, "hello2", "a2", "b2", "c2");
+            logger.Log(LogLevel.ALL, "hello2", "a2", "b2", "c2");
             logger.LogDebug(new[] { "a", "b", "c" });
 
             //var messageEntity1 = new LoggingMessageTableEntity();

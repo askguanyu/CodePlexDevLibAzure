@@ -17,7 +17,7 @@ namespace DevLib.Azure.Logging
         /// Logs the message.
         /// </summary>
         /// <param name="messageEntity">The message entity.</param>
-        protected override void InternalLog(LoggingMessageTableEntity messageEntity)
+        protected override void InternalLog(LogMessageTableEntity messageEntity)
         {
             try
             {
