@@ -8,6 +8,7 @@ namespace DevLib.Azure.Logging
     using System;
     using System.Diagnostics;
     using System.Globalization;
+    using System.Linq;
     using DevLib.Azure.Storage;
 
     /// <summary>
@@ -42,7 +43,7 @@ namespace DevLib.Azure.Logging
 
             this.PartitionKey = timestamp.ToString(DateFormat, CultureInfo.InvariantCulture);
             this.RowKey = timestamp.ToString(TimeFormat, CultureInfo.InvariantCulture) + tickCount;
-            this.Timestamp = timestamp;
+            this.Timestamp = timestamp.UtcDateTime;
             this.Level = LogLevel.ALL.ToString();
             this.Message = string.Empty;
             this.EventTickCount = tickCount;
@@ -72,7 +73,7 @@ namespace DevLib.Azure.Logging
             var timestamp = DateTimeOffset.Now;
             var currentProcess = Process.GetCurrentProcess();
 
-            this.Timestamp = timestamp;
+            this.Timestamp = timestamp.UtcDateTime;
             this.Level = LogLevel.ALL.ToString();
             this.Message = string.Empty;
             this.EventTickCount = tickCount;
@@ -95,15 +96,8 @@ namespace DevLib.Azure.Logging
         /// </summary>
         public string Level
         {
-            get
-            {
-                return this.GetValue<string>(nameof(this.Level), false);
-            }
-
-            set
-            {
-                this[nameof(this.Level)] = value;
-            }
+            get;
+            set;
         }
 
         /// <summary>
@@ -111,15 +105,8 @@ namespace DevLib.Azure.Logging
         /// </summary>
         public string Message
         {
-            get
-            {
-                return this.GetValue<string>(nameof(this.Message), false);
-            }
-
-            set
-            {
-                this[nameof(this.Message)] = value;
-            }
+            get;
+            set;
         }
 
         /// <summary>
@@ -127,15 +114,8 @@ namespace DevLib.Azure.Logging
         /// </summary>
         public long EventTickCount
         {
-            get
-            {
-                return this.GetValue<long>(nameof(this.EventTickCount), false);
-            }
-
-            set
-            {
-                this[nameof(this.EventTickCount)] = value;
-            }
+            get;
+            set;
         }
 
         /// <summary>
@@ -143,15 +123,8 @@ namespace DevLib.Azure.Logging
         /// </summary>
         public string User
         {
-            get
-            {
-                return this.GetValue<string>(nameof(this.User), false);
-            }
-
-            set
-            {
-                this[nameof(this.User)] = value;
-            }
+            get;
+            set;
         }
 
         /// <summary>
@@ -159,15 +132,8 @@ namespace DevLib.Azure.Logging
         /// </summary>
         public string Domain
         {
-            get
-            {
-                return this.GetValue<string>(nameof(this.Domain), false);
-            }
-
-            set
-            {
-                this[nameof(this.Domain)] = value;
-            }
+            get;
+            set;
         }
 
         /// <summary>
@@ -175,15 +141,8 @@ namespace DevLib.Azure.Logging
         /// </summary>
         public string Machine
         {
-            get
-            {
-                return this.GetValue<string>(nameof(this.Machine), false);
-            }
-
-            set
-            {
-                this[nameof(this.Machine)] = value;
-            }
+            get;
+            set;
         }
 
         /// <summary>
@@ -191,15 +150,8 @@ namespace DevLib.Azure.Logging
         /// </summary>
         public long WorkingSet
         {
-            get
-            {
-                return this.GetValue<long>(nameof(this.WorkingSet), false);
-            }
-
-            set
-            {
-                this[nameof(this.WorkingSet)] = value;
-            }
+            get;
+            set;
         }
 
         /// <summary>
@@ -207,15 +159,8 @@ namespace DevLib.Azure.Logging
         /// </summary>
         public string ApplicationName
         {
-            get
-            {
-                return this.GetValue<string>(nameof(this.ApplicationName), false);
-            }
-
-            set
-            {
-                this[nameof(this.ApplicationName)] = value;
-            }
+            get;
+            set;
         }
 
         /// <summary>
@@ -223,15 +168,8 @@ namespace DevLib.Azure.Logging
         /// </summary>
         public string EventId
         {
-            get
-            {
-                return this.GetValue<string>(nameof(this.EventId), false);
-            }
-
-            set
-            {
-                this[nameof(this.EventId)] = value;
-            }
+            get;
+            set;
         }
 
         /// <summary>
@@ -239,15 +177,8 @@ namespace DevLib.Azure.Logging
         /// </summary>
         public string InstanceId
         {
-            get
-            {
-                return this.GetValue<string>(nameof(this.InstanceId), false);
-            }
-
-            set
-            {
-                this[nameof(this.InstanceId)] = value;
-            }
+            get;
+            set;
         }
 
         /// <summary>
@@ -255,15 +186,8 @@ namespace DevLib.Azure.Logging
         /// </summary>
         public int Pid
         {
-            get
-            {
-                return this.GetValue<int>(nameof(this.Pid), false);
-            }
-
-            set
-            {
-                this[nameof(this.Pid)] = value;
-            }
+            get;
+            set;
         }
 
         /// <summary>
@@ -271,15 +195,8 @@ namespace DevLib.Azure.Logging
         /// </summary>
         public int Tid
         {
-            get
-            {
-                return this.GetValue<int>(nameof(this.Tid), false);
-            }
-
-            set
-            {
-                this[nameof(this.Tid)] = value;
-            }
+            get;
+            set;
         }
 
         /// <summary>
@@ -288,15 +205,8 @@ namespace DevLib.Azure.Logging
         /// <value>The command line.</value>
         public string CommandLine
         {
-            get
-            {
-                return this.GetValue<string>(nameof(this.CommandLine), false);
-            }
-
-            set
-            {
-                this[nameof(this.CommandLine)] = value;
-            }
+            get;
+            set;
         }
 
         /// <summary>
@@ -304,15 +214,8 @@ namespace DevLib.Azure.Logging
         /// </summary>
         public string StackTrace
         {
-            get
-            {
-                return this.GetValue<string>(nameof(this.StackTrace), false);
-            }
-
-            set
-            {
-                this[nameof(this.StackTrace)] = value;
-            }
+            get;
+            set;
         }
 
         /// <summary>
@@ -320,15 +223,8 @@ namespace DevLib.Azure.Logging
         /// </summary>
         public bool Is64BitProcess
         {
-            get
-            {
-                return this.GetValue<bool>(nameof(this.Is64BitProcess), false);
-            }
-
-            set
-            {
-                this[nameof(this.Is64BitProcess)] = value;
-            }
+            get;
+            set;
         }
 
         /// <summary>
@@ -337,7 +233,9 @@ namespace DevLib.Azure.Logging
         /// <returns>A <see cref="System.String" /> that represents this instance.</returns>
         public override string ToString()
         {
-            return $"[PK: {this.PartitionKey}] [RK: {this.RowKey}] [Level: {this.Level}] [Message: {this.Message}] [Pid: {this.Pid}] [Tid: {this.Tid}] [Timestamp: {this.Timestamp.UtcDateTime.ToString(DateTimeFormat)}] [EventTickCount: {this.EventTickCount}] [User: {this.User}] [Domain: {this.Domain}] [Machine: {this.Machine}] [WorkingSet: {this.WorkingSet}] [ApplicationName: {this.ApplicationName}] [EventId: {this.EventId}] [InstanceId: {this.InstanceId}] [StackTrace: {this.StackTrace}] [CmdLine: {this.CommandLine}] [Is64Bit: {this.Is64BitProcess}]".Replace(Environment.NewLine, " ");
+            return ($"[PK: {this.PartitionKey}] [RK: {this.RowKey}] [Level: {this.Level}] [Message: {this.Message}] [Pid: {this.Pid}] [Tid: {this.Tid}] [Timestamp: {this.Timestamp.ToString(DateTimeFormat)}] [EventTickCount: {this.EventTickCount}] [User: {this.User}] [Domain: {this.Domain}] [Machine: {this.Machine}] [WorkingSet: {this.WorkingSet}] [ApplicationName: {this.ApplicationName}] [EventId: {this.EventId}] [InstanceId: {this.InstanceId}] [StackTrace: {this.StackTrace}] [CmdLine: {this.CommandLine}] [Is64Bit: {this.Is64BitProcess}] "
+                + string.Join(" ", this.KeyValuePairs.Select(i => $"[{i.Key}: {i.Value}]")))
+                .Replace(Environment.NewLine, " ");
         }
     }
 }

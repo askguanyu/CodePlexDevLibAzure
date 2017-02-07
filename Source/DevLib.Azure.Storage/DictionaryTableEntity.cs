@@ -8,6 +8,7 @@ namespace DevLib.Azure.Storage
     using System.Collections;
     using System.Collections.Generic;
     using System.Linq;
+    using System.Reflection;
     using Microsoft.WindowsAzure.Storage;
     using Microsoft.WindowsAzure.Storage.Table;
 
@@ -16,6 +17,11 @@ namespace DevLib.Azure.Storage
     /// </summary>
     public class DictionaryTableEntity : TableEntity, IDictionary<string, object>
     {
+        /// <summary>
+        /// The PropertyInfo array.
+        /// </summary>
+        private readonly PropertyInfo[] _propertyInfos;
+
         /// <summary>
         /// The properties.
         /// </summary>
@@ -27,6 +33,7 @@ namespace DevLib.Azure.Storage
         public DictionaryTableEntity()
         {
             this._properties = new Dictionary<string, EntityProperty>();
+            this._propertyInfos = this.GetPublicGetSetProperties();
         }
 
         /// <summary>
@@ -38,6 +45,7 @@ namespace DevLib.Azure.Storage
             : base(partitionKey, rowKey)
         {
             this._properties = new Dictionary<string, EntityProperty>();
+            this._propertyInfos = this.GetPublicGetSetProperties();
         }
 
         /// <summary>
@@ -121,7 +129,14 @@ namespace DevLib.Azure.Storage
         /// <param name="operationContext">The operation context.</param>
         public override void ReadEntity(IDictionary<string, EntityProperty> properties, OperationContext operationContext)
         {
+            base.ReadEntity(properties, operationContext);
+
             this._properties = properties;
+
+            foreach (var item in this._propertyInfos)
+            {
+                this._properties.Remove(item.Name);
+            }
         }
 
         /// <summary>
@@ -131,7 +146,17 @@ namespace DevLib.Azure.Storage
         /// <returns>An IDictionary object that maps string property names to Microsoft.WindowsAzure.Storage.Table.EntityProperty typed values created by serializing this table entity instance.</returns>
         public override IDictionary<string, EntityProperty> WriteEntity(OperationContext operationContext)
         {
-            return this._properties;
+            var result = this.RetrieveProperties();
+
+            foreach (var item in this._properties)
+            {
+                if (!result.ContainsKey(item.Key))
+                {
+                    result.Add(item.Key, item.Value);
+                }
+            }
+
+            return result;
         }
 
         /// <summary>
@@ -327,6 +352,35 @@ namespace DevLib.Azure.Storage
         IEnumerator IEnumerable.GetEnumerator()
         {
             return this._properties.GetEnumerator();
+        }
+
+        /// <summary>
+        /// Retrieves object's all properties value.
+        /// </summary>
+        /// <returns>Instance of Dictionary{string, EntityProperty}.</returns>
+        private Dictionary<string, EntityProperty> RetrieveProperties()
+        {
+            Dictionary<string, EntityProperty> result = new Dictionary<string, EntityProperty>();
+
+            foreach (PropertyInfo property in this._propertyInfos)
+            {
+                result.Add(property.Name, EntityProperty.CreateEntityPropertyFromObject(property.GetValue(this, null)));
+            }
+
+            return result;
+        }
+
+        /// <summary>
+        /// Gets the public get set properties.
+        /// </summary>
+        /// <returns>Array of PropertyInfo.</returns>
+        private PropertyInfo[] GetPublicGetSetProperties()
+        {
+            return this
+                .GetType()
+                .GetProperties(BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly)
+                .Where(i => i.CanRead && i.CanWrite && i.GetGetMethod(true).IsPublic && i.GetSetMethod(true).IsPublic)
+                .ToArray();
         }
 
         /// <summary>
