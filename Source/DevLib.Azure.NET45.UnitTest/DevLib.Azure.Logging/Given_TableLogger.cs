@@ -28,5 +28,16 @@ namespace DevLib.Azure.NET45.UnitTest
             //TableClient.DevelopmentClient.GetTableStorage("log").Insert(messageEntity1);
             //TableClient.DevelopmentClient.GetTableStorage("log").Insert(messageEntity2);
         }
+
+        [TestMethod]
+        public void When_LogMessageTableEntity()
+        {
+            var logger = new TableLogger("logtest", StorageConstants.DevelopmentStorageConnectionString);
+            var msg = new LogMessageTableEntity();
+            msg["p1"] = "p1";
+            msg["p2"] = 2;
+
+            logger.Log(msg);
+        }
     }
 }

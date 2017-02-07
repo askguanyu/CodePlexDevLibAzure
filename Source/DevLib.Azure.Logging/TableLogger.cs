@@ -169,8 +169,8 @@ namespace DevLib.Azure.Logging
 
                     try
                     {
-                        messageEntity.RowKey = $"internal[{Guid.NewGuid().ToString().Replace("-", string.Empty).ToLowerInvariant()}]";
-                        messageEntity.Tag = internalError;
+                        messageEntity.RowKey = $"InternalError[{Guid.NewGuid().ToString().Replace("-", string.Empty).ToLowerInvariant()}]";
+                        messageEntity["InternalError"] = internalError;
                         this._tableStorage.Insert(messageEntity);
                     }
                     catch (Exception ex)

@@ -13,6 +13,7 @@
     <Compile Include="$(MSBuildThisFileDirectory)BlobContainer.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)BlobClient.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)BlobContainerAsync.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)DictionaryTableEntity.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)FileClient.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)FileClientAsync.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)FileStorage.cs" />

@@ -83,6 +83,7 @@
   <ItemGroup>
     <Compile Include="DevLib.Azure.Logging\Given_Logger.cs" />
     <Compile Include="DevLib.Azure.Storage\Given_BlobClient.cs" />
+    <Compile Include="DevLib.Azure.Storage\Given_DictionaryTableEntity.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="DevLib.Azure.Storage\Given_BlobContainer.cs" />
     <Compile Include="DevLib.Azure.Storage\Given_TableStorage.cs" />
@@ -99,6 +100,7 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
+    <None Include="app.config" />
     <None Include="packages.config" />
   </ItemGroup>
   <Choose>

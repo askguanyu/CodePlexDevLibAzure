@@ -348,26 +348,40 @@ namespace DevLib.Azure.Storage
         /// Gets the value by the specified key.
         /// </summary>
         /// <param name="key">The key.</param>
+        /// <param name="throwOnError">true to throw any exception that occurs.-or- false to ignore any exception that occurs.</param>
+        /// <param name="defaultValueOnError">The default value if error occurred.</param>
         /// <returns>The value object.</returns>
-        public object GetValue(string key)
+        public object GetValue(string key, bool throwOnError = true, object defaultValueOnError = null)
         {
-            key.ValidateTableDictionaryPropertyValue();
-
-            if (this._dictionaryKeyIgnoreCase)
+            try
             {
-                key = key.ToLowerInvariant();
+                key.ValidateTableDictionaryPropertyValue();
+
+                if (this._dictionaryKeyIgnoreCase)
+                {
+                    key = key.ToLowerInvariant();
+                }
+
+                key = RowKeyPrefix + key;
+
+                var entity = this._tableStorage.Retrieve<DynamicTableEntity>(this._dictionaryPartitionKey, key);
+
+                if (entity == null)
+                {
+                    throw new KeyNotFoundException();
+                }
+
+                return entity[ValueKey].PropertyAsObject;
             }
-
-            key = RowKeyPrefix + key;
-
-            var entity = this._tableStorage.Retrieve<DynamicTableEntity>(this._dictionaryPartitionKey, key);
-
-            if (entity == null)
+            catch
             {
-                throw new KeyNotFoundException();
-            }
+                if (throwOnError)
+                {
+                    throw;
+                }
 
-            return entity[ValueKey].PropertyAsObject;
+                return defaultValueOnError;
+            }
         }
 
         /// <summary>
@@ -375,26 +389,40 @@ namespace DevLib.Azure.Storage
         /// </summary>
         /// <typeparam name="T">Type of the value object.</typeparam>
         /// <param name="key">The key.</param>
+        /// <param name="throwOnError">true to throw any exception that occurs.-or- false to ignore any exception that occurs.</param>
+        /// <param name="defaultValueOnError">The default value if error occurred.</param>
         /// <returns>The value object.</returns>
-        public T GetValue<T>(string key)
+        public T GetValue<T>(string key, bool throwOnError = true, T defaultValueOnError = default(T))
         {
-            key.ValidateTableDictionaryPropertyValue();
-
-            if (this._dictionaryKeyIgnoreCase)
+            try
             {
-                key = key.ToLowerInvariant();
+                key.ValidateTableDictionaryPropertyValue();
+
+                if (this._dictionaryKeyIgnoreCase)
+                {
+                    key = key.ToLowerInvariant();
+                }
+
+                key = RowKeyPrefix + key;
+
+                var entity = this._tableStorage.Retrieve<DynamicTableEntity>(this._dictionaryPartitionKey, key);
+
+                if (entity == null)
+                {
+                    throw new KeyNotFoundException();
+                }
+
+                return (T)entity[ValueKey].PropertyAsObject;
             }
-
-            key = RowKeyPrefix + key;
-
-            var entity = this._tableStorage.Retrieve<DynamicTableEntity>(this._dictionaryPartitionKey, key);
-
-            if (entity == null)
+            catch
             {
-                throw new KeyNotFoundException();
-            }
+                if (throwOnError)
+                {
+                    throw;
+                }
 
-            return (T)entity[ValueKey].PropertyAsObject;
+                return defaultValueOnError;
+            }
         }
 
         /// <summary>

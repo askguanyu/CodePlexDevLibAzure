@@ -8,12 +8,12 @@ namespace DevLib.Azure.Logging
     using System;
     using System.Diagnostics;
     using System.Globalization;
-    using Microsoft.WindowsAzure.Storage.Table;
+    using DevLib.Azure.Storage;
 
     /// <summary>
     /// Represents the logging message object type for a table entity in the Table service.
     /// </summary>
-    public class LogMessageTableEntity : TableEntity
+    public class LogMessageTableEntity : DictionaryTableEntity
     {
         /// <summary>
         /// The date format.
@@ -36,21 +36,28 @@ namespace DevLib.Azure.Logging
         public LogMessageTableEntity()
             : base()
         {
-            this.EventTickCount = Stopwatch.GetTimestamp();
-            this.Timestamp = DateTimeOffset.Now;
-            this.PartitionKey = this.Timestamp.ToString(DateFormat, CultureInfo.InvariantCulture);
-            this.RowKey = this.Timestamp.ToString(TimeFormat, CultureInfo.InvariantCulture) + this.EventTickCount;
+            var tickCount = Stopwatch.GetTimestamp();
+            var timestamp = DateTimeOffset.Now;
+            var currentProcess = Process.GetCurrentProcess();
+
+            this.PartitionKey = timestamp.ToString(DateFormat, CultureInfo.InvariantCulture);
+            this.RowKey = timestamp.ToString(TimeFormat, CultureInfo.InvariantCulture) + tickCount;
+            this.Timestamp = timestamp;
+            this.Level = LogLevel.ALL.ToString();
+            this.Message = string.Empty;
+            this.EventTickCount = tickCount;
             this.User = Environment.UserName;
             this.Domain = Environment.UserDomainName;
             this.Machine = Environment.MachineName;
             this.WorkingSet = Environment.WorkingSet;
+            this.ApplicationName = currentProcess.ProcessName;
+            this.EventId = string.Empty;
+            this.InstanceId = string.Empty;
+            this.Pid = currentProcess.Id;
             this.Tid = Environment.CurrentManagedThreadId;
             this.CommandLine = Environment.CommandLine;
-            this.Is64BitProcess = Environment.Is64BitProcess;
             this.StackTrace = Environment.StackTrace;
-            Process currentProcess = Process.GetCurrentProcess();
-            this.Pid = currentProcess.Id;
-            this.ApplicationName = currentProcess.ProcessName;
+            this.Is64BitProcess = Environment.Is64BitProcess;
         }
 
         /// <summary>
@@ -61,19 +68,26 @@ namespace DevLib.Azure.Logging
         public LogMessageTableEntity(string partitionKey, string rowKey)
             : base(partitionKey, rowKey)
         {
-            this.EventTickCount = Stopwatch.GetTimestamp();
-            this.Timestamp = DateTimeOffset.Now;
+            var tickCount = Stopwatch.GetTimestamp();
+            var timestamp = DateTimeOffset.Now;
+            var currentProcess = Process.GetCurrentProcess();
+
+            this.Timestamp = timestamp;
+            this.Level = LogLevel.ALL.ToString();
+            this.Message = string.Empty;
+            this.EventTickCount = tickCount;
             this.User = Environment.UserName;
             this.Domain = Environment.UserDomainName;
             this.Machine = Environment.MachineName;
             this.WorkingSet = Environment.WorkingSet;
+            this.ApplicationName = currentProcess.ProcessName;
+            this.EventId = string.Empty;
+            this.InstanceId = string.Empty;
+            this.Pid = currentProcess.Id;
             this.Tid = Environment.CurrentManagedThreadId;
             this.CommandLine = Environment.CommandLine;
-            this.Is64BitProcess = Environment.Is64BitProcess;
             this.StackTrace = Environment.StackTrace;
-            Process currentProcess = Process.GetCurrentProcess();
-            this.Pid = currentProcess.Id;
-            this.ApplicationName = currentProcess.ProcessName;
+            this.Is64BitProcess = Environment.Is64BitProcess;
         }
 
         /// <summary>
@@ -81,8 +95,15 @@ namespace DevLib.Azure.Logging
         /// </summary>
         public string Level
         {
-            get;
-            set;
+            get
+            {
+                return this.GetValue<string>(nameof(this.Level), false);
+            }
+
+            set
+            {
+                this[nameof(this.Level)] = value;
+            }
         }
 
         /// <summary>
@@ -90,8 +111,15 @@ namespace DevLib.Azure.Logging
         /// </summary>
         public string Message
         {
-            get;
-            set;
+            get
+            {
+                return this.GetValue<string>(nameof(this.Message), false);
+            }
+
+            set
+            {
+                this[nameof(this.Message)] = value;
+            }
         }
 
         /// <summary>
@@ -99,8 +127,15 @@ namespace DevLib.Azure.Logging
         /// </summary>
         public long EventTickCount
         {
-            get;
-            set;
+            get
+            {
+                return this.GetValue<long>(nameof(this.EventTickCount), false);
+            }
+
+            set
+            {
+                this[nameof(this.EventTickCount)] = value;
+            }
         }
 
         /// <summary>
@@ -108,8 +143,15 @@ namespace DevLib.Azure.Logging
         /// </summary>
         public string User
         {
-            get;
-            set;
+            get
+            {
+                return this.GetValue<string>(nameof(this.User), false);
+            }
+
+            set
+            {
+                this[nameof(this.User)] = value;
+            }
         }
 
         /// <summary>
@@ -117,8 +159,15 @@ namespace DevLib.Azure.Logging
         /// </summary>
         public string Domain
         {
-            get;
-            set;
+            get
+            {
+                return this.GetValue<string>(nameof(this.Domain), false);
+            }
+
+            set
+            {
+                this[nameof(this.Domain)] = value;
+            }
         }
 
         /// <summary>
@@ -126,8 +175,15 @@ namespace DevLib.Azure.Logging
         /// </summary>
         public string Machine
         {
-            get;
-            set;
+            get
+            {
+                return this.GetValue<string>(nameof(this.Machine), false);
+            }
+
+            set
+            {
+                this[nameof(this.Machine)] = value;
+            }
         }
 
         /// <summary>
@@ -135,8 +191,15 @@ namespace DevLib.Azure.Logging
         /// </summary>
         public long WorkingSet
         {
-            get;
-            set;
+            get
+            {
+                return this.GetValue<long>(nameof(this.WorkingSet), false);
+            }
+
+            set
+            {
+                this[nameof(this.WorkingSet)] = value;
+            }
         }
 
         /// <summary>
@@ -144,8 +207,15 @@ namespace DevLib.Azure.Logging
         /// </summary>
         public string ApplicationName
         {
-            get;
-            set;
+            get
+            {
+                return this.GetValue<string>(nameof(this.ApplicationName), false);
+            }
+
+            set
+            {
+                this[nameof(this.ApplicationName)] = value;
+            }
         }
 
         /// <summary>
@@ -153,8 +223,15 @@ namespace DevLib.Azure.Logging
         /// </summary>
         public string EventId
         {
-            get;
-            set;
+            get
+            {
+                return this.GetValue<string>(nameof(this.EventId), false);
+            }
+
+            set
+            {
+                this[nameof(this.EventId)] = value;
+            }
         }
 
         /// <summary>
@@ -162,8 +239,15 @@ namespace DevLib.Azure.Logging
         /// </summary>
         public string InstanceId
         {
-            get;
-            set;
+            get
+            {
+                return this.GetValue<string>(nameof(this.InstanceId), false);
+            }
+
+            set
+            {
+                this[nameof(this.InstanceId)] = value;
+            }
         }
 
         /// <summary>
@@ -171,8 +255,15 @@ namespace DevLib.Azure.Logging
         /// </summary>
         public int Pid
         {
-            get;
-            set;
+            get
+            {
+                return this.GetValue<int>(nameof(this.Pid), false);
+            }
+
+            set
+            {
+                this[nameof(this.Pid)] = value;
+            }
         }
 
         /// <summary>
@@ -180,17 +271,15 @@ namespace DevLib.Azure.Logging
         /// </summary>
         public int Tid
         {
-            get;
-            set;
-        }
+            get
+            {
+                return this.GetValue<int>(nameof(this.Tid), false);
+            }
 
-        /// <summary>
-        /// Gets or sets information of the stack trace.
-        /// </summary>
-        public string StackTrace
-        {
-            get;
-            set;
+            set
+            {
+                this[nameof(this.Tid)] = value;
+            }
         }
 
         /// <summary>
@@ -199,8 +288,31 @@ namespace DevLib.Azure.Logging
         /// <value>The command line.</value>
         public string CommandLine
         {
-            get;
-            set;
+            get
+            {
+                return this.GetValue<string>(nameof(this.CommandLine), false);
+            }
+
+            set
+            {
+                this[nameof(this.CommandLine)] = value;
+            }
+        }
+
+        /// <summary>
+        /// Gets or sets information of the stack trace.
+        /// </summary>
+        public string StackTrace
+        {
+            get
+            {
+                return this.GetValue<string>(nameof(this.StackTrace), false);
+            }
+
+            set
+            {
+                this[nameof(this.StackTrace)] = value;
+            }
         }
 
         /// <summary>
@@ -208,17 +320,15 @@ namespace DevLib.Azure.Logging
         /// </summary>
         public bool Is64BitProcess
         {
-            get;
-            set;
-        }
+            get
+            {
+                return this.GetValue<bool>(nameof(this.Is64BitProcess), false);
+            }
 
-        /// <summary>
-        /// Gets or sets the tag.
-        /// </summary>
-        public string Tag
-        {
-            get;
-            set;
+            set
+            {
+                this[nameof(this.Is64BitProcess)] = value;
+            }
         }
 
         /// <summary>
@@ -227,7 +337,7 @@ namespace DevLib.Azure.Logging
         /// <returns>A <see cref="System.String" /> that represents this instance.</returns>
         public override string ToString()
         {
-            return $"[PK: {this.PartitionKey}] [RK: {this.RowKey}] [Level: {this.Level}] [Message: {this.Message}] [Pid: {this.Pid}] [Tid: {this.Tid}] [Timestamp: {this.Timestamp.UtcDateTime.ToString(DateTimeFormat)}] [EventTickCount: {this.EventTickCount}] [User: {this.User}] [Domain: {this.Domain}] [Machine: {this.Machine}] [WorkingSet: {this.WorkingSet}] [ApplicationName: {this.ApplicationName}] [EventId: {this.EventId}] [InstanceId: {this.InstanceId}] [StackTrace: {this.StackTrace}] [CmdLine: {this.CommandLine}] [Is64Bit: {this.Is64BitProcess}] [Tag: {this.Tag}]".Replace(Environment.NewLine, " ");
+            return $"[PK: {this.PartitionKey}] [RK: {this.RowKey}] [Level: {this.Level}] [Message: {this.Message}] [Pid: {this.Pid}] [Tid: {this.Tid}] [Timestamp: {this.Timestamp.UtcDateTime.ToString(DateTimeFormat)}] [EventTickCount: {this.EventTickCount}] [User: {this.User}] [Domain: {this.Domain}] [Machine: {this.Machine}] [WorkingSet: {this.WorkingSet}] [ApplicationName: {this.ApplicationName}] [EventId: {this.EventId}] [InstanceId: {this.InstanceId}] [StackTrace: {this.StackTrace}] [CmdLine: {this.CommandLine}] [Is64Bit: {this.Is64BitProcess}]".Replace(Environment.NewLine, " ");
         }
     }
 }
