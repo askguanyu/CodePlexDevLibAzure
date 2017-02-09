@@ -37,7 +37,7 @@ namespace DevLib.Azure.Storage
         /// <summary>
         /// The value key string.
         /// </summary>
-        internal const string ValueKey = "Value";
+        internal const string ValueKey = "Value_aa8f9b6631a2424da567b1f839a94d0f";
 
         /// <summary>
         /// The table storage.
