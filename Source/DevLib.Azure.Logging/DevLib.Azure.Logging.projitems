@@ -19,5 +19,6 @@
     <Compile Include="$(MSBuildThisFileDirectory)LoggerBase.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)LogLevel.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)LogMessageTableEntity.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)TraceLogger.cs" />
   </ItemGroup>
 </Project>

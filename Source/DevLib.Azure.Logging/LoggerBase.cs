@@ -90,7 +90,7 @@ namespace DevLib.Azure.Logging
         {
             if (messageEntity != null)
             {
-                this.InternalLog(messageEntity);
+                this.InternalLog(LogLevel.ALL, messageEntity);
             }
 
             return this;
@@ -319,8 +319,9 @@ namespace DevLib.Azure.Logging
         /// <summary>
         /// Logs the message.
         /// </summary>
+        /// <param name="level">The logging level.</param>
         /// <param name="messageEntity">The message entity.</param>
-        protected virtual void InternalLog(LogMessageTableEntity messageEntity)
+        protected virtual void InternalLog(LogLevel level, LogMessageTableEntity messageEntity)
         {
         }
 
@@ -354,7 +355,7 @@ namespace DevLib.Azure.Logging
                 messageEntity.ApplicationName = applicationName;
             }
 
-            this.InternalLog(messageEntity);
+            this.InternalLog(level, messageEntity);
 
             return this;
         }
@@ -389,7 +390,7 @@ namespace DevLib.Azure.Logging
                 messageEntity.ApplicationName = applicationName;
             }
 
-            this.InternalLog(messageEntity);
+            this.InternalLog(level, messageEntity);
 
             return this;
         }

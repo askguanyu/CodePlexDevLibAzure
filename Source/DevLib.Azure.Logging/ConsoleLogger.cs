@@ -21,38 +21,38 @@ namespace DevLib.Azure.Logging
         /// <summary>
         /// Field ConsoleColorDictionary.
         /// </summary>
-        private static readonly Dictionary<string, ConsoleColor> ConsoleColorDictionary;
+        private static readonly Dictionary<LogLevel, ConsoleColor> ConsoleColorDictionary;
 
         /// <summary>
         /// Initializes static members of the <see cref="ConsoleLogger"/> class.
         /// </summary>
         static ConsoleLogger()
         {
-            ConsoleColorDictionary = new Dictionary<string, ConsoleColor>(7, StringComparer.OrdinalIgnoreCase);
+            ConsoleColorDictionary = new Dictionary<LogLevel, ConsoleColor>(8);
 
-            ConsoleColorDictionary.Add("ALL", ConsoleColor.White);
-            ConsoleColorDictionary.Add("DBG", ConsoleColor.DarkCyan);
-            ConsoleColorDictionary.Add("INF", ConsoleColor.Cyan);
-            ConsoleColorDictionary.Add("EXP", ConsoleColor.DarkYellow);
-            ConsoleColorDictionary.Add("WRN", ConsoleColor.Yellow);
-            ConsoleColorDictionary.Add("ERR", ConsoleColor.Red);
-            ConsoleColorDictionary.Add("FAL", ConsoleColor.Magenta);
+            ConsoleColorDictionary.Add(LogLevel.OFF, ConsoleColor.Gray);
+            ConsoleColorDictionary.Add(LogLevel.ALL, ConsoleColor.White);
+            ConsoleColorDictionary.Add(LogLevel.DBG, ConsoleColor.DarkCyan);
+            ConsoleColorDictionary.Add(LogLevel.INF, ConsoleColor.Cyan);
+            ConsoleColorDictionary.Add(LogLevel.EXP, ConsoleColor.DarkYellow);
+            ConsoleColorDictionary.Add(LogLevel.WRN, ConsoleColor.Yellow);
+            ConsoleColorDictionary.Add(LogLevel.ERR, ConsoleColor.Red);
+            ConsoleColorDictionary.Add(LogLevel.FAL, ConsoleColor.Magenta);
         }
 
         /// <summary>
         /// Logs the message.
         /// </summary>
+        /// <param name="level">The logging level.</param>
         /// <param name="messageEntity">The message entity.</param>
-        protected override void InternalLog(LogMessageTableEntity messageEntity)
+        protected override void InternalLog(LogLevel level, LogMessageTableEntity messageEntity)
         {
             try
             {
                 lock (ConsoleSyncRoot)
                 {
                     ConsoleColor originalForeColor = Console.ForegroundColor;
-                    ConsoleColor color = Console.ForegroundColor;
-                    ConsoleColorDictionary.TryGetValue(messageEntity.Level, out color);
-                    Console.ForegroundColor = color;
+                    Console.ForegroundColor = ConsoleColorDictionary[level];
                     Console.WriteLine(messageEntity.ToString());
                     Console.ForegroundColor = originalForeColor;
                 }

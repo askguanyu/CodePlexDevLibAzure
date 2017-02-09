@@ -7,12 +7,18 @@ namespace DevLib.Azure.Logging
 {
     using System;
     using System.Collections.Generic;
+    using System.Diagnostics;
 
     /// <summary>
     /// Class Logger.
     /// </summary>
     public class Logger : LoggerBase, ILogger
     {
+        /// <summary>
+        /// The trace logger.
+        /// </summary>
+        private static readonly TraceLogger GlobalTraceLogger = new TraceLogger();
+
         /// <summary>
         /// The loggers.
         /// </summary>
@@ -21,12 +27,12 @@ namespace DevLib.Azure.Logging
         /// <summary>
         /// The console logger.
         /// </summary>
-        private readonly ILogger _consoleLogger = new ConsoleLogger();
+        private readonly ConsoleLogger _consoleLogger = new ConsoleLogger();
 
         /// <summary>
         /// The debug logger.
         /// </summary>
-        private readonly ILogger _debugLogger = new DebugLogger();
+        private readonly DebugLogger _debugLogger = new DebugLogger();
 
         /// <summary>
         /// Adds the logger.
@@ -72,6 +78,37 @@ namespace DevLib.Azure.Logging
         }
 
         /// <summary>
+        /// Adds the trace logger.
+        /// </summary>
+        /// <returns>Current Logger instance.</returns>
+        public Logger AddTrace()
+        {
+            if (!this._loggers.Contains(GlobalTraceLogger))
+            {
+                this._loggers.Add(GlobalTraceLogger);
+            }
+
+            return this;
+        }
+
+        /// <summary>
+        /// Adds the trace logger.
+        /// </summary>
+        /// <param name="listeners">The trace listeners.</param>
+        /// <returns>Current Logger instance.</returns>
+        public Logger AddTrace(params TraceListener[] listeners)
+        {
+            if (!this._loggers.Contains(GlobalTraceLogger))
+            {
+                this._loggers.Add(GlobalTraceLogger);
+            }
+
+            GlobalTraceLogger.AddListeners(listeners);
+
+            return this;
+        }
+
+        /// <summary>
         /// Adds the table logger.
         /// </summary>
         /// <param name="logger">The logger.</param>
@@ -104,8 +141,9 @@ namespace DevLib.Azure.Logging
         /// <summary>
         /// Logs the message.
         /// </summary>
+        /// <param name="level">The logging level.</param>
         /// <param name="messageEntity">The message entity.</param>
-        protected override void InternalLog(LogMessageTableEntity messageEntity)
+        protected override void InternalLog(LogLevel level, LogMessageTableEntity messageEntity)
         {
             try
             {

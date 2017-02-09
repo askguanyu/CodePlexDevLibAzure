@@ -180,8 +180,9 @@ namespace DevLib.Azure.Logging
         /// <summary>
         /// Logs the message.
         /// </summary>
+        /// <param name="level">The logging level.</param>
         /// <param name="messageEntity">The message entity.</param>
-        protected override void InternalLog(LogMessageTableEntity messageEntity)
+        protected override void InternalLog(LogLevel level, LogMessageTableEntity messageEntity)
         {
             if (this._blobContainer != null)
             {
