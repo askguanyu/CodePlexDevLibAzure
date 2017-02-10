@@ -53,7 +53,7 @@ namespace DevLib.Azure.Storage
                     throw new KeyNotFoundException();
                 }
 
-                return entity[ValueKey].PropertyAsObject;
+                return entity[ValueKey].ToObject();
             },
             cancellationToken ?? CancellationToken.None);
         }
@@ -85,7 +85,7 @@ namespace DevLib.Azure.Storage
                     throw new KeyNotFoundException();
                 }
 
-                return (T)entity[ValueKey].PropertyAsObject;
+                return entity[ValueKey].ToObject<T>();
             },
             cancellationToken ?? CancellationToken.None);
         }
@@ -112,7 +112,7 @@ namespace DevLib.Azure.Storage
 
                 var entity = new DynamicTableEntity();
 
-                entity[ValueKey] = EntityProperty.CreateEntityPropertyFromObject(value);
+                entity[ValueKey] = value.ToEntityProperty();
 
                 return this._tableStorage.InsertOrReplaceAsync(entity, this._dictionaryPartitionKey, key, cancellationToken);
             },
@@ -170,7 +170,7 @@ namespace DevLib.Azure.Storage
 
                 entity = new DynamicTableEntity();
 
-                entity[ValueKey] = EntityProperty.CreateEntityPropertyFromObject(value);
+                entity[ValueKey] = value.ToEntityProperty();
 
                 await this._tableStorage.InsertAsync(entity, this._dictionaryPartitionKey, key, cancellationToken: cancellationToken);
             },
@@ -222,7 +222,7 @@ namespace DevLib.Azure.Storage
                     return false;
                 }
 
-                return item.Value.Equals(entity[ValueKey].PropertyAsObject);
+                return item.Value.Equals(entity[ValueKey].ToObject());
             },
             cancellationToken ?? CancellationToken.None);
         }
@@ -277,7 +277,7 @@ namespace DevLib.Azure.Storage
                     return false;
                 }
 
-                if (item.Value.Equals(entity[ValueKey].PropertyAsObject))
+                if (item.Value.Equals(entity[ValueKey].ToObject()))
                 {
                     await this._tableStorage.DeleteAsync(entity, cancellationToken);
                     return true;

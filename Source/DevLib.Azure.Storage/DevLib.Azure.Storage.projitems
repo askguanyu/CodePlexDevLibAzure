@@ -14,7 +14,7 @@
     <Compile Include="$(MSBuildThisFileDirectory)BlobClient.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)BlobContainerAsync.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)DictionaryTableEntity.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)DynamicTableEntityExtensions.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)TableEntityExtensions.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)FileClient.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)FileClientAsync.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)FileStorage.cs" />

@@ -66,7 +66,7 @@ namespace DevLib.Azure.Storage
         {
             get
             {
-                return this._properties.Values.Select(i => i.PropertyAsObject).ToList();
+                return this._properties.Values.Select(i => i.ToObject()).ToList();
             }
         }
 
@@ -113,12 +113,12 @@ namespace DevLib.Azure.Storage
         {
             get
             {
-                return this._properties[key].PropertyAsObject;
+                return this._properties[key].ToObject();
             }
 
             set
             {
-                this._properties[key] = EntityProperty.CreateEntityPropertyFromObject(value);
+                this._properties[key] = value.ToEntityProperty();
             }
         }
 
@@ -166,7 +166,7 @@ namespace DevLib.Azure.Storage
         /// <param name="value">The value.</param>
         public void Add(string key, object value)
         {
-            this._properties.Add(key, EntityProperty.CreateEntityPropertyFromObject(value));
+            this._properties.Add(key, value.ToEntityProperty());
         }
 
         /// <summary>
@@ -177,7 +177,7 @@ namespace DevLib.Azure.Storage
         /// <returns>Current DictionaryTableEntity instance.</returns>
         public DictionaryTableEntity AddOrUpdate(string key, object value)
         {
-            this._properties[key] = EntityProperty.CreateEntityPropertyFromObject(value);
+            this._properties[key] = value.ToEntityProperty();
             return this;
         }
 
@@ -221,7 +221,7 @@ namespace DevLib.Azure.Storage
         {
             var entity = EntityProperty.CreateEntityPropertyFromObject(null);
             var result = this._properties.TryGetValue(key, out entity);
-            value = entity.PropertyAsObject;
+            value = entity.ToObject();
             return result;
         }
 
@@ -236,7 +236,7 @@ namespace DevLib.Azure.Storage
         {
             var entity = EntityProperty.CreateEntityPropertyFromObject(null);
             var result = this._properties.TryGetValue(key, out entity);
-            value = (T)entity.PropertyAsObject;
+            value = entity.ToObject<T>();
             return result;
         }
 
@@ -251,7 +251,7 @@ namespace DevLib.Azure.Storage
         {
             try
             {
-                return this._properties[key].PropertyAsObject;
+                return this._properties[key].ToObject();
             }
             catch
             {
@@ -276,7 +276,7 @@ namespace DevLib.Azure.Storage
         {
             try
             {
-                return (T)this._properties[key].PropertyAsObject;
+                return this._properties[key].ToObject<T>();
             }
             catch
             {
@@ -364,7 +364,7 @@ namespace DevLib.Azure.Storage
 
             foreach (PropertyInfo property in this._propertyInfos)
             {
-                result.Add(property.Name, EntityProperty.CreateEntityPropertyFromObject(property.GetValue(this, null)));
+                result.Add(property.Name, property.GetValue(this, null).ToEntityProperty());
             }
 
             return result;
@@ -390,7 +390,7 @@ namespace DevLib.Azure.Storage
         /// <returns>KeyValuePair{string, EntityProperty} instance.</returns>
         private KeyValuePair<string, EntityProperty> ToEntityPropertyKeyValuePair(KeyValuePair<string, object> item)
         {
-            return new KeyValuePair<string, EntityProperty>(item.Key, EntityProperty.CreateEntityPropertyFromObject(item.Value));
+            return new KeyValuePair<string, EntityProperty>(item.Key, item.Value.ToEntityProperty());
         }
 
         /// <summary>
@@ -400,7 +400,7 @@ namespace DevLib.Azure.Storage
         /// <returns>KeyValuePair{string, object} instance.</returns>
         private KeyValuePair<string, object> ToObjectKeyValuePair(KeyValuePair<string, EntityProperty> item)
         {
-            return new KeyValuePair<string, object>(item.Key, item.Value.PropertyAsObject);
+            return new KeyValuePair<string, object>(item.Key, item.Value.ToObject());
         }
     }
 }

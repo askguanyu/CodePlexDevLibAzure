@@ -295,7 +295,7 @@ namespace DevLib.Azure.Storage
                     ._tableStorage
                     .InnerCloudTable
                     .ExecuteQuery(new TableQuery().Where(string.Format(FilterStringFormat, this._dictionaryName)))
-                    .Select(i => i.Properties[ValueKey].PropertyAsObject)
+                    .Select(i => i.Properties[ValueKey].ToObject())
                     .ToList();
             }
         }
@@ -312,7 +312,7 @@ namespace DevLib.Azure.Storage
                     ._tableStorage
                     .InnerCloudTable
                     .ExecuteQuery(new TableQuery().Where(string.Format(FilterStringFormat, this._dictionaryName)))
-                    .Select(i => new KeyValuePair<string, object>(i.RowKey.Substring(34), i.Properties[ValueKey].PropertyAsObject))
+                    .Select(i => new KeyValuePair<string, object>(i.RowKey.Substring(34), i.Properties[ValueKey].ToObject()))
                     .ToList();
             }
         }
@@ -371,7 +371,7 @@ namespace DevLib.Azure.Storage
                     throw new KeyNotFoundException();
                 }
 
-                return entity[ValueKey].PropertyAsObject;
+                return entity[ValueKey].ToObject();
             }
             catch
             {
@@ -412,7 +412,7 @@ namespace DevLib.Azure.Storage
                     throw new KeyNotFoundException();
                 }
 
-                return (T)entity[ValueKey].PropertyAsObject;
+                return entity[ValueKey].ToObject<T>();
             }
             catch
             {
@@ -444,7 +444,7 @@ namespace DevLib.Azure.Storage
 
             var entity = new DynamicTableEntity();
 
-            entity[ValueKey] = EntityProperty.CreateEntityPropertyFromObject(value);
+            entity[ValueKey] = value.ToEntityProperty();
 
             return this._tableStorage.InsertOrReplace(entity, this._dictionaryPartitionKey, key);
         }
@@ -493,7 +493,7 @@ namespace DevLib.Azure.Storage
 
             entity = new DynamicTableEntity();
 
-            entity[ValueKey] = EntityProperty.CreateEntityPropertyFromObject(value);
+            entity[ValueKey] = value.ToEntityProperty();
 
             this._tableStorage.Insert(entity, this._dictionaryPartitionKey, key);
         }
@@ -534,7 +534,7 @@ namespace DevLib.Azure.Storage
                 return false;
             }
 
-            return item.Value.Equals(entity[ValueKey].PropertyAsObject);
+            return item.Value.Equals(entity[ValueKey].ToObject());
         }
 
         /// <summary>
@@ -579,7 +579,7 @@ namespace DevLib.Azure.Storage
                 return false;
             }
 
-            if (item.Value.Equals(entity[ValueKey].PropertyAsObject))
+            if (item.Value.Equals(entity[ValueKey].ToObject()))
             {
                 this._tableStorage.Delete(entity);
                 return true;
@@ -633,7 +633,7 @@ namespace DevLib.Azure.Storage
             }
             else
             {
-                value = entity[ValueKey].PropertyAsObject;
+                value = entity[ValueKey].ToObject();
                 return true;
             }
         }
@@ -665,7 +665,7 @@ namespace DevLib.Azure.Storage
             }
             else
             {
-                value = (T)entity[ValueKey].PropertyAsObject;
+                value = entity[ValueKey].ToObject<T>();
                 return true;
             }
         }
