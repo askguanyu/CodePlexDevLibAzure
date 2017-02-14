@@ -78,8 +78,8 @@
     <None Include="app.config" />
     <None Include="packages.config" />
   </ItemGroup>
-  <Import Project="..\DevLib.Azure.Storage\DevLib.Azure.Storage.projitems" Label="Shared" />
-  <Import Project="..\DevLib.Azure.Logging\DevLib.Azure.Logging.projitems" Label="Shared" />
+  <Import Project="..\DevLib.Azure.Logging.Shared\DevLib.Azure.Logging.Shared.projitems" Label="Shared" />
+  <Import Project="..\DevLib.Azure.Storage.Shared\DevLib.Azure.Storage.Shared.projitems" Label="Shared" />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.
