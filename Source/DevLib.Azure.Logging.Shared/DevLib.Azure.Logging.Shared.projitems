@@ -16,7 +16,10 @@
     <Compile Include="$(MSBuildThisFileDirectory)DebugLogger.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)ILogger.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)InternalLogger.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Logger.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Logger.cs">
+      <ExcludeFromSourceAnalysis>False</ExcludeFromSourceAnalysis>
+      <ExcludeFromStyleCop>False</ExcludeFromStyleCop>
+    </Compile>
     <Compile Include="$(MSBuildThisFileDirectory)LoggerBase.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)LogLevel.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)LogMessageTableEntity.cs" />

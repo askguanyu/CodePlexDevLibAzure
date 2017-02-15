@@ -92,7 +92,7 @@ namespace DevLib.Azure.Logging
         }
 
         /// <summary>
-        /// Adds the trace logger.
+        /// Adds the trace logger with listeners.
         /// </summary>
         /// <param name="listeners">The trace listeners.</param>
         /// <returns>Current Logger instance.</returns>
@@ -134,6 +134,89 @@ namespace DevLib.Azure.Logging
             {
                 this._loggers.Add(logger);
             }
+
+            return this;
+        }
+
+        /// <summary>
+        /// Removes the logger.
+        /// </summary>
+        /// <param name="logger">The logger.</param>
+        /// <returns>Current Logger instance.</returns>
+        public Logger Remove(ILogger logger)
+        {
+            if (logger != null && logger != this && this._loggers.Contains(logger))
+            {
+                this._loggers.Remove(logger);
+            }
+
+            return this;
+        }
+
+        /// <summary>
+        /// Removes the console logger.
+        /// </summary>
+        /// <returns>Current Logger instance.</returns>
+        public Logger RemoveConsole()
+        {
+            if (this._loggers.Contains(this._consoleLogger))
+            {
+                this._loggers.Remove(this._consoleLogger);
+            }
+
+            return this;
+        }
+
+        /// <summary>
+        /// Removes the debug logger.
+        /// </summary>
+        /// <returns>Current Logger instance.</returns>
+        public Logger RemoveDebug()
+        {
+            if (this._loggers.Contains(this._debugLogger))
+            {
+                this._loggers.Remove(this._debugLogger);
+            }
+
+            return this;
+        }
+
+        /// <summary>
+        /// Removes the trace logger.
+        /// </summary>
+        /// <returns>Current Logger instance.</returns>
+        public Logger RemoveTrace()
+        {
+            if (this._loggers.Contains(GlobalTraceLogger))
+            {
+                this._loggers.Remove(GlobalTraceLogger);
+            }
+
+            return this;
+        }
+
+        /// <summary>
+        /// Removes the trace logger listeners.
+        /// </summary>
+        /// <param name="listeners">The trace listeners.</param>
+        /// <returns>Current Logger instance.</returns>
+        public Logger RemoveTrace(params TraceListener[] listeners)
+        {
+            if (this._loggers.Contains(GlobalTraceLogger))
+            {
+                GlobalTraceLogger.RemoveListeners(listeners);
+            }
+
+            return this;
+        }
+
+        /// <summary>
+        /// Removes all loggers.
+        /// </summary>
+        /// <returns>Current Logger instance.</returns>
+        public Logger Clear()
+        {
+            this._loggers.Clear();
 
             return this;
         }

@@ -88,7 +88,7 @@ namespace DevLib.Azure.Logging
         }
 
         /// <summary>
-        /// Adds the trace logger.
+        /// Adds the trace logger with listeners.
         /// </summary>
         /// <param name="listeners">The trace listeners.</param>
         /// <returns>The global logger instance.</returns>
@@ -115,6 +115,62 @@ namespace DevLib.Azure.Logging
         public static Logger AddBlobLogger(BlobLogger logger)
         {
             return GlobalLogger.AddBlobLogger(logger);
+        }
+
+        /// <summary>
+        /// Removes the logger.
+        /// </summary>
+        /// <param name="logger">The logger.</param>
+        /// <returns>Current Logger instance.</returns>
+        public static Logger Remove(ILogger logger)
+        {
+            return GlobalLogger.Remove(logger);
+        }
+
+        /// <summary>
+        /// Removes the console logger.
+        /// </summary>
+        /// <returns>Current Logger instance.</returns>
+        public static Logger RemoveConsole()
+        {
+            return GlobalLogger.RemoveConsole();
+        }
+
+        /// <summary>
+        /// Removes the debug logger.
+        /// </summary>
+        /// <returns>Current Logger instance.</returns>
+        public static Logger RemoveDebug()
+        {
+            return GlobalLogger.RemoveDebug();
+        }
+
+        /// <summary>
+        /// Removes the trace logger.
+        /// </summary>
+        /// <returns>Current Logger instance.</returns>
+        public static Logger RemoveTrace()
+        {
+            return GlobalLogger.RemoveTrace();
+        }
+
+        /// <summary>
+        /// Removes the trace logger listeners.
+        /// </summary>
+        /// <param name="listeners">The trace listeners.</param>
+        /// <returns>Current Logger instance.</returns>
+        public static Logger RemoveTrace(params TraceListener[] listeners)
+        {
+            return GlobalLogger.RemoveTrace(listeners);
+        }
+
+        /// <summary>
+        /// Removes all loggers.
+        /// </summary>
+        /// <returns>Current Logger instance.</returns>
+        public static Logger Clear()
+        {
+            return GlobalLogger.Clear();
         }
 
         /// <summary>
