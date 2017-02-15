@@ -19,6 +19,28 @@ namespace DevLib.Azure.Storage
     public partial class BlobContainer
     {
         /// <summary>
+        /// Begins an operation to start copying source block blob's contents, properties, and metadata to the destination block blob.
+        /// </summary>
+        /// <param name="sourceBlob">The source blob.</param>
+        /// <param name="destBlob">The destination blob.</param>
+        /// <param name="cancellationToken">A <see cref="T:System.Threading.CancellationToken" /> to observe while waiting for a task to complete.</param>
+        /// <returns>The copy ID associated with the copy operation; empty if source blob does not exist.</returns>
+        public static Task<string> StartCopyBlockBlobAsync(CloudBlockBlob sourceBlob, CloudBlockBlob destBlob, CancellationToken? cancellationToken = null)
+        {
+            sourceBlob.ValidateNull();
+            destBlob.ValidateNull();
+
+            if (sourceBlob.Exists())
+            {
+                return destBlob.StartCopyAsync(sourceBlob, cancellationToken ?? CancellationToken.None);
+            }
+            else
+            {
+                return Task.FromResult(string.Empty);
+            }
+        }
+
+        /// <summary>
         /// Creates the container if it does not already exist.
         /// </summary>
         /// <param name="newContainerAccessType">Access type for the newly created container.</param>

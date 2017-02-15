@@ -314,6 +314,27 @@ namespace DevLib.Azure.Storage
         }
 
         /// <summary>
+        /// Begins an operation to start copying source block blob's contents, properties, and metadata to the destination block blob.
+        /// </summary>
+        /// <param name="sourceBlob">The source blob.</param>
+        /// <param name="destBlob">The destination blob.</param>
+        /// <returns>The copy ID associated with the copy operation; empty if source blob does not exist.</returns>
+        public static string StartCopyBlockBlob(CloudBlockBlob sourceBlob, CloudBlockBlob destBlob)
+        {
+            sourceBlob.ValidateNull();
+            destBlob.ValidateNull();
+
+            if (sourceBlob.Exists())
+            {
+                return destBlob.StartCopy(sourceBlob);
+            }
+            else
+            {
+                return string.Empty;
+            }
+        }
+
+        /// <summary>
         /// Sets permissions for the container.
         /// </summary>
         /// <param name="accessType">The public access setting for the container.</param>

@@ -19,6 +19,28 @@ namespace DevLib.Azure.Storage
     public partial class FileStorage
     {
         /// <summary>
+        /// Begins an operation to start copying another file's contents, properties, and metadata to this file.
+        /// </summary>
+        /// <param name="sourceFile">The source file.</param>
+        /// <param name="destFile">The destination file.</param>
+        /// <param name="cancellationToken">A <see cref="T:System.Threading.CancellationToken" /> to observe while waiting for a task to complete.</param>
+        /// <returns>The copy ID associated with the copy operation; empty if source file does not exist.</returns>
+        public static Task<string> StartCopyFileAsync(CloudFile sourceFile, CloudFile destFile, CancellationToken? cancellationToken = null)
+        {
+            sourceFile.ValidateNull();
+            destFile.ValidateNull();
+
+            if (sourceFile.Exists())
+            {
+                return destFile.StartCopyAsync(sourceFile, cancellationToken ?? CancellationToken.None);
+            }
+            else
+            {
+                return Task.FromResult(string.Empty);
+            }
+        }
+
+        /// <summary>
         /// Returns a reference to the directory for this share.
         /// </summary>
         /// <param name="directoryName">A System.String containing the name of the subdirectory; null will get the root directory.</param>
