@@ -9,6 +9,7 @@
     <Import_RootNamespace>DevLib.Azure.Logging</Import_RootNamespace>
   </PropertyGroup>
   <ItemGroup>
+    <Compile Include="$(MSBuildThisFileDirectory)BlobLoggerEquality.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)LoggerFactory.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)BlobLogger.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)ConsoleLogger.cs" />
@@ -20,6 +21,7 @@
     <Compile Include="$(MSBuildThisFileDirectory)LogLevel.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)LogMessageTableEntity.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)TableLogger.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)TableLoggerEquality.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)TraceLogger.cs" />
   </ItemGroup>
 </Project>

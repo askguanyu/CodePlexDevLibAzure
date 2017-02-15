@@ -342,7 +342,7 @@ namespace DevLib.Azure.Storage
         /// <returns>An enumerator that can be used to iterate through the collection.</returns>
         IEnumerator<KeyValuePair<string, object>> IEnumerable<KeyValuePair<string, object>>.GetEnumerator()
         {
-            return this._properties.Select(i => this.ToObjectKeyValuePair(i)).GetEnumerator();
+            return this.GetEnumerator();
         }
 
         /// <summary>
@@ -352,6 +352,15 @@ namespace DevLib.Azure.Storage
         IEnumerator IEnumerable.GetEnumerator()
         {
             return this._properties.GetEnumerator();
+        }
+
+        /// <summary>
+        /// Returns an enumerator that iterates through the collection.
+        /// </summary>
+        /// <returns>An enumerator that can be used to iterate through the collection.</returns>
+        protected IEnumerator<KeyValuePair<string, object>> GetEnumerator()
+        {
+            return this._properties.Select(i => this.ToObjectKeyValuePair(i)).GetEnumerator();
         }
 
         /// <summary>

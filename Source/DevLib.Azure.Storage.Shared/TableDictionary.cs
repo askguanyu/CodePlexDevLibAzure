@@ -210,6 +210,17 @@ namespace DevLib.Azure.Storage
         }
 
         /// <summary>
+        /// Gets the name of the dictionary.
+        /// </summary>
+        public string DictionaryName
+        {
+            get
+            {
+                return this._dictionaryName;
+            }
+        }
+
+        /// <summary>
         /// Gets the service TableStorage.
         /// </summary>
         public TableStorage ServiceStorage

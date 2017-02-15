@@ -15,7 +15,7 @@ namespace DevLib.Azure.Logging
     /// <summary>
     /// Class BlobLogger.
     /// </summary>
-    public class BlobLogger : LoggerBase, ILogger
+    public partial class BlobLogger : LoggerBase, ILogger
     {
         /// <summary>
         /// The logs root folder.

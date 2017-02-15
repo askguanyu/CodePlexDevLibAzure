@@ -12,9 +12,9 @@ namespace DevLib.Azure.Logging
     using Microsoft.WindowsAzure.Storage.Table;
 
     /// <summary>
-    /// Class Logger.
+    /// Class TableLogger.
     /// </summary>
-    public class TableLogger : LoggerBase, ILogger
+    public partial class TableLogger : LoggerBase, ILogger
     {
         /// <summary>
         /// The table storage.

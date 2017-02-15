@@ -11,26 +11,35 @@
   <ItemGroup>
     <Compile Include="$(MSBuildThisFileDirectory)BlobClient.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)BlobClientAsync.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)BlobClientEquality.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)BlobContainer.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)BlobContainerAsync.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)BlobContainerEquality.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)DictionaryTableEntity.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)FileClient.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)FileClientAsync.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)FileClientEquality.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)FileStorage.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)FileStorageAsync.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)FileStorageEquality.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)InternalLogger.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)QueueClient.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)QueueClientAsync.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)QueueClientEquality.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)QueueStorage.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)QueueStorageAsync.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)QueueStorageEquality.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)StorageConstants.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)TableClient.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)TableClientAsync.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)TableClientEquality.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)TableDictionary.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)TableDictionaryAsync.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)TableDictionaryEquality.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)TableEntityExtensions.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)TableStorage.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)TableStorageAsync.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)TableStorageEquality.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)ValidatorExtensions.cs" />
   </ItemGroup>
 </Project>
