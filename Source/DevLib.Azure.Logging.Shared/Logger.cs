@@ -20,11 +20,6 @@ namespace DevLib.Azure.Logging
         private static readonly TraceLogger GlobalTraceLogger = new TraceLogger();
 
         /// <summary>
-        /// The loggers.
-        /// </summary>
-        private readonly List<ILogger> _loggers = new List<ILogger>();
-
-        /// <summary>
         /// The console logger.
         /// </summary>
         private readonly ConsoleLogger _consoleLogger = new ConsoleLogger();
@@ -35,13 +30,18 @@ namespace DevLib.Azure.Logging
         private readonly DebugLogger _debugLogger = new DebugLogger();
 
         /// <summary>
+        /// The loggers.
+        /// </summary>
+        private readonly List<ILogger> _loggers = new List<ILogger>();
+
+        /// <summary>
         /// Adds the logger.
         /// </summary>
         /// <param name="logger">The logger.</param>
         /// <returns>Current Logger instance.</returns>
         public Logger Add(ILogger logger)
         {
-            if (logger != null && !this._loggers.Contains(logger))
+            if (logger != null && logger != this && !this._loggers.Contains(logger))
             {
                 this._loggers.Add(logger);
             }
@@ -151,7 +151,7 @@ namespace DevLib.Azure.Logging
                 {
                     try
                     {
-                        logger.Log(messageEntity);
+                        logger.Log(level, messageEntity);
                     }
                     catch (Exception e)
                     {

@@ -97,6 +97,22 @@ namespace DevLib.Azure.Logging
         }
 
         /// <summary>
+        /// Logs the specified message entity.
+        /// </summary>
+        /// <param name="level">The logging level.</param>
+        /// <param name="messageEntity">The message entity.</param>
+        /// <returns>The current ILogger instance.</returns>
+        public ILogger Log(LogLevel level, LogMessageTableEntity messageEntity)
+        {
+            if (messageEntity != null && level != LogLevel.OFF)
+            {
+                this.InternalLog(level, messageEntity);
+            }
+
+            return this;
+        }
+
+        /// <summary>
         /// Logs the message with specified level.
         /// </summary>
         /// <param name="level">The logging level.</param>
