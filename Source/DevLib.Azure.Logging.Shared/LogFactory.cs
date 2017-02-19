@@ -1,5 +1,5 @@
 ﻿//-----------------------------------------------------------------------
-// <copyright file="LoggerFactory.cs" company="YuGuan Corporation">
+// <copyright file="LogFactory.cs" company="YuGuan Corporation">
 //     Copyright (c) YuGuan Corporation. All rights reserved.
 // </copyright>
 //-----------------------------------------------------------------------
@@ -13,9 +13,9 @@ namespace DevLib.Azure.Logging
     using System.Text;
 
     /// <summary>
-    /// Class LoggerFactory.
+    /// Class LogFactory.
     /// </summary>
-    public static class LoggerFactory
+    public static class LogFactory
     {
         /// <summary>
         /// The global logger

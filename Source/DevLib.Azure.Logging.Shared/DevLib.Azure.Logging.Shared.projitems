@@ -10,7 +10,7 @@
   </PropertyGroup>
   <ItemGroup>
     <Compile Include="$(MSBuildThisFileDirectory)BlobLoggerEquality.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)LoggerFactory.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)LogFactory.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)BlobLogger.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)ConsoleLogger.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)DebugLogger.cs" />
