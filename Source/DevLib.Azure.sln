@@ -15,12 +15,16 @@ Project("{D954291E-2A0B-460D-934E-DC6B0785DB48}") = "DevLib.Azure.Logging.Shared
 EndProject
 Project("{D954291E-2A0B-460D-934E-DC6B0785DB48}") = "DevLib.Azure.Storage.Shared", "DevLib.Azure.Storage.Shared\DevLib.Azure.Storage.Shared.shproj", "{03D8A0F9-BE49-4F04-AD44-525FC06B4513}"
 EndProject
+Project("{D954291E-2A0B-460D-934E-DC6B0785DB48}") = "DevLib.Azure.Management.Shared", "DevLib.Azure.Management.Shared\DevLib.Azure.Management.Shared.shproj", "{DA488E2E-8C89-4E77-9D14-91D41F6759D1}"
+EndProject
 Global
 	GlobalSection(SharedMSBuildProjectFiles) = preSolution
 		DevLib.Azure.Storage.Shared\DevLib.Azure.Storage.Shared.projitems*{03d8a0f9-be49-4f04-ad44-525fc06b4513}*SharedItemsImports = 13
 		DevLib.Azure.Logging.Shared\DevLib.Azure.Logging.Shared.projitems*{085fd93b-7a2c-4b43-9964-65411d19a6a9}*SharedItemsImports = 13
 		DevLib.Azure.Logging.Shared\DevLib.Azure.Logging.Shared.projitems*{44f9640a-e9f8-45d1-baa9-93e5244cd10a}*SharedItemsImports = 4
+		DevLib.Azure.Management.Shared\DevLib.Azure.Management.Shared.projitems*{44f9640a-e9f8-45d1-baa9-93e5244cd10a}*SharedItemsImports = 4
 		DevLib.Azure.Storage.Shared\DevLib.Azure.Storage.Shared.projitems*{44f9640a-e9f8-45d1-baa9-93e5244cd10a}*SharedItemsImports = 4
+		DevLib.Azure.Management.Shared\DevLib.Azure.Management.Shared.projitems*{da488e2e-8c89-4e77-9d14-91d41f6759d1}*SharedItemsImports = 13
 	EndGlobalSection
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -43,5 +47,6 @@ Global
 		{E204BF4A-2C1B-41BA-B135-43F1E9FAFFAE} = {9FC06631-9F7D-4D3A-B463-000012E47DB5}
 		{085FD93B-7A2C-4B43-9964-65411D19A6A9} = {CACF03B9-65C2-4814-90DF-0527FA08B597}
 		{03D8A0F9-BE49-4F04-AD44-525FC06B4513} = {CACF03B9-65C2-4814-90DF-0527FA08B597}
+		{DA488E2E-8C89-4E77-9D14-91D41F6759D1} = {CACF03B9-65C2-4814-90DF-0527FA08B597}
 	EndGlobalSection
 EndGlobal
