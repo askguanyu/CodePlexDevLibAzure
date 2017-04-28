@@ -419,6 +419,16 @@ namespace DevLib.Azure.Storage
         }
 
         /// <summary>
+        /// Gets a reference to a virtual blob directory beneath this container.
+        /// </summary>
+        /// <param name="relativeAddress">A string containing the name of the virtual blob directory.</param>
+        /// <returns>A Microsoft.WindowsAzure.Storage.Blob.CloudBlobDirectory object.</returns>
+        public CloudBlobDirectory GetDirectory(string relativeAddress)
+        {
+            return this._cloudBlobContainer.GetDirectoryReference(relativeAddress);
+        }
+
+        /// <summary>
         /// Gets the number of elements contained in the container.
         /// </summary>
         /// <param name="useFlatBlobListing">A boolean value that specifies whether to list blobs in a flat listing, or whether to list blobs hierarchically, by virtual directory.</param>
