@@ -54,6 +54,7 @@ namespace DevLib.Azure.Logging
                     ConsoleColor originalForeColor = Console.ForegroundColor;
                     Console.ForegroundColor = ConsoleColorDictionary[level];
                     Console.WriteLine(messageEntity.ToString());
+                    Console.WriteLine();
                     Console.ForegroundColor = originalForeColor;
                 }
             }

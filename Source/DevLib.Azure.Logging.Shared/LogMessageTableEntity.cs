@@ -240,13 +240,13 @@ namespace DevLib.Azure.Logging
         {
             if (verbose)
             {
-                return ($"[PK: {this.PartitionKey}] [RK: {this.RowKey}] [Level: {this.Level}] [Message: {this.Message}] [Pid: {this.Pid}] [Tid: {this.Tid}] [Timestamp: {this.Timestamp.ToString("o", CultureInfo.InvariantCulture)}] [EventTickCount: {this.EventTickCount}] [User: {this.User}] [Domain: {this.Domain}] [Machine: {this.Machine}] [WorkingSet: {this.WorkingSet}] [ApplicationName: {this.ApplicationName}] [EventId: {this.EventId}] [InstanceId: {this.InstanceId}] [StackTrace: {this.StackTrace}] [CmdLine: {this.CommandLine}] [Is64Bit: {this.Is64BitProcess}] "
+                return ($"[PK: {this.PartitionKey}] [RK: {this.RowKey}] [Level: {this.Level}] [Message: {this.Message}] [Pid: {this.Pid}] [Tid: {this.Tid}] [Timestamp: {this.Timestamp.ToLocalTime().ToString("o", CultureInfo.InvariantCulture)}] [EventTickCount: {this.EventTickCount}] [User: {this.User}] [Domain: {this.Domain}] [Machine: {this.Machine}] [WorkingSet: {this.WorkingSet}] [ApplicationName: {this.ApplicationName}] [EventId: {this.EventId}] [InstanceId: {this.InstanceId}] [StackTrace: {this.StackTrace}] [CmdLine: {this.CommandLine}] [Is64Bit: {this.Is64BitProcess}] "
                     + string.Join(" ", this.KeyValuePairs.Select(i => $"[{i.Key}: {i.Value}]")))
                     .Replace(Environment.NewLine, " ");
             }
             else
             {
-                return ($"[Timestamp: {this.Timestamp.ToString("o", CultureInfo.InvariantCulture)}] [Level: {this.Level}] [Message: {this.Message}][EventTickCount: {this.EventTickCount}] [User: {this.User}]").Replace(Environment.NewLine, " ");
+                return ($"[{this.Timestamp.ToLocalTime().ToString("o", CultureInfo.InvariantCulture)}] [{this.Level}] [Message: {this.Message}] [{this.User}]").Replace(Environment.NewLine, " ");
             }
         }
     }
