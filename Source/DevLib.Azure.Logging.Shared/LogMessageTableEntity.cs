@@ -246,7 +246,7 @@ namespace DevLib.Azure.Logging
             }
             else
             {
-                return ($"[{this.Timestamp.ToLocalTime().ToString("o", CultureInfo.InvariantCulture)}] [{this.Level}] [Message: {this.Message}] [{this.User}]").Replace(Environment.NewLine, " ");
+                return ($"[{this.Timestamp.ToLocalTime().ToString("o", CultureInfo.InvariantCulture)}] [{this.Level}] [{this.Message}] [{this.User}]").Replace(Environment.NewLine, " ");
             }
         }
     }
