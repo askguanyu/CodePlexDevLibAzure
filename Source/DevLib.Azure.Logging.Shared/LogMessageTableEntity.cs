@@ -27,11 +27,6 @@ namespace DevLib.Azure.Logging
         private const string TimeFormat = "HH:mm:ss.fffUz_";
 
         /// <summary>
-        /// The date time format.
-        /// </summary>
-        private const string DateTimeFormat = "yyyy-MM-ddTHH:mm:ss.fffZ";
-
-        /// <summary>
         /// Initializes a new instance of the <see cref="LogMessageTableEntity"/> class.
         /// </summary>
         public LogMessageTableEntity()
@@ -233,9 +228,26 @@ namespace DevLib.Azure.Logging
         /// <returns>A <see cref="System.String" /> that represents this instance.</returns>
         public override string ToString()
         {
-            return ($"[PK: {this.PartitionKey}] [RK: {this.RowKey}] [Level: {this.Level}] [Message: {this.Message}] [Pid: {this.Pid}] [Tid: {this.Tid}] [Timestamp: {this.Timestamp.ToString(DateTimeFormat)}] [EventTickCount: {this.EventTickCount}] [User: {this.User}] [Domain: {this.Domain}] [Machine: {this.Machine}] [WorkingSet: {this.WorkingSet}] [ApplicationName: {this.ApplicationName}] [EventId: {this.EventId}] [InstanceId: {this.InstanceId}] [StackTrace: {this.StackTrace}] [CmdLine: {this.CommandLine}] [Is64Bit: {this.Is64BitProcess}] "
-                + string.Join(" ", this.KeyValuePairs.Select(i => $"[{i.Key}: {i.Value}]")))
-                .Replace(Environment.NewLine, " ");
+            return this.ToString(false);
+        }
+
+        /// <summary>
+        /// Returns a <see cref="System.String" /> that represents this instance.
+        /// </summary>
+        /// <param name="verbose">true to show verbose information; otherwise, false.</param>
+        /// <returns>A <see cref="System.String" /> that represents this instance.</returns>
+        public string ToString(bool verbose)
+        {
+            if (verbose)
+            {
+                return ($"[PK: {this.PartitionKey}] [RK: {this.RowKey}] [Level: {this.Level}] [Message: {this.Message}] [Pid: {this.Pid}] [Tid: {this.Tid}] [Timestamp: {this.Timestamp.ToString("o", CultureInfo.InvariantCulture)}] [EventTickCount: {this.EventTickCount}] [User: {this.User}] [Domain: {this.Domain}] [Machine: {this.Machine}] [WorkingSet: {this.WorkingSet}] [ApplicationName: {this.ApplicationName}] [EventId: {this.EventId}] [InstanceId: {this.InstanceId}] [StackTrace: {this.StackTrace}] [CmdLine: {this.CommandLine}] [Is64Bit: {this.Is64BitProcess}] "
+                    + string.Join(" ", this.KeyValuePairs.Select(i => $"[{i.Key}: {i.Value}]")))
+                    .Replace(Environment.NewLine, " ");
+            }
+            else
+            {
+                return ($"[Timestamp: {this.Timestamp.ToString("o", CultureInfo.InvariantCulture)}] [Level: {this.Level}] [Message: {this.Message}][EventTickCount: {this.EventTickCount}] [User: {this.User}]").Replace(Environment.NewLine, " ");
+            }
         }
     }
 }

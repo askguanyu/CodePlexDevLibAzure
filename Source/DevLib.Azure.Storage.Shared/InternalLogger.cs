@@ -167,7 +167,7 @@ namespace DevLib.Azure.Storage
 
             try
             {
-                result.Append(DateTime.Now.ToString("yyyy-MM-ddTHH:mm:ss.fffUz", CultureInfo.InvariantCulture));
+                result.Append(DateTimeOffset.Now.ToString("o", CultureInfo.InvariantCulture));
                 result.Append("|INTL|");
                 result.Append(Environment.UserName);
                 result.Append("|");
